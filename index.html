@@ -2,109 +2,168 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#9CCBE6" />
 <title>Honeybee Simulator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" />
 <style>
-  html,body{margin:0;height:100%;background:#1d2b3a;overflow:hidden;font-family:Fredoka,system-ui,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none}
-  #frame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:min(100vh,177.78vw);width:min(56.25vh,100vw);overflow:hidden;background:#B9DDEE;border-radius:min(2vh,18px);box-shadow:0 18px 48px rgba(0,0,0,.45)}
-  #frame canvas{display:block;width:100%;height:100%}
-  .x-hud{position:absolute;top:12px;left:6px;right:6px;display:flex;justify-content:center;flex-wrap:wrap;gap:6px;pointer-events:none;z-index:3}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;position:fixed;inset:0;background:#1d2b3a;overflow:hidden;overscroll-behavior:none;font-family:Fredoka,system-ui,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  #frame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:min(100dvh,177.78vw);width:min(56.25dvh,100vw);overflow:hidden;background:#B9DDEE;border-radius:min(2vh,18px)}
+  @media (max-width:768px),(pointer:coarse){
+    #frame{left:0;top:0;transform:none;width:100%;height:100%;border-radius:0}
+  }
+  #frame canvas{display:block;width:100%;height:100%;touch-action:none}
+  .x-hud{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:calc(8px + env(safe-area-inset-left,0px));right:calc(8px + env(safe-area-inset-right,0px));display:flex;justify-content:center;flex-wrap:wrap;gap:6px;pointer-events:none;z-index:3}
   .x-pill{display:flex;align-items:center;gap:5px;background:#F3E9D2 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='42' viewBox='0 0 24 42'%3E%3Cpath d='M12 0l12 7v14l-12 7L0 21V7zM12 28v14' fill='none' stroke='%23F6B93B' stroke-opacity='.22' stroke-width='1.5'/%3E%3C/svg%3E");border:3px solid #F6B93B;box-shadow:0 4px 0 #d99a1e,0 6px 14px rgba(40,25,5,.28);border-radius:999px;padding:4px 11px 4px 5px;font-weight:700;font-size:15px;color:#5a3500}
-  .x-ico{width:25px;height:25px;display:grid;place-items:center;font-size:13px;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%)}
-  .x-ico.w{background:#c98a4e}.x-ico.s{background:#9aa6b2}.x-ico.h{background:#F6B93B}.x-ico.c{background:#ffd76a}.x-ico.b{background:#fff3c4}
+  .x-ico{width:24px;height:24px;display:grid;place-items:center;font-size:13px;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%)}
+  @media (max-width:400px){
+    .x-hud{gap:4px}
+    .x-pill{padding:3px 8px 3px 4px;font-size:13px;border-width:2px;box-shadow:0 3px 0 #d99a1e,0 4px 10px rgba(40,25,5,.25)}
+    .x-ico{width:20px;height:20px;font-size:11px}
+  }
+  .x-ico.w{background:#c98a4e}.x-ico.s{background:#9aa4b0}.x-ico.h{background:#F6B93B}.x-ico.c{background:#ffd76a}.x-ico.b{background:#fff3c4}.x-ico.g{background:#92d96b}
   .x-bee{display:inline-block;width:.8em;height:.8em;vertical-align:-.02em;margin-right:.1em}
-  .x-pop{position:absolute;pointer-events:none;font-weight:700;font-size:19px;color:#fff;text-shadow:0 2px 0 #7a4a17,0 0 6px rgba(0,0,0,.35);transform:translate(-50%,-50%);z-index:6;white-space:nowrap}
+  .x-pop{position:absolute;pointer-events:none;font-weight:700;font-size:19px;color:#fff;text-shadow:0 2px 0 #7a4a17,0 0 6px rgba(0,0,0,.35);transform:translate(-50%,-50%);z-index:8;white-space:nowrap}
   .x-pop.x-bad{font-size:15px;color:#ffe9e5;text-shadow:0 2px 0 #b3261e,0 0 6px rgba(0,0,0,.35)}
-  .x-prompt{position:absolute;left:0;top:0;z-index:8;display:none;transform:translate(-50%,-100%);cursor:pointer;touch-action:manipulation;padding:6px;pointer-events:auto}
-  .x-prompt>span{display:flex;align-items:center;gap:6px;background:#F3E9D2;border:3px solid #F6B93B;border-radius:999px;padding:4px 13px 4px 5px;font-weight:700;font-size:14px;color:#5a3500;white-space:nowrap;box-shadow:0 4px 0 #d99a1e,0 6px 14px rgba(40,25,5,.28);animation:x-bob 1.4s ease-in-out infinite;transition:transform .08s ease,filter .08s ease}
-  .x-prompt .x-ico{width:23px;height:23px;font-size:12px}
-  .x-prompt:active>span,.x-prompt.x-press>span{animation-play-state:paused;transform:scale(.94) translateY(2px);filter:brightness(.95)}
+  .x-prompt{position:absolute;left:0;top:0;z-index:6;display:none;transform:translate(-50%,-100%);cursor:pointer;touch-action:manipulation;padding:8px}
+  .x-prompt>span{display:flex;align-items:center;gap:6px;background:#F3E9D2;border:3px solid #F6B93B;border-radius:999px;padding:7px 15px 7px 7px;min-height:44px;font-weight:700;font-size:15px;color:#5a3500;white-space:nowrap;box-shadow:0 4px 0 #d99a1e,0 6px 14px rgba(40,25,5,.28);animation:x-bob 1.4s ease-in-out infinite}
+  .x-prompt .x-ico{width:24px;height:24px;font-size:13px}
+  .x-prompt:active>span,.x-prompt.pressed>span{animation-play-state:paused;transform:translateY(3px) scale(.97);box-shadow:0 1px 0 #d99a1e}
   .x-cost{display:flex;align-items:center;gap:2px;font-size:13px}.x-cost[hidden]{display:none}
   .x-prompt .x-cost .x-ico{width:19px;height:19px;font-size:10px}
   .x-cost.x-short b{color:#d6332a}
-  .x-goal{position:absolute;top:62px;left:50%;transform:translateX(-50%);z-index:3;pointer-events:none;background:#fff8e6;border:2px solid #F6B93B;border-radius:999px;padding:4px 14px;font-weight:600;font-size:13px;color:#5a3500;white-space:nowrap;box-shadow:0 3px 0 #d99a1e,0 5px 12px rgba(40,25,5,.22)}
-  .x-prog{position:absolute;left:0;top:0;z-index:5;display:none;width:54px;height:54px;pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 0 #d99a1e) drop-shadow(0 5px 8px rgba(40,25,5,.25))}
+  .x-goal{position:absolute;top:calc(56px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:3;pointer-events:none;background:#fff8e6;border:2px solid #F6B93B;border-radius:999px;padding:4px 14px;font-weight:600;font-size:13px;color:#5a3500;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;box-shadow:0 3px 0 #d99a1e,0 5px 12px rgba(40,25,5,.22)}
+  .x-prog{position:absolute;left:0;top:0;z-index:7;display:none;width:54px;height:54px;pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 0 #d99a1e) drop-shadow(0 5px 8px rgba(40,25,5,.25))}
   .x-prog svg{position:absolute;inset:0;width:100%;height:100%}
   .x-prog span{position:absolute;inset:0;display:grid;place-items:center;font-size:20px}
-  .x-banner{position:absolute;top:98px;left:50%;transform:translateX(-50%);z-index:5;pointer-events:none;display:none;background:#F6B93B;border:3px solid #FFF6DF;border-radius:999px;padding:7px 16px;font-weight:700;font-size:15px;color:#5a3500;white-space:nowrap;box-shadow:0 4px 0 #d99a1e,0 8px 16px rgba(40,25,5,.3)}
-  .x-smoke{position:absolute;top:142px;left:50%;transform:translateX(-50%);z-index:3;pointer-events:none;display:none}
-  .x-tag{position:absolute;transform:translate(-50%,-100%);pointer-events:none;z-index:3;background:rgba(243,233,210,.94);border:2px solid #d99a1e;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700;color:#5a3500;white-space:nowrap;box-shadow:0 2px 0 rgba(90,53,0,.25);display:none}
-  .x-tag.ready{background:#F6B93B;border-color:#fff8e6;animation:x-bob 1.2s ease-in-out infinite}
-  .x-tag.pest{background:#ffe5e0;border-color:#d6332a;color:#991b15;animation:x-bob 1s ease-in-out infinite}
-  #sndBtn{position:absolute;right:12px;bottom:12px;z-index:9;width:40px;height:40px;border-radius:50%;border:3px solid #F6B93B;background:#F3E9D2;color:#5a3500;font-size:18px;display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 0 #d99a1e,0 5px 10px rgba(40,25,5,.25)}
-  #sndBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #d99a1e}
-  @keyframes x-bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.06)}}
-  @media (prefers-reduced-motion:reduce){.x-prompt>span,.x-tag.ready,.x-tag.pest{animation:none}}
+  .x-banner{position:absolute;top:calc(92px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:5;pointer-events:none;display:none;background:#F6B93B;border:3px solid #FFF6DF;border-radius:999px;padding:7px 16px;font-weight:700;font-size:14px;color:#5a3500;max-width:calc(100% - 24px);text-align:center;box-shadow:0 4px 0 #d99a1e,0 8px 16px rgba(40,25,5,.3)}
+  .x-smoke{position:absolute;top:calc(136px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:3;pointer-events:none;display:none}
+  .x-tag{position:absolute;left:0;top:0;z-index:4;pointer-events:none;transform:translate(-50%,-100%);background:rgba(255,248,230,.94);border:2px solid #d99a1e;border-radius:999px;padding:2px 9px;font-weight:700;font-size:12px;color:#5a3500;white-space:nowrap;box-shadow:0 2px 6px rgba(40,25,5,.2)}
+  .x-tag.ready{background:#F6B93B;border-color:#FFF6DF}
+  .x-tag.warn{background:#ffe5df;border-color:#d6332a;color:#9b1c15}
+  #camTools{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:8;display:flex;flex-direction:column;gap:10px}
+  .x-tool{width:46px;height:46px;border-radius:50%;border:3px solid #F6B93B;background:#F3E9D2;color:#5a3500;font:inherit;font-size:20px;font-weight:700;display:grid;place-items:center;cursor:pointer;touch-action:manipulation;box-shadow:0 4px 0 #d99a1e,0 6px 12px rgba(40,25,5,.25)}
+  .x-tool:active{transform:translateY(2px);box-shadow:0 1px 0 #d99a1e}
+  .x-modal{position:absolute;inset:0;z-index:15;display:none;align-items:center;justify-content:center;background:rgba(29,43,58,.58);backdrop-filter:blur(3px);padding:calc(16px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px));touch-action:auto}
+  .x-card{width:min(360px,100%);max-height:85%;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:#FFF8E6;border:4px solid #F6B93B;border-radius:24px;padding:18px;box-shadow:0 8px 0 #d99a1e,0 16px 32px rgba(0,0,0,.35);color:#5a3500}
+  .x-card h2{margin:0 0 12px;font-size:22px;display:flex;align-items:center;justify-content:space-between}
+  .x-close{width:38px;height:38px;border-radius:50%;border:2px solid #d99a1e;background:#F3E9D2;color:#5a3500;font:inherit;font-weight:700;cursor:pointer;touch-action:manipulation}
+  .x-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#F3E9D2;border:2px solid #e7c97a;border-radius:16px;padding:10px 12px;margin-bottom:9px}
+  .x-row-info{display:flex;flex-direction:column;gap:2px}
+  .x-row-title{font-weight:700;font-size:15px}
+  .x-row-sub{font-size:12px;color:#7a4e16;font-weight:600}
+  .x-btn{font:inherit;font-weight:700;font-size:14px;color:#5a3500;background:#F6B93B;border:2px solid #FFF6DF;border-radius:999px;padding:10px 16px;min-height:42px;box-shadow:0 3px 0 #d99a1e;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+  .x-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #d99a1e}
+  .x-btn.bad{background:#e5534b;color:#fff;box-shadow:0 3px 0 #a3261f}
+  .x-btn.dis{opacity:.48;pointer-events:none}
+  .x-btn.done{background:#92d96b;color:#274c12;box-shadow:0 3px 0 #5b9a38;pointer-events:none}
+  #cutscene{position:absolute;inset:0;z-index:12;display:none;flex-direction:column;justify-content:flex-end;pointer-events:none;padding:18px calc(14px + env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) calc(14px + env(safe-area-inset-left,0px))}
+  .x-cut-top{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));pointer-events:auto}
+  .x-skip{font:inherit;font-weight:700;font-size:13px;color:#5a3500;background:rgba(255,248,230,.92);border:2px solid #F6B93B;border-radius:999px;padding:8px 16px;min-height:38px;cursor:pointer;touch-action:manipulation;box-shadow:0 3px 0 #d99a1e}
+  .x-dlg{pointer-events:auto;background:rgba(255,248,230,.96);border:3px solid #F6B93B;border-radius:20px;padding:13px 16px;box-shadow:0 6px 0 #d99a1e,0 12px 24px rgba(25,15,5,.32);color:#5a3500;cursor:pointer;touch-action:manipulation;max-width:520px;width:100%;margin:0 auto}
+  .x-dlg-who{display:inline-block;background:#F6B93B;color:#5a3500;font-weight:700;font-size:13px;padding:2px 10px;border-radius:999px;margin-bottom:6px}
+  .x-dlg-txt{font-size:15px;line-height:1.35;font-weight:600;margin:0}
+  .x-dlg-tap{text-align:right;font-size:11px;font-weight:700;color:#9a6720;margin-top:6px}
+  @keyframes x-bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.04)}}
+  @media (prefers-reduced-motion:reduce){.x-prompt>span{animation:none}}
   #joy{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;background:rgba(255,255,255,.25);border:4px solid rgba(255,255,255,.7);display:none;z-index:5;pointer-events:none}
   #knob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:#fff;box-shadow:0 4px 0 rgba(0,0,0,.2)}
-  #start{position:absolute;inset:0;z-index:12;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;background:linear-gradient(180deg,rgba(191,230,255,.76),rgba(255,236,170,.82))}
-  #start h1{margin:0;text-align:center;font-size:clamp(36px,9vh,62px);line-height:1;color:#6b3a00;font-weight:700;text-shadow:0 3px 0 #fff,0 6px 0 #F6B93B,0 10px 18px rgba(0,0,0,.2);padding:0 20px}
-  #start p{margin:-12px 0 0;color:#5a3a0a;font-weight:600;font-size:15px;text-align:center;padding:0 24px}
-  #play{font:inherit;font-weight:700;font-size:28px;color:#5a3500;background:#F6B93B url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 28 48'%3E%3Cpath d='M14 0l14 8v16l-14 8L0 24V8zM14 32v16' fill='none' stroke='%23fff3c4' stroke-opacity='.55' stroke-width='2'/%3E%3C/svg%3E");border:4px solid #FFF6DF;border-radius:999px;padding:13px 60px;box-shadow:0 7px 0 #d99a00,0 12px 20px rgba(0,0,0,.25);cursor:pointer}
-  #play:active{transform:translateY(5px);box-shadow:0 2px 0 #d99a00}
+  #start{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);background:linear-gradient(180deg,rgba(191,230,255,.72),rgba(255,236,170,.78))}
+  #start h1{margin:0;text-align:center;font-size:clamp(34px,8.5dvh,60px);line-height:1;color:#6b3a00;font-weight:700;text-shadow:0 3px 0 #fff,0 6px 0 #F6B93B,0 10px 18px rgba(0,0,0,.2);padding:0 20px}
   .x-nogl{position:absolute;left:16px;right:16px;bottom:24px;z-index:6;background:#fff;color:#5a3a0a;border-radius:18px;padding:12px 16px;font-weight:600;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.18)}
+  #start p{margin:-12px 0 0;color:#5a3a0a;font-weight:600;font-size:15px;text-align:center}
+  #play{font:inherit;font-weight:700;font-size:28px;color:#5a3500;background:#F6B93B url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 28 48'%3E%3Cpath d='M14 0l14 8v16l-14 8L0 24V8zM14 32v16' fill='none' stroke='%23fff3c4' stroke-opacity='.55' stroke-width='2'/%3E%3C/svg%3E");border:4px solid #FFF6DF;border-radius:999px;padding:13px 60px;box-shadow:0 7px 0 #d99a00,0 12px 20px rgba(0,0,0,.25);cursor:pointer;touch-action:manipulation}
+  #play:active{transform:translateY(5px);box-shadow:0 2px 0 #d99a00}
 </style>
 </head>
 <body>
 <div id="frame">
-  <div class="x-hud">
-    <div class="x-pill" aria-label="Wood"><span class="x-ico w">🪵</span><span id="wood">0</span></div>
-    <div class="x-pill" aria-label="Scrap"><span class="x-ico s">🔩</span><span id="scrap">0</span></div>
-    <div class="x-pill" aria-label="Honey"><span class="x-ico h">🍯</span><span id="honey">0</span></div>
-    <div class="x-pill" aria-label="Coins"><span class="x-ico c">🪙</span><span id="coins">0</span></div>
-    <div class="x-pill" aria-label="Bee Boxes"><span class="x-ico b" id="boxIco"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><g stroke="#4a2e16" stroke-width=".9"><rect x="2" y="2.5" width="16" height="3" rx="1" fill="#c98a4e"/><rect x="3" y="5.5" width="14" height="5" rx="1" fill="#E0A22E"/><rect x="3" y="10.5" width="14" height="6.5" rx="1" fill="#F3E3B5"/></g><rect x="7" y="14.6" width="6" height="1.3" fill="#3a2410"/></svg></span><span id="boxes">0</span></div>
+  <div class="x-hud" id="hud">
+    <div class="x-pill"><span class="x-ico w">🪵</span><span id="wood">0</span></div>
+    <div class="x-pill"><span class="x-ico s">🔩</span><span id="scrap">0</span></div>
+    <div class="x-pill"><span class="x-ico h">🍯</span><span id="honey">0</span></div>
+    <div class="x-pill"><span class="x-ico c">🪙</span><span id="coins">0</span></div>
+    <div class="x-pill" aria-label="Bee Boxes"><span class="x-ico b"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g stroke="#4a2e16" stroke-width=".9"><rect x="2" y="2.5" width="16" height="3" rx="1" fill="#c98a4e"/><rect x="3" y="5.5" width="14" height="5" rx="1" fill="#E0A22E"/><rect x="3" y="10.5" width="14" height="6.5" rx="1" fill="#F3E3B5"/></g><rect x="7" y="14.6" width="6" height="1.3" fill="#3a2410"/></svg></span><span id="boxes">0</span></div>
   </div>
-  <div class="x-goal" id="goal">Walk Near Logs to Collect Wood (0/10)</div>
+  <div class="x-goal" id="goal">Repair the Broken Workbench</div>
   <div class="x-banner" id="banner" role="status"></div>
   <div class="x-prog" id="prog"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20.5" fill="#F3E9D2" stroke="#d99a1e" stroke-width="1.5"/><circle cx="22" cy="22" r="16" fill="none" stroke="#ead9b0" stroke-width="5"/><circle id="progArc" cx="22" cy="22" r="16" fill="none" stroke="#F6B93B" stroke-width="5" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="100.5" transform="rotate(-90 22 22)"/></svg><span>🔨</span></div>
-
-  <div class="x-prompt" id="prompt" role="button" aria-label="Primary Action"><span><span class="x-ico w" id="promptIco">🪵</span><span id="promptTxt">Action</span><span class="x-cost" id="promptCost" hidden><span class="x-ico w" id="costIco">🪵</span><b id="costVal">10</b></span></span></div>
-  <div class="x-prompt" id="altBtn" role="button" aria-label="Secondary Action"><span><span class="x-ico h" id="altIco">👑</span><span id="altTxt">Capture Swarm</span></span></div>
-  <div class="x-prompt" id="prompt2" role="button" aria-label="Tertiary Action"><span><span class="x-ico w" id="prompt2Ico">🪜</span><span id="prompt2Txt">Pick Up Ladder</span></span></div>
-
+  <div class="x-prompt" id="prompt" role="button" aria-label="Action"><span><span class="x-ico w" id="promptIco">🪵</span><span id="promptTxt">Action</span><span class="x-cost" id="promptCost" hidden><span class="x-ico w" id="promptCostIco">🪵</span><b id="promptCostVal">10</b></span></span></div>
+  <div class="x-prompt" id="prompt2" role="button" aria-label="Secondary Action"><span><span class="x-ico w" id="prompt2Ico">🪜</span><span id="prompt2Txt">Action</span><span class="x-cost" id="prompt2Cost" hidden><span class="x-ico c" id="prompt2CostIco">🪙</span><b id="prompt2CostVal">10</b></span></span></div>
   <div class="x-pill x-smoke" id="smokePill" role="status"><span class="x-ico b">💨</span><span id="smokeT">Smoke 20s</span></div>
   <div class="x-prompt" id="downBtn" role="button" aria-label="Climb down"><span><span class="x-ico w">🪜</span><span>Climb Down</span></span></div>
-  <button id="sndBtn" type="button" aria-label="Toggle sound">🔊</button>
+  <div id="camTools">
+    <button class="x-tool" id="sndBtn" type="button" aria-label="Toggle sound">🔊</button>
+    <button class="x-tool" id="menuBtn" type="button" aria-label="Settings and save menu">⚙️</button>
+  </div>
+  <!-- Workbench Crafting Hub Modal -->
+  <div class="x-modal" id="craftModal" role="dialog" aria-modal="true" aria-labelledby="craftTitle">
+    <div class="x-card">
+      <h2><span id="craftTitle">🔨 Workbench</span><button class="x-close" id="craftClose" type="button" aria-label="Close">✕</button></h2>
+      <div class="x-row">
+        <div class="x-row-info"><span class="x-row-title">📦 Wooden Bee Box</span><span class="x-row-sub">10 🪵 Wood · House a wild colony</span></div>
+        <button class="x-btn" id="cBoxBtn" type="button">Craft</button>
+      </div>
+      <div class="x-row">
+        <div class="x-row-info"><span class="x-row-title">🪵 Hive Stand</span><span class="x-row-sub">6 🔩 Scrap · Protects hives & starts honey</span></div>
+        <button class="x-btn" id="cStandBtn" type="button">Craft</button>
+      </div>
+      <div class="x-row">
+        <div class="x-row-info"><span class="x-row-title">🪜 A-Frame Ladder</span><span class="x-row-sub">8 🪵 Wood, 4 🔩 Scrap · Reach the tree hive</span></div>
+        <button class="x-btn" id="cLadBtn" type="button">Craft</button>
+      </div>
+      <div class="x-row">
+        <div class="x-row-info"><span class="x-row-title">📚 Vertical Box Rack</span><span class="x-row-sub">10 🪵 Wood, 4 🔩 Scrap · Store 12 bee boxes</span></div>
+        <button class="x-btn" id="cRackBtn" type="button">Craft</button>
+      </div>
+    </div>
+  </div>
+  <!-- Settings / Save Modal -->
+  <div class="x-modal" id="menuModal" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+    <div class="x-card">
+      <h2><span id="menuTitle">⚙️ Settings</span><button class="x-close" id="menuClose" type="button" aria-label="Close">✕</button></h2>
+      <div class="x-row">
+        <div class="x-row-info"><span class="x-row-title">💾 Save Progress</span><span class="x-row-sub" id="saveStatus">Auto-saves every 5s</span></div>
+        <button class="x-btn" id="saveNowBtn" type="button">Save Now</button>
+      </div>
+      <div class="x-row">
+        <div class="x-row-info"><span class="x-row-title">🎬 Replay Opening</span><span class="x-row-sub">Watch "A Crazy Idea" again</span></div>
+        <button class="x-btn" id="replayCutBtn" type="button">Watch</button>
+      </div>
+      <div class="x-row">
+        <div class="x-row-info"><span class="x-row-title">🗑️ Fresh Run</span><span class="x-row-sub">Clears saved farm data</span></div>
+        <button class="x-btn bad" id="resetBtn" type="button">Reset Save</button>
+      </div>
+    </div>
+  </div>
+  <!-- Opening Cutscene & Wife Dialogue Overlay -->
+  <div id="cutscene">
+    <div class="x-cut-top"><button class="x-skip" id="cutSkip" type="button">Skip ⏭</button></div>
+    <div class="x-dlg" id="cutBox">
+      <div class="x-dlg-who" id="cutWho">Wife</div>
+      <p class="x-dlg-txt" id="cutTxt"></p>
+      <div class="x-dlg-tap" id="cutHint">Tap to continue ▸</div>
+    </div>
+  </div>
   <div id="joy"><div id="knob"></div></div>
-
   <div id="start">
     <h1><svg class="x-bee" viewBox="0 0 40 40" aria-hidden="true"><ellipse cx="13" cy="11" rx="8" ry="6" fill="#eaf7ff" stroke="#4a2e16" stroke-width="2" opacity=".9"/><ellipse cx="27" cy="11" rx="8" ry="6" fill="#eaf7ff" stroke="#4a2e16" stroke-width="2" opacity=".9"/><ellipse cx="20" cy="24" rx="14" ry="11" fill="#F6B93B" stroke="#4a2e16" stroke-width="2.5"/><path d="M15 14v20M24 14v20" stroke="#4a2e16" stroke-width="4"/><circle cx="31" cy="22" r="1.8" fill="#4a2e16"/></svg>Honeybee<br />Simulator</h1>
-    <p>Walk near wood &amp; scrap to gather · capture swarms · mount hives on stands</p>
+    <p>Build your apiary from scratch</p>
     <button id="play" type="button">Play</button>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-var playing=false,muted=false,audioCtx=null;
-function initAudio(){
-  if(!audioCtx){var AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}
-  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
-}
-function sfx(type){
-  if(muted)return;
-  initAudio();
-  if(!audioCtx)return;
-  var now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
-  o.connect(g);g.connect(audioCtx.destination);
-  if(type==='wood'){o.type='triangle';o.frequency.setValueAtTime(220,now);o.frequency.exponentialRampToValueAtTime(110,now+0.09);g.gain.setValueAtTime(0.18,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.1);o.start(now);o.stop(now+0.1);}
-  else if(type==='scrap'){o.type='square';o.frequency.setValueAtTime(520,now);o.frequency.exponentialRampToValueAtTime(340,now+0.08);g.gain.setValueAtTime(0.08,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.09);o.start(now);o.stop(now+0.09);}
-  else if(type==='honey'){o.type='sine';o.frequency.setValueAtTime(360,now);o.frequency.exponentialRampToValueAtTime(680,now+0.16);g.gain.setValueAtTime(0.16,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.18);o.start(now);o.stop(now+0.18);}
-  else if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(780,now);o.frequency.setValueAtTime(1040,now+0.07);g.gain.setValueAtTime(0.14,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.22);o.start(now);o.stop(now+0.22);}
-  else if(type==='craft'){o.type='triangle';o.frequency.setValueAtTime(300,now);o.frequency.exponentialRampToValueAtTime(600,now+0.18);g.gain.setValueAtTime(0.16,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.2);o.start(now);o.stop(now+0.2);}
-  else if(type==='smoke'){o.type='sawtooth';o.frequency.setValueAtTime(140,now);o.frequency.exponentialRampToValueAtTime(85,now+0.22);g.gain.setValueAtTime(0.04,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.24);o.start(now);o.stop(now+0.24);}
-  else if(type==='plant'){o.type='sine';o.frequency.setValueAtTime(440,now);o.frequency.setValueAtTime(554,now+0.07);o.frequency.setValueAtTime(659,now+0.14);g.gain.setValueAtTime(0.13,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.28);o.start(now);o.stop(now+0.28);}
-  else if(type==='pest'){o.type='triangle';o.frequency.setValueAtTime(420,now);o.frequency.exponentialRampToValueAtTime(190,now+0.12);g.gain.setValueAtTime(0.12,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.13);o.start(now);o.stop(now+0.13);}
-}
-document.getElementById('sndBtn').addEventListener('pointerdown',function(e){e.stopPropagation();});
-document.getElementById('sndBtn').addEventListener('click',function(e){e.stopPropagation();muted=!muted;this.textContent=muted?'🔇':'🔊';if(!muted)sfx('coin');});
-document.getElementById('play').addEventListener('click',function(e){e.stopPropagation();initAudio();sfx('craft');playing=true;document.getElementById('start').style.display='none';});
-
 (function(){
 var frame=document.getElementById('frame');
+var isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches);
 var renderer;
 try{
   if(!window.THREE)throw 0;
@@ -112,34 +171,62 @@ try{
   try{gl=probe.getContext('webgl2')||probe.getContext('webgl')||probe.getContext('experimental-webgl');}catch(e2){}
   if(!gl)throw 0;
   var lose=gl.getExtension('WEBGL_lose_context');if(lose)lose.loseContext();
-  renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',failIfMajorPerformanceCaveat:false});
 }catch(err){
   var n=document.createElement('div');n.className='x-nogl';
   n.textContent='3D is not available in this browser. Try one with WebGL turned on.';
   frame.appendChild(n);return;
 }
-
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,isMobile?1.5:2));
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.85;renderer.outputEncoding=THREE.sRGBEncoding;
-function L(c){return new THREE.Color(c).convertSRGBToLinear();}
 frame.insertBefore(renderer.domElement,frame.firstChild);
 
+// Handle WebGL context loss/restore gracefully when switching mobile apps
+var contextLost=false;
+renderer.domElement.addEventListener('webglcontextlost',function(e){e.preventDefault();contextLost=true;},false);
+renderer.domElement.addEventListener('webglcontextrestored',function(){contextLost=false;resize();},false);
+
+// Prevent mobile long-press menus & iOS Safari pinch-zoom gestures on game surface
+frame.addEventListener('contextmenu',function(e){e.preventDefault();});
+document.addEventListener('gesturestart',function(e){e.preventDefault();},{passive:false});
+
+// Synthesized Web Audio SFX (no external URLs) + iOS first-touch unlock
+var audioCtx=null,soundOn=true;
+function initAudio(){if(!audioCtx){var AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
+window.addEventListener('touchstart',function unlock(){initAudio();window.removeEventListener('touchstart',unlock);},{passive:true});
+function playSfx(type){
+  if(!soundOn)return;
+  try{
+    initAudio();if(!audioCtx)return;
+    var now=audioCtx.currentTime,osc=audioCtx.createOscillator(),g=audioCtx.createGain();
+    osc.connect(g);g.connect(audioCtx.destination);
+    if(type==='pick'){osc.type='triangle';osc.frequency.setValueAtTime(520,now);osc.frequency.exponentialRampToValueAtTime(780,now+0.09);g.gain.setValueAtTime(0.11,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.11);osc.start(now);osc.stop(now+0.12);}
+    else if(type==='hit'){osc.type='square';osc.frequency.setValueAtTime(170,now);osc.frequency.exponentialRampToValueAtTime(85,now+0.06);g.gain.setValueAtTime(0.07,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.07);osc.start(now);osc.stop(now+0.08);}
+    else if(type==='ok'){osc.type='sine';osc.frequency.setValueAtTime(440,now);osc.frequency.setValueAtTime(660,now+0.08);g.gain.setValueAtTime(0.12,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.24);osc.start(now);osc.stop(now+0.25);}
+    else if(type==='bad'){osc.type='sawtooth';osc.frequency.setValueAtTime(190,now);osc.frequency.linearRampToValueAtTime(130,now+0.14);g.gain.setValueAtTime(0.08,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.15);osc.start(now);osc.stop(now+0.16);}
+    else if(type==='buzz'){osc.type='sawtooth';osc.frequency.setValueAtTime(165,now);osc.frequency.linearRampToValueAtTime(185,now+0.28);g.gain.setValueAtTime(0.03,now);g.gain.linearRampToValueAtTime(0.045,now+0.14);g.gain.exponentialRampToValueAtTime(0.001,now+0.34);osc.start(now);osc.stop(now+0.35);}
+    else if(type==='coin'){osc.type='sine';osc.frequency.setValueAtTime(920,now);osc.frequency.setValueAtTime(1320,now+0.06);g.gain.setValueAtTime(0.1,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.2);osc.start(now);osc.stop(now+0.22);}
+  }catch(e){}
+}
+
+function L(c){return new THREE.Color(c).convertSRGBToLinear();}
 var scene=new THREE.Scene();
 var skyC=document.createElement('canvas');skyC.width=2;skyC.height=256;
 var skyX=skyC.getContext('2d'),skyG=skyX.createLinearGradient(0,0,0,256);
 skyG.addColorStop(0,'#9CCBE6');skyG.addColorStop(1,'#D9EEF7');
 skyX.fillStyle=skyG;skyX.fillRect(0,0,2,256);
 var skyT=new THREE.CanvasTexture(skyC);skyT.encoding=THREE.sRGBEncoding;scene.background=skyT;
-scene.fog=new THREE.Fog(L(0xC4E0EF),30,60);
+scene.fog=new THREE.Fog(L(0xC4E0EF),32,75);
 
-var camera=new THREE.PerspectiveCamera(45,9/16,0.1,200);
+var camera=new THREE.PerspectiveCamera(52,9/16,0.1,360);
 scene.add(new THREE.HemisphereLight(L(0xffffff),L(0x5a8a44),0.45));
 var sun=new THREE.DirectionalLight(L(0xFFE2B0),0.75);
-sun.position.set(11,9,9);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
-var sc=sun.shadow.camera;sc.left=-22;sc.right=22;sc.top=22;sc.bottom=-22;sc.far=60;sun.shadow.bias=-0.0006;sun.shadow.radius=4;
+sun.position.set(11,14,9);sun.castShadow=true;var sMap=isMobile?1024:2048;sun.shadow.mapSize.set(sMap,sMap);
+var sc=sun.shadow.camera;sc.left=-24;sc.right=24;sc.top=24;sc.bottom=-24;sc.far=65;sun.shadow.bias=-0.0006;sun.shadow.radius=4;
 scene.add(sun);scene.add(sun.target);
 
+// Toon material & outline helpers
 var mats={};
 var grad=new THREE.DataTexture(new Uint8Array([89,89,89,255,179,179,179,255,255,255,255,255]),3,1,THREE.RGBAFormat);
 grad.minFilter=grad.magFilter=THREE.NearestFilter;grad.generateMipmaps=false;grad.needsUpdate=true;
@@ -147,82 +234,120 @@ function T(o){o.gradientMap=grad;if(o.color!==undefined)o.color=L(o.color);retur
 function M(c){if(!mats[c])mats[c]=T({color:c});return mats[c];}
 var outM=new THREE.MeshBasicMaterial({color:L(0x4a2e16),side:THREE.BackSide});
 function outline(root,th){
-  scene.updateMatrixWorld(true);
-  var list=[];
-  root.traverse(function(o){if(o.isMesh&&!o.material.transparent&&o.material!==outM&&!o.userData.noOut)list.push(o);});
+  scene.updateMatrixWorld(true);var list=[];
+  root.traverse(function(o){if(o.isMesh&&!o.material.transparent&&o.material!==outM)list.push(o);});
   list.forEach(function(m){
-    var g=m.geometry;g.computeBoundingBox();
-    var s=new THREE.Vector3();g.boundingBox.getSize(s);
-    var ws=new THREE.Vector3();m.getWorldScale(ws);
-    var o=new THREE.Mesh(g,outM);
+    var g=m.geometry;g.computeBoundingBox();var s=new THREE.Vector3();g.boundingBox.getSize(s);
+    var ws=new THREE.Vector3();m.getWorldScale(ws);var o=new THREE.Mesh(g,outM);
     o.scale.set(1+2*th/Math.max(s.x*ws.x,0.05),1+2*th/Math.max(s.y*ws.y,0.05),1+2*th/Math.max(s.z*ws.z,0.05));
     m.add(o);
   });
 }
-function mesh(g,c,x,y,z,parent){
-  var m=new THREE.Mesh(g,M(c));m.position.set(x||0,y||0,z||0);m.castShadow=true;m.receiveShadow=true;
-  (parent||scene).add(m);return m;
-}
-function rnd(a,b){return a+Math.random()*(b-a);}
+function mesh(g,c,x,y,z,parent){var m=new THREE.Mesh(g,M(c));m.position.set(x||0,y||0,z||0);m.castShadow=true;m.receiveShadow=true;(parent||scene).add(m);return m;}
 function rbox(w,h,d,b){
   var s=new THREE.Shape(),x=w/2-b,z=d/2-b,r=Math.min(x,z)*0.35;
-  s.moveTo(-x+r,-z);s.lineTo(x-r,-z);s.quadraticCurveTo(x,-z,x,-z+r);
-  s.lineTo(x,z-r);s.quadraticCurveTo(x,z,x-r,z);
-  s.lineTo(-x+r,z);s.quadraticCurveTo(-x,z,-x,z-r);
-  s.lineTo(-x,-z+r);s.quadraticCurveTo(-x,-z,-x+r,-z);
+  s.moveTo(-x+r,-z);s.lineTo(x-r,-z);s.quadraticCurveTo(x,-z,x,-z+r);s.lineTo(x,z-r);
+  s.quadraticCurveTo(x,z,x-r,z);s.lineTo(-x+r,z);s.quadraticCurveTo(-x,z,-x,z-r);s.lineTo(-x,-z+r);s.quadraticCurveTo(-x,-z,-x+r,-z);
   var g=new THREE.ExtrudeGeometry(s,{depth:Math.max(h-2*b,0.001),bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:2,curveSegments:4});
   g.rotateX(-Math.PI/2);g.translate(0,-(h-2*b)/2,0);return g;
 }
-
-var W=10,H=16,i,k,x,z;
-
-// Ground & meadow
-function hgt(px,pz){
-  var d=Math.max(Math.abs(px)-(W+2),Math.abs(pz)-(H+2),0),a=Math.min(1,d/6);
-  return -0.04+0.035*Math.sin(px*0.6)*Math.cos(pz*0.5)+a*(1+0.9*Math.sin(px*0.23+1)*Math.cos(pz*0.19));
+function rnd(a,b){return a+Math.random()*(b-a);}
+function lerpA(a,b,f){return a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*f;}
+function makeLabelPlane(txt,w,h,col,bg){
+  var c=document.createElement('canvas');c.width=256;c.height=Math.round(256*(h/w));
+  var cx=c.getContext('2d');
+  if(bg){cx.fillStyle=bg;cx.fillRect(0,0,c.width,c.height);}
+  cx.font='700 '+Math.round(c.height*0.58)+'px Fredoka,sans-serif';
+  cx.textAlign='center';cx.textBaseline='middle';
+  cx.lineWidth=Math.max(4,c.height*0.1);cx.strokeStyle='#4a2e16';cx.strokeText(txt,c.width/2,c.height/2);
+  cx.fillStyle=col||'#fff8e6';cx.fillText(txt,c.width/2,c.height/2);
+  var tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;
+  var m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;return m;
 }
-function roll(g,off){
-  var gp=g.attributes.position;
-  for(var j=0;j<gp.count;j++)gp.setZ(j,hgt(gp.getX(j),-gp.getY(j))+off);
-  g.computeVertexNormals();return g;
+function makeSquareMarker(size,label,col,op){
+  var g=new THREE.Group(),half=size/2,w=0.11;
+  var dm=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide});
+  var fm=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.13,depthWrite:false});
+  var seg=size/4;
+  for(var s=0;s<4;s++){
+    for(var d=0;d<4;d++){
+      var bar=new THREE.Mesh(new THREE.PlaneGeometry(seg*0.62,w),dm);
+      bar.rotation.x=-Math.PI/2;bar.position.y=0.09;
+      var off=-half+seg*(d+0.5);
+      if(s===0)bar.position.set(off,0.09,-half);
+      else if(s===1)bar.position.set(off,0.09,half);
+      else if(s===2){bar.rotation.z=Math.PI/2;bar.position.set(-half,0.09,off);}
+      else{bar.rotation.z=Math.PI/2;bar.position.set(half,0.09,off);}
+      g.add(bar);
+    }
+  }
+  var fill=new THREE.Mesh(new THREE.PlaneGeometry(size-w,size-w),fm);
+  fill.rotation.x=-Math.PI/2;fill.position.y=0.085;g.add(fill);
+  if(label){
+    var lp=makeLabelPlane(label,size*0.86,size*0.32,'#fff8e6');
+    lp.position.y=0.095;g.add(lp);
+  }
+  return{g:g,dm:dm,fm:fm};
 }
-var ground=new THREE.Mesh(roll(new THREE.PlaneGeometry(90,90,90,90),-0.03),M(0x4C8F48));
+
+var W=10,H=16;
+// Ground & enclosed field
+function hgt(x,z){
+  var d=Math.max(Math.abs(x)-(W+2),Math.abs(z)-(H+2),0),a=Math.min(1,d/6);
+  return -0.04+0.035*Math.sin(x*0.6)*Math.cos(z*0.5)+a*(1+0.9*Math.sin(x*0.23+1)*Math.cos(z*0.19));
+}
+function roll(g,off){var gp=g.attributes.position;for(var j=0;j<gp.count;j++)gp.setZ(j,hgt(gp.getX(j),-gp.getY(j))+off);g.computeVertexNormals();return g;}
+var ground=new THREE.Mesh(roll(new THREE.PlaneGeometry(140,140,90,90),-0.03),M(0x4C8F48));
 ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
 var field=new THREE.Mesh(roll(new THREE.PlaneGeometry(W*2+1,H*2+1,22,34),0.03),M(0x6FAE5E));
 field.rotation.x=-Math.PI/2;field.receiveShadow=true;scene.add(field);
-var path=new THREE.Mesh(new THREE.PlaneGeometry(1.6,5),M(0xd9c08a));
-path.rotation.x=-Math.PI/2;path.position.set(0,0.06,13.3);path.receiveShadow=true;scene.add(path);
+var path=new THREE.Mesh(new THREE.PlaneGeometry(1.6,5.2),M(0xd9c08a));
+path.rotation.x=-Math.PI/2;path.position.set(0,0.06,10.2);path.receiveShadow=true;scene.add(path);
 
 // Grass tufts & wildflowers
 var tuftG=new THREE.ConeGeometry(0.12,0.5,8);
-for(i=0;i<140;i++){
-  x=rnd(-W,W);z=rnd(-H,H);if(Math.abs(x)<3.5&&z>8)continue;
+for(var i=0;i<120;i++){
+  var x=rnd(-W,W),z=rnd(-H,H);if(Math.abs(x)<3.8&&z>8.5)continue;
   var tg=new THREE.Group();tg.position.set(x,0,z);scene.add(tg);
-  for(k=0;k<3;k++){var bl=mesh(tuftG,k%2?0x5fb33a:0x4fa22f,(k-1)*0.12,0.22,rnd(-.08,.08),tg);bl.rotation.z=(k-1)*0.35;bl.castShadow=false;}
+  for(var k=0;k<3;k++){var b=mesh(tuftG,k%2?0x5fb33a:0x4fa22f,(k-1)*0.12,0.22,rnd(-.08,.08),tg);b.rotation.z=(k-1)*0.35;b.castShadow=false;}
 }
-var petal=[0xff6b8a,0xffffff,0xffd23f,0xb27bff,0xff9a3c],flowers=[],forageLevel=0;
+var petal=[0xff6b8a,0xffffff,0xffd23f,0xb27bff,0xff9a3c];
 var stemG=new THREE.CylinderGeometry(0.03,0.03,0.4,6),headG=new THREE.SphereGeometry(0.14,12,8),ctrG=new THREE.SphereGeometry(0.07,10,6);
-function spawnFlower(fx,fz,colIdx){
+var flowerPts=[];
+function spawnFlower(fx,fz,ci){
   mesh(stemG,0x3f8f2a,fx,0.2,fz).castShadow=false;
-  var fl=mesh(headG,petal[colIdx%petal.length],fx,0.42,fz);fl.scale.y=0.5;
+  var h=mesh(headG,petal[ci%5],fx,0.42,fz);h.scale.y=0.5;
   mesh(ctrG,0xffb300,fx,0.47,fz);
-  flowers.push(new THREE.Vector3(fx,0.55,fz));
+  flowerPts.push(new THREE.Vector3(fx,0.5,fz));
 }
-for(i=0;i<70;i++){x=rnd(-W,W);z=rnd(-H,H);if(Math.abs(x)<3.5&&z>8)continue;spawnFlower(x,z,i);}
+for(i=0;i<46;i++){
+  x=rnd(-W+0.8,W-0.8);z=rnd(-H+0.8,H-0.8);if(Math.abs(x)<3.8&&z>8.5)continue;
+  spawnFlower(x,z,i);
+}
+var patchCenters=[[-6.2,6.2],[5.8,3.2],[-6.8,-5.2],[6.2,-4.6],[0.4,2.8]];
+function addWildflowerPatch(idx){
+  var c=patchCenters[idx%patchCenters.length];
+  for(var j=0;j<10;j++){
+    var a=j*0.63+idx,r=rnd(0.4,1.9);
+    spawnFlower(c[0]+Math.cos(a)*r,c[1]+Math.sin(a)*r,j+idx);
+  }
+}
 
 // Rocks (with radial collision deflection)
-var rocks=[[-8.5,-3,0.9],[8.5,4,0.8],[-8.2,9,0.6],[8.4,-11,0.9]];
+var rocks=[[-7,-3,1],[6.5,4,0.8],[-5,9,0.6],[8,-11,0.9]];
 rocks.forEach(function(r){
-  var m=mesh(new THREE.SphereGeometry(r[2],16,10),0x9aa1a8,r[0],r[2]*0.45,r[1]);m.scale.y=0.65;m.rotation.y=r[0];
+  var m=mesh(new THREE.SphereGeometry(r[2],16,10),0x9aa1a8,r[0],r[2]*0.45,r[1]);
+  m.scale.y=0.65;m.rotation.y=r[0];
 });
 
 // Perimeter fence
 var postG=new THREE.CylinderGeometry(0.14,0.15,0.9,12),postCap=new THREE.SphereGeometry(0.14,12,8),railG=new THREE.CylinderGeometry(0.06,0.06,2,10);
 function post(px,pz){mesh(postG,0xa8723c,px,0.45,pz);mesh(postCap,0xa8723c,px,0.9,pz);}
-function rail(px,py,pz,alongX){var r=mesh(railG,0xc48a4e,px,py,pz);if(alongX)r.rotation.z=Math.PI/2;else r.rotation.x=Math.PI/2;}
+function rail(rx,ry,rz,alongX){var r=mesh(railG,0xc48a4e,rx,ry,rz);if(alongX)r.rotation.z=Math.PI/2;else r.rotation.x=Math.PI/2;}
 var FX=W+0.6,FZ=H+0.6;
-for(x=-FX;x<=FX+0.01;x+=2){[-FZ,FZ].forEach(function(fz){post(x,fz);if(x<FX-0.5){rail(x+1,0.7,fz,true);rail(x+1,0.35,fz,true);}});}
-for(z=-FZ;z<=FZ+0.01;z+=2){[-FX,FX].forEach(function(fx){post(fx,z);if(z<FZ-0.5){rail(fx,0.7,z+1,false);rail(fx,0.35,z+1,false);}});}
+for(x=-FX;x<=FX+0.01;x+=2){[-FZ,FZ].forEach(function(z){post(x,z);if(x<FX-0.5){rail(x+1,0.7,z,true);rail(x+1,0.35,z,true);}});}
+for(z=-FZ;z<=FZ+0.01;z+=2){[-FX,FX].forEach(function(x){post(x,z);if(z<FZ-0.5){rail(x,0.7,z+1,false);rail(x,0.35,z+1,false);}});}
 
 // Cottage
 var house=new THREE.Group();house.position.set(0,0,12.5);scene.add(house);
@@ -240,8 +365,7 @@ var winF=new THREE.TorusGeometry(0.4,0.08,10,24),winG=new THREE.CylinderGeometry
   mesh(new THREE.SphereGeometry(0.07,10,8),0xF6B93B,0.28,1.05,dz+s*0.08,house);
   [-1.6,1.6].forEach(function(wx){mesh(winF,0xffffff,wx,1.8,dz,house);mesh(winG,0x9fd8ff,wx,1.8,dz,house).rotation.x=Math.PI/2;});
 });
-
-// Log pile
+// Log pile beside cottage
 function makeLog(parent,len,r,lx,ly,lz){
   var lg=new THREE.Group();lg.position.set(lx,ly,lz);parent.add(lg);
   mesh(new THREE.CylinderGeometry(r,r,len,16),0x9b6332,0,0,0,lg).rotation.z=Math.PI/2;
@@ -251,19 +375,18 @@ function makeLog(parent,len,r,lx,ly,lz){
 var pile=new THREE.Group();pile.position.set(3.6,0,12.2);scene.add(pile);
 [[0,0],[1,0],[2,0],[0.5,1],[1.5,1],[1,2]].forEach(function(p){makeLog(pile,1.6,0.28,0,0.3+p[1]*0.5,(p[0]-1)*0.58);});
 
-// Market crate beside cottage
-var MX=-3.2,MZ=11.4,market=new THREE.Group();market.position.set(MX,0,MZ);scene.add(market);
-mesh(rbox(1.3,0.75,0.95,0.05),0xb87a3e,0,0.38,0,market);
-mesh(rbox(1.38,0.12,1.03,0.03),0x9a6232,0,0.78,0,market);
-[[-0.32,0.98,-0.12],[0.02,0.98,0.1],[0.34,0.98,-0.08]].forEach(function(j){
-  mesh(new THREE.CylinderGeometry(0.14,0.15,0.28,14),0xF6B93B,j[0],j[1],j[2],market);
-  mesh(new THREE.CylinderGeometry(0.15,0.15,0.06,14),0xd9822b,j[0],j[1]+0.16,j[2],market);
+// Market Crate beside cottage porch (Sell Honey + Plant Flowers)
+var crate=new THREE.Group();crate.position.set(-2.9,0,10.2);scene.add(crate);
+mesh(rbox(1.2,0.75,0.9,0.05),0xb87a3e,0,0.38,0,crate);
+mesh(rbox(1.26,0.1,0.96,0.03),0x9b6332,0,0.78,0,crate);
+[-0.28,0.28].forEach(function(jx){
+  mesh(new THREE.CylinderGeometry(0.14,0.16,0.3,12),0xF6B93B,jx,0.96,0,crate);
+  mesh(new THREE.CylinderGeometry(0.12,0.12,0.07,12),0xd9822b,jx,1.14,0,crate);
 });
-mesh(new THREE.CylinderGeometry(0.05,0.05,1.5,8),0x8a5a2b,0.58,0.75,-0.4,market);
-mesh(rbox(0.8,0.45,0.08,0.02),0xF3E9D2,0.58,1.45,-0.4,market);
-outline(market,0.03);
+var marketLbl=makeLabelPlane('MARKET',1.4,0.42,'#fff8e6');marketLbl.position.set(0,0.09,0.85);crate.add(marketLbl);
+outline(crate,0.03);
 
-// Big Tree & Wild Hive
+// Tall Oak Tree + Glowing Wild Beehive
 var tree=new THREE.Group();tree.position.set(-1.5,0,-11);scene.add(tree);
 mesh(new THREE.CylinderGeometry(0.35,0.85,5,16),0x8a5a2b,0,2.5,0,tree);
 var br=mesh(new THREE.CylinderGeometry(0.14,0.28,3,12),0x8a5a2b,1.4,4.4,0.3,tree);br.rotation.z=-1.1;
@@ -278,353 +401,224 @@ mesh(new THREE.SphereGeometry(0.56,16,12),0xd99a1e,0,-0.12,0,hive).scale.y=1.05;
 });
 mesh(new THREE.SphereGeometry(0.2,12,8),0xE0A22E,0,0.58,0,hive);
 mesh(new THREE.CylinderGeometry(0.17,0.17,0.1,16),0x3a2410,0,-0.55,0.72,hive).rotation.x=Math.PI/2;
-var hiveWorld=new THREE.Vector3();
+var hiveGlow=new THREE.Mesh(new THREE.SphereGeometry(1.05,16,12),new THREE.MeshBasicMaterial({color:0xFFE680,transparent:true,opacity:0.22,depthWrite:false}));
+hiveGlow.position.set(0,-0.15,0);hive.add(hiveGlow);
+outline(house,0.05);outline(tree,0.05);
+scene.updateMatrixWorld(true);
+var hp=hive.getWorldPosition(new THREE.Vector3());
 
-// Bee factory (with visible pollen baskets on return flights)
-var beeBody=new THREE.SphereGeometry(0.17,16,12),stripeG=new THREE.TorusGeometry(0.165,0.03,8,20),wingG=new THREE.CircleGeometry(0.14,16);
-var wingM=T({color:0xeaf7ff,transparent:true,opacity:0.5,side:THREE.DoubleSide,depthWrite:false});
-function createBeeMesh(col,isQueen){
-  var bee=new THREE.Group();scene.add(bee);
-  var bd=mesh(beeBody,col||0xF6B93B,0,0,0,bee);bd.scale.set(1,1,isQueen?1.45:1.2);
-  [-0.06,0.06].forEach(function(bz){mesh(stripeG,0x3a2410,0,0,bz,bee);});
-  [-0.06,0.06].forEach(function(ex){mesh(new THREE.SphereGeometry(0.025,8,6),0x1a1a1a,ex,0.05,0.19,bee);});
-  if(isQueen){var crown=mesh(new THREE.CylinderGeometry(0.07,0.05,0.07,6),0xFFD700,0,0.17,0.08,bee);crown.userData.noOut=true;}
-  var pollen=new THREE.Group();
-  [-0.1,0.1].forEach(function(px){var pDot=mesh(new THREE.SphereGeometry(0.05,8,6),0xFFE033,px,-0.1,-0.04,pollen);pDot.userData.noOut=true;pDot.castShadow=false;});
-  pollen.visible=false;bee.add(pollen);
+// Bee builder (supports regular, pollen-carrying, and crowned Queen)
+var beeBodyG=new THREE.SphereGeometry(0.16,14,10),stripeG=new THREE.TorusGeometry(0.155,0.028,8,18),wingG=new THREE.CircleGeometry(0.13,14);
+var wingM=T({color:0xeaf7ff,transparent:true,opacity:0.55,side:THREE.DoubleSide,depthWrite:false});
+function makeBee(isQueen){
+  var g=new THREE.Group();
+  var bd=mesh(beeBodyG,isQueen?0xffb830:0xF6B93B,0,0,0,g);bd.scale.set(1,1,isQueen?1.45:1.2);
+  [-0.06,0.06].forEach(function(z){mesh(stripeG,0x3a2410,0,0,z,g);});
+  [-0.06,0.06].forEach(function(ex){mesh(new THREE.SphereGeometry(0.024,8,6),0x1a1a1a,ex,0.05,0.18,g);});
   var wl=new THREE.Mesh(wingG,wingM),wr=new THREE.Mesh(wingG,wingM);wl.scale.x=wr.scale.x=0.7;
-  wl.position.set(-0.12,0.14,0);wr.position.set(0.12,0.14,0);bee.add(wl);bee.add(wr);
-  if(isQueen)bee.scale.setScalar(1.3);
-  return{g:bee,wl:wl,wr:wr,pollen:pollen};
+  wl.position.set(-0.11,0.13,0);wr.position.set(0.11,0.13,0);g.add(wl);g.add(wr);
+  var polL=mesh(new THREE.SphereGeometry(0.055,8,6),0xffd23f,-0.11,-0.1,0,g);
+  var polR=mesh(new THREE.SphereGeometry(0.055,8,6),0xffd23f,0.11,-0.1,0,g);
+  polL.visible=polR.visible=false;
+  if(isQueen){
+    var cr=mesh(new THREE.ConeGeometry(0.09,0.14,5),0xffe066,0,0.2,0.05,g);
+    cr.castShadow=false;g.scale.setScalar(1.25);
+  }
+  return{g:g,wl:wl,wr:wr,polL:polL,polR:polR};
 }
-var bees=[];
-for(i=0;i<5;i++){
-  var bObj=createBeeMesh(0xF6B93B,false);
-  bees.push({g:bObj.g,wl:bObj.wl,wr:bObj.wr,r:rnd(1.4,2.4),sp:rnd(1.2,2),ph:i*1.26,yo:rnd(-0.5,0.6),state:'tree',respawnT:0,start:new THREE.Vector3(),target:null,delay:0,t:0,dur:1.5,arc:1.6,off:0});
+// Wild tree bees
+var wildBees=[];
+for(i=0;i<6;i++){
+  var wb=makeBee(false);scene.add(wb.g);
+  wildBees.push({b:wb,r:rnd(1.3,2.2),sp:rnd(1.3,2.1),ph:i*1.05,yo:rnd(-0.45,0.55),follow:null,delay:0,repop:0});
 }
 
 // Clouds
-var clouds=[],cG=new THREE.SphereGeometry(1,20,14),cM=T({color:0xffffff});
-for(i=0;i<6;i++){
+var clouds=[],cG=new THREE.SphereGeometry(1,18,12),cM=T({color:0xffffff});
+for(i=0;i<7;i++){
   var cl=new THREE.Group();
   for(k=0;k<4;k++){var p=new THREE.Mesh(cG,cM);p.position.set(k*1.1-1.6,Math.sin(k*2)*0.3,rnd(-.4,.4));var s=k===1||k===2?1.4:1;p.scale.set(s,s*0.8,s);cl.add(p);}
-  cl.position.set(rnd(-25,25),rnd(11,15),rnd(-30,10));cl.userData.v=rnd(0.4,0.9);scene.add(cl);clouds.push(cl);
+  cl.position.set(rnd(-30,30),rnd(12,16),rnd(-34,12));cl.userData.v=rnd(0.35,0.8);scene.add(cl);clouds.push(cl);
 }
 
-// Player beekeeper
-var player=new THREE.Group();scene.add(player);player.position.set(0,0,7);
+// Player Beekeeper (Husband)
+var player=new THREE.Group();scene.add(player);player.position.set(0,0,6.4);
 var body=new THREE.Group();player.add(body);
-var suitC=0xfafaf2,pillS=new THREE.SphereGeometry(0.42,24,16);
-mesh(new THREE.CylinderGeometry(0.42,0.42,0.55,24),suitC,0,0.85,0,body);
+var suitC=0xfafaf2,pillS=new THREE.SphereGeometry(0.42,20,14);
+mesh(new THREE.CylinderGeometry(0.42,0.42,0.55,20),suitC,0,0.85,0,body);
 mesh(pillS,suitC,0,1.125,0,body);mesh(pillS,suitC,0,0.575,0,body);
-mesh(new THREE.TorusGeometry(0.42,0.06,10,28),0xF6B93B,0,0.72,0,body).rotation.x=Math.PI/2;
-var footG=new THREE.SphereGeometry(0.17,14,10);
+mesh(new THREE.TorusGeometry(0.42,0.06,10,24),0xF6B93B,0,0.72,0,body).rotation.x=Math.PI/2;
+var footG=new THREE.SphereGeometry(0.17,12,8);
 var footL=mesh(footG,0x5a5a5a,-0.2,0.1,0.05,body),footR=mesh(footG,0x5a5a5a,0.2,0.1,0.05,body);
 footL.scale.set(1,0.6,1.3);footR.scale.set(1,0.6,1.3);
-var sleeveG=new THREE.SphereGeometry(0.14,14,10),handG=new THREE.SphereGeometry(0.13,14,10);
-function arm(ax){var a=new THREE.Group();a.position.set(ax,1.2,0);body.add(a);mesh(sleeveG,suitC,0,-0.2,0,a).scale.y=1.8;mesh(handG,0xF6B93B,0,-0.45,0,a);return a;}
-var armL=arm(-0.5),armR=arm(0.5);
-mesh(new THREE.SphereGeometry(0.38,24,16),0xffd2a8,0,1.85,0,body);
-[-0.13,0.13].forEach(function(ex){mesh(new THREE.SphereGeometry(0.045,10,8),0x2a1a0a,ex,1.9,0.35,body);});
-var veil=new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.66,0.6,28,1,true),T({color:0x333333,transparent:true,opacity:0.3,side:THREE.DoubleSide,depthWrite:false}));
+var sleeveG=new THREE.SphereGeometry(0.14,12,8),handG=new THREE.SphereGeometry(0.13,12,8);
+function makeArm(px,parent,col){var a=new THREE.Group();a.position.set(px,1.2,0);parent.add(a);mesh(sleeveG,col,0,-0.2,0,a).scale.y=1.8;mesh(handG,0xF6B93B,0,-0.45,0,a);return a;}
+var armL=makeArm(-0.5,body,suitC),armR=makeArm(0.5,body,suitC);
+mesh(new THREE.SphereGeometry(0.38,20,14),0xffd2a8,0,1.85,0,body);
+[-0.13,0.13].forEach(function(ex){mesh(new THREE.SphereGeometry(0.045,8,6),0x2a1a0a,ex,1.9,0.35,body);});
+var veil=new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.66,0.6,24,1,true),T({color:0x333333,transparent:true,opacity:0.28,side:THREE.DoubleSide,depthWrite:false}));
 veil.position.set(0,1.82,0);body.add(veil);
-mesh(new THREE.CylinderGeometry(0.85,0.85,0.06,32),0xf3e3b5,0,2.12,0,body);
-mesh(new THREE.SphereGeometry(0.38,20,12,0,Math.PI*2,0,Math.PI/2),0xf3e3b5,0,2.13,0,body).scale.y=0.8;
-mesh(new THREE.TorusGeometry(0.38,0.05,8,24),0xF6B93B,0,2.18,0,body).rotation.x=Math.PI/2;
+mesh(new THREE.CylinderGeometry(0.85,0.85,0.06,28),0xf3e3b5,0,2.12,0,body);
+mesh(new THREE.SphereGeometry(0.38,18,12,0,Math.PI*2,0,Math.PI/2),0xf3e3b5,0,2.13,0,body).scale.y=0.8;
+mesh(new THREE.TorusGeometry(0.38,0.05,8,20),0xF6B93B,0,2.18,0,body).rotation.x=Math.PI/2;
 var shadowBlob=new THREE.Mesh(new THREE.CircleGeometry(0.6,12),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:0.15}));
-shadowBlob.rotation.x=-Math.PI/2;shadowBlob.position.y=0.07;shadowBlob.userData.noOut=true;player.add(shadowBlob);
-outline(player,0.035);outline(house,0.05);outline(tree,0.05);
+shadowBlob.rotation.x=-Math.PI/2;shadowBlob.position.y=0.07;player.add(shadowBlob);
+outline(player,0.035);
 
-// Toon smoker held while smoking tree hive
-var smoker=new THREE.Group();smoker.position.set(0,-0.62,0.06);armR.add(smoker);
-mesh(new THREE.CylinderGeometry(0.13,0.13,0.34,18),0xb8c2cc,0,0,0.1,smoker).rotation.x=Math.PI/2;
-mesh(new THREE.CylinderGeometry(0.14,0.14,0.04,18),0x8a929a,0,0,0.28,smoker).rotation.x=Math.PI/2;
-mesh(new THREE.ConeGeometry(0.09,0.2,14),0x8a929a,0,-0.05,0.36,smoker).rotation.x=2.09;
+// Wife NPC (stands outside the cottage door)
+var wife=new THREE.Group();scene.add(wife);wife.position.set(1.15,0,9.85);wife.rotation.y=Math.PI;
+var wBody=new THREE.Group();wife.add(wBody);
+mesh(new THREE.ConeGeometry(0.52,1.15,18),0xd9735b,0,0.62,0,wBody);
+mesh(new THREE.CylinderGeometry(0.3,0.36,0.52,18),0xf5ebd6,0,1.18,0,wBody);
+mesh(new THREE.SphereGeometry(0.35,18,14),0xffd2a8,0,1.76,0,wBody);
+mesh(new THREE.SphereGeometry(0.37,16,12,0,Math.PI*2,0,Math.PI*0.62),0x6b3f24,0,1.82,-0.04,wBody);
+mesh(new THREE.SphereGeometry(0.18,12,10),0x6b3f24,0,1.95,-0.34,wBody);
+[-0.12,0.12].forEach(function(ex){mesh(new THREE.SphereGeometry(0.042,8,6),0x2a1a0a,ex,1.8,0.32,wBody);});
+var wArmL=makeArm(-0.42,wBody,0xf5ebd6),wArmR=makeArm(0.42,wBody,0xf5ebd6);
+outline(wife,0.032);
+
+// Action tools held by player
+var smoker=new THREE.Group();smoker.position.set(0,-0.6,0.08);armR.add(smoker);
+mesh(new THREE.CylinderGeometry(0.13,0.13,0.34,16),0xb8c2cc,0,0,0.1,smoker).rotation.x=Math.PI/2;
+mesh(new THREE.CylinderGeometry(0.14,0.14,0.04,16),0x8a929a,0,0,0.28,smoker).rotation.x=Math.PI/2;
+mesh(new THREE.ConeGeometry(0.09,0.2,12),0x8a929a,0,-0.05,0.36,smoker).rotation.x=2.09;
 var noz=new THREE.Object3D();noz.position.set(0,-0.12,0.46);smoker.add(noz);
-var smokerBellows=mesh(rbox(0.2,0.07,0.26,0.025),0xa8723c,0,0.17,0.08,smoker);
+mesh(rbox(0.2,0.07,0.26,0.025),0xa8723c,0,0.17,0.08,smoker);
 outline(smoker,0.025);smoker.visible=false;
 
-// Action props for close-up animations (hammer, honey jar & dipper, queen swarm scoop)
-var craftHammer=new THREE.Group();craftHammer.position.set(0,-0.48,0.12);armR.add(craftHammer);
-mesh(new THREE.CylinderGeometry(0.04,0.04,0.52,10),0x9b6332,0,0.02,0.22,craftHammer).rotation.x=Math.PI/2;
-mesh(rbox(0.14,0.16,0.28,0.03),0x8a929a,0,0.04,0.48,craftHammer);
-outline(craftHammer,0.022);craftHammer.visible=false;
+var hKnife=new THREE.Group();hKnife.position.set(0,-0.52,0.12);armR.add(hKnife);
+mesh(rbox(0.06,0.06,0.24,0.015),0x8a5a2b,0,0,0.05,hKnife);
+mesh(new THREE.BoxGeometry(0.03,0.09,0.34),0xd0d8e0,0,0,0.32,hKnife);
+outline(hKnife,0.02);hKnife.visible=false;
 
-var harvKnife=new THREE.Group();harvKnife.position.set(0,-0.48,0.12);armR.add(harvKnife);
-mesh(new THREE.CylinderGeometry(0.035,0.035,0.22,10),0x9b6332,0,0,0.12,harvKnife).rotation.x=Math.PI/2;
-mesh(rbox(0.06,0.025,0.34,0.01),0xdce4ea,0,0,0.36,harvKnife);
-var knifeTip=mesh(new THREE.SphereGeometry(0.055,10,8),0xF6B93B,0,-0.02,0.5,harvKnife);knifeTip.userData.noOut=true;
-outline(harvKnife,0.02);harvKnife.visible=false;
+var hJar=new THREE.Group();hJar.position.set(0,-0.52,0.18);armL.add(hJar);
+mesh(new THREE.CylinderGeometry(0.16,0.18,0.34,14),0xF6B93B,0,0,0,hJar);
+mesh(new THREE.CylinderGeometry(0.13,0.13,0.06,14),0xd9822b,0,0.19,0,hJar);
+outline(hJar,0.02);hJar.visible=false;
 
-var harvJar=new THREE.Group();harvJar.position.set(0,-0.48,0.2);armL.add(harvJar);
-mesh(new THREE.CylinderGeometry(0.16,0.17,0.3,16),0xF6B93B,0,0,0,harvJar);
-mesh(new THREE.CylinderGeometry(0.17,0.17,0.05,16),0xfff4d2,0,0.15,0,harvJar);
-outline(harvJar,0.02);harvJar.visible=false;
+var pHam=new THREE.Group();pHam.position.set(0,-0.5,0.14);armR.add(pHam);
+mesh(new THREE.CylinderGeometry(0.038,0.038,0.48,10),0x9b6332,0,0,0.18,pHam).rotation.x=Math.PI/2;
+mesh(rbox(0.14,0.14,0.28,0.025),0x8a929a,0,0.06,0.42,pHam);
+outline(pHam,0.02);pHam.visible=false;
 
-var swarmScoop=new THREE.Group();swarmScoop.position.set(0,-0.48,0.26);armR.add(swarmScoop);
-mesh(rbox(0.46,0.3,0.4,0.03),0xc98a4e,0,0,0.1,swarmScoop);
-mesh(rbox(0.38,0.18,0.32,0.02),0x5a3500,0,0.08,0.1,swarmScoop);
-var scoopGlow=mesh(new THREE.TorusGeometry(0.24,0.025,8,20),0xFFE680,0,0.17,0.1,swarmScoop);scoopGlow.rotation.x=Math.PI/2;scoopGlow.userData.noOut=true;
-outline(swarmScoop,0.022);swarmScoop.visible=false;
+var scoop=new THREE.Group();scoop.position.set(0,-0.5,0.22);armR.add(scoop);
+mesh(rbox(0.38,0.22,0.36,0.03),0xd9a35e,0,0,0.18,scoop);
+mesh(rbox(0.3,0.14,0.28,0.02),0x5a3500,0,0.06,0.18,scoop);
+var queenObj=makeBee(true);queenObj.g.position.set(0,0.24,0.18);scoop.add(queenObj.g);
+outline(scoop,0.02);scoop.visible=false;
 
-var capQueen=createBeeMesh(0xF6B93B,true);capQueen.g.visible=false;
-var honeyDrips=[],dripG=new THREE.SphereGeometry(0.045,8,6);
+var carry=new THREE.Group();carry.position.set(0,0.98,0.68);carry.scale.setScalar(0.84);body.add(carry);
 
-// Collectible loose logs
-var logs=[],lPos=[[-6.8,4.2],[5.8,-2.2],[-2.8,-4.8],[7.2,8.4],[-7.6,-12.5]];
+// Collectible loose logs & scrap piles (auto-collect on proximity)
+var logs=[],lPos=[[-6.2,4.4],[5.2,-1.8],[-3.2,-5.4],[7.2,8.4],[-7.5,-11.5],[1.6,4.2]];
 lPos.forEach(function(p){
   var g=new THREE.Group();g.position.set(p[0],0,p[1]);scene.add(g);
-  makeLog(g,1.3,0.3,0,0.32,0);g.rotation.y=rnd(0,Math.PI);
-  logs.push({kind:'log',g:g,hx:p[0],hz:p[1],ph:rnd(0,6),alive:true,flying:false,flyT:0,startPos:new THREE.Vector3(),t:0});
+  makeLog(g,1.3,0.28,0,0.28,0);g.rotation.y=rnd(0,Math.PI);
+  logs.push({g:g,ph:rnd(0,6),alive:true,t:0});
 });
-
-// Collectible scrap piles
-function makeScrapPile(parent){
-  var g=new THREE.Group();parent.add(g);
-  var p1=mesh(rbox(0.95,0.1,0.26,0.025),0xa8723c,0,0.12,0,g);p1.rotation.y=0.3;
-  var p2=mesh(rbox(0.8,0.09,0.22,0.02),0xc48a4e,0.08,0.22,-0.08,g);p2.rotation.y=-0.6;
-  var bar=mesh(new THREE.CylinderGeometry(0.055,0.055,0.75,10),0x7c8a96,-0.12,0.18,0.14,g);bar.rotation.set(0.2,0.4,Math.PI/2-0.25);
-  var gear=mesh(new THREE.TorusGeometry(0.15,0.045,8,12),0x9aa6b2,0.25,0.16,0.16,g);gear.rotation.x=Math.PI/2;
-  outline(g,0.025);return g;
-}
-var scraps=[],sPos=[[-5.5,8.2],[4.2,6.5],[-8.2,-0.5],[7.8,-6.2],[2.6,-13.5],[-1.2,5.6]];
-sPos.forEach(function(p){
-  var g=new THREE.Group();g.position.set(p[0],0,p[1]);scene.add(g);
-  makeScrapPile(g);g.rotation.y=rnd(0,Math.PI);
-  scraps.push({kind:'scrap',g:g,hx:p[0],hz:p[1],ph:rnd(0,6),alive:true,flying:false,flyT:0,startPos:new THREE.Vector3(),t:0});
-});
-
-// Highlight ring
-var ring=new THREE.Group();
-var ringMat=new THREE.MeshBasicMaterial({color:0xF6B93B,transparent:true,opacity:0.65,depthWrite:false});
-var glowMat=new THREE.MeshBasicMaterial({color:0xFFD76A,transparent:true,opacity:0.22,depthWrite:false});
-var ringM=new THREE.Mesh(new THREE.RingGeometry(0.85,1.05,40),ringMat),glowM=new THREE.Mesh(new THREE.CircleGeometry(1.25,40),glowMat);
-ringM.rotation.x=glowM.rotation.x=-Math.PI/2;ringM.position.y=0.08;glowM.position.y=0.075;
-ring.add(glowM);ring.add(ringM);ring.visible=false;scene.add(ring);
-
-// Workbench beside log pile
-var BX=6.6,BZ=12.2,bench=new THREE.Group();bench.position.set(BX,0,BZ);scene.add(bench);
-mesh(rbox(2.3,0.22,1.1,0.07),0xc48a4e,0,1.0,0,bench);
-[[-1,-0.4],[1,-0.4],[-1,0.4],[1,0.4]].forEach(function(q){mesh(new THREE.CylinderGeometry(0.1,0.12,0.9,12),0xa8723c,q[0],0.45,q[1],bench);});
-mesh(rbox(2.0,0.1,0.85,0.04),0xa8723c,0,0.32,0,bench);
-var saw=new THREE.Group();saw.position.set(-0.45,1.13,-0.12);saw.rotation.y=0.3;bench.add(saw);
-mesh(new THREE.BoxGeometry(0.75,0.03,0.2),0xc8d0d6,0.12,0,0,saw);mesh(rbox(0.24,0.09,0.22,0.03),0x7a4a22,-0.36,0.02,0,saw);
-var ham=new THREE.Group();ham.position.set(0.3,1.15,0.15);ham.rotation.y=-0.25;bench.add(ham);
-mesh(new THREE.CylinderGeometry(0.04,0.04,0.55,10),0x9b6332,0.27,0.03,0,ham).rotation.z=Math.PI/2;
-mesh(rbox(0.14,0.14,0.32,0.03),0x8a929a,0.55,0.06,0,ham);
-var vice=new THREE.Group();vice.position.set(0.85,1.08,0.56);bench.add(vice);
-mesh(rbox(0.36,0.24,0.14,0.03),0x6f7a84,0,0,0,vice);mesh(rbox(0.36,0.2,0.08,0.03),0x6f7a84,0,0,0.16,vice);
-mesh(new THREE.CylinderGeometry(0.03,0.03,0.42,8),0x4a5560,0,-0.02,0.3,vice).rotation.x=Math.PI/2;
-mesh(new THREE.CylinderGeometry(0.025,0.025,0.36,8),0x4a5560,0,-0.02,0.5,vice).rotation.z=Math.PI/2;
-[-0.18,0.18].forEach(function(sx){mesh(new THREE.SphereGeometry(0.045,10,8),0xF6B93B,sx,-0.02,0.5,vice);});
-outline(bench,0.035);
-// Work-in-progress assembly group on top of the workbench
-var benchWork=new THREE.Group();benchWork.position.set(0,1.12,0);bench.add(benchWork);
-// Ground label on the screen-facing (+Z) side near the lower legs of the workbench
-(function(){
-  var cv=document.createElement('canvas');cv.width=512;cv.height=128;
-  var cx=cv.getContext('2d');
-  cx.clearRect(0,0,512,128);
-  cx.fillStyle='rgba(74,46,22,0.38)';
-  cx.beginPath();cx.roundRect(18,18,476,92,28);cx.fill();
-  cx.strokeStyle='rgba(246,185,59,0.92)';cx.lineWidth=7;cx.stroke();
-  cx.font='700 58px Fredoka,system-ui,sans-serif';
-  cx.textAlign='center';cx.textBaseline='middle';
-  cx.lineWidth=12;cx.strokeStyle='#4a2e16';cx.strokeText('WORKBENCH',256,66);
-  cx.fillStyle='#FFF6DF';cx.fillText('WORKBENCH',256,66);
-  var tx=new THREE.CanvasTexture(cv);tx.encoding=THREE.sRGBEncoding;
-  var bm=new THREE.Mesh(
-    new THREE.PlaneGeometry(2.35,0.58),
-    new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false})
-  );
-  bm.rotation.x=-Math.PI/2;bm.position.set(0,0.09,0.88);bm.userData.noOut=true;
-  bench.add(bm);
-})();
-
-// Bee box mesh builder (Tier 1: Crude Plank, Tier 2: Langstroth, Tier 3: Double-Super)
-function beeBox(tier){
-  tier=tier||1;
+function makeScrapMesh(){
   var g=new THREE.Group();
+  mesh(rbox(0.75,0.12,0.52,0.03),0x7c8794,0,0.08,0,g).rotation.y=0.2;
+  mesh(new THREE.CylinderGeometry(0.18,0.18,0.1,10),0x9aa4b0,-0.16,0.18,0.08,g);
+  mesh(rbox(0.45,0.1,0.18,0.02),0xb87a3e,0.16,0.18,-0.08,g).rotation.z=0.35;
+  return g;
+}
+var scraps=[],sPos=[[-5.5,-1.2],[3.8,6.4],[-2.4,2.2],[6.8,-7.4],[-7.2,7.2],[2.6,-3.8]];
+sPos.forEach(function(p){
+  var g=makeScrapMesh();g.position.set(p[0],0,p[1]);g.rotation.y=rnd(0,Math.PI);scene.add(g);
+  scraps.push({g:g,ph:rnd(0,6),alive:true,t:0});
+});
+var flyItems=[];
+
+// Highlight ring under active prompt target
+var ring=new THREE.Group(),ringMat=new THREE.MeshBasicMaterial({color:0xF6B93B,transparent:true,opacity:0.65,depthWrite:false}),glowMat=new THREE.MeshBasicMaterial({color:0xFFD76A,transparent:true,opacity:0.22,depthWrite:false});
+var ringM=new THREE.Mesh(new THREE.RingGeometry(0.85,1.05,36),ringMat),glowM=new THREE.Mesh(new THREE.CircleGeometry(1.25,36),glowMat);
+ringM.rotation.x=glowM.rotation.x=-Math.PI/2;ringM.position.y=0.08;glowM.position.y=0.075;ring.add(glowM);ring.add(ringM);ring.visible=false;scene.add(ring);
+
+// Workbench (right side of cottage, starts broken, repairs into core hub)
+var BX=6.6,BZ=12.2,bench=new THREE.Group();bench.position.set(BX,0,BZ);scene.add(bench);
+var benchFixed=new THREE.Group();bench.add(benchFixed);
+mesh(rbox(2.3,0.22,1.1,0.07),0xc48a4e,0,1.0,0,benchFixed);
+[[-1,-0.4],[1,-0.4],[-1,0.4],[1,0.4]].forEach(function(q){mesh(new THREE.CylinderGeometry(0.1,0.12,0.9,12),0xa8723c,q[0],0.45,q[1],benchFixed);});
+mesh(rbox(2.0,0.1,0.85,0.04),0xa8723c,0,0.32,0,benchFixed);
+var saw=new THREE.Group();saw.position.set(-0.45,1.13,-0.12);saw.rotation.y=0.3;benchFixed.add(saw);
+mesh(new THREE.BoxGeometry(0.75,0.03,0.2),0xc8d0d6,0.12,0,0,saw);mesh(rbox(0.24,0.09,0.22,0.03),0x7a4a22,-0.36,0.02,0,saw);
+var benchHam=new THREE.Group();benchHam.position.set(0.3,1.15,0.15);benchHam.rotation.y=-0.25;benchFixed.add(benchHam);
+mesh(new THREE.CylinderGeometry(0.04,0.04,0.55,10),0x9b6332,0.27,0.03,0,benchHam).rotation.z=Math.PI/2;
+mesh(rbox(0.14,0.14,0.32,0.03),0x8a929a,0.55,0.06,0,benchHam);
+outline(benchFixed,0.035);
+
+var benchBroken=new THREE.Group();bench.add(benchBroken);
+var bTop=mesh(rbox(2.2,0.2,1.05,0.06),0x8c643b,0.05,0.52,0,benchBroken);bTop.rotation.z=-0.22;bTop.rotation.x=0.1;
+mesh(new THREE.CylinderGeometry(0.1,0.12,0.75,10),0x7a522c,-0.95,0.36,-0.35,benchBroken).rotation.z=0.18;
+mesh(new THREE.CylinderGeometry(0.1,0.12,0.72,10),0x7a522c,-0.92,0.35,0.36,benchBroken).rotation.z=-0.12;
+mesh(new THREE.CylinderGeometry(0.1,0.12,0.8,10),0x7a522c,0.85,0.16,0.32,benchBroken).rotation.z=1.35;
+mesh(rbox(0.85,0.1,0.28,0.02),0xa8723c,0.4,0.14,-0.55,benchBroken).rotation.y=0.5;
+outline(benchBroken,0.03);
+
+var repairMark=makeSquareMarker(2.6,'REPAIR',0xF6B93B,0.85);repairMark.g.position.set(BX,0,BZ);scene.add(repairMark.g);
+var benchLbl=makeLabelPlane('WORKBENCH',2.2,0.55,'#fff8e6');benchLbl.position.set(0,0.09,1.05);bench.add(benchLbl);
+var craftPreview=new THREE.Group();craftPreview.position.set(0,1.12,0);bench.add(craftPreview);
+
+// Bee Box & Stand mesh builders
+function makeBeeBox(tier){
+  var g=new THREE.Group(),t=tier||1;
   mesh(rbox(0.92,0.08,0.76,0.03),0xa8723c,0,0.04,0,g);
-  if(tier===1){
-    mesh(rbox(0.82,0.48,0.66,0.04),0xc98a4e,0,0.32,0,g);
-    mesh(rbox(0.92,0.09,0.76,0.03),0x9a6232,0,0.60,0,g);
-    mesh(new THREE.BoxGeometry(0.36,0.05,0.04),0x3a2410,0,0.14,0.33,g);
+  if(t===1){
+    mesh(rbox(0.82,0.44,0.66,0.05),0xc9935a,0,0.3,0,g);
+    mesh(rbox(0.92,0.09,0.76,0.03),0xa8723c,0,0.56,0,g);
   }else{
     mesh(rbox(0.82,0.32,0.66,0.05),0xF3E3B5,0,0.25,0,g);
     mesh(rbox(0.82,0.26,0.66,0.05),0xE0A22E,0,0.54,0,g);
-    var topY=0.72;
-    if(tier>=3){mesh(rbox(0.82,0.24,0.66,0.05),0xF6B93B,0,0.79,0,g);topY=0.96;}
-    mesh(rbox(0.92,0.09,0.76,0.03),0xc98a4e,0,topY,0,g);
-    mesh(new THREE.BoxGeometry(0.4,0.05,0.04),0x3a2410,0,0.12,0.33,g);
-    mesh(rbox(0.26,0.05,0.04,0.015),0xb36a45,0,0.56,0.34,g);
+    if(t>=3)mesh(rbox(0.82,0.26,0.66,0.05),0xF6B93B,0,0.8,0,g);
+    mesh(rbox(0.92,0.09,0.76,0.03),0xc98a4e,0,t>=3?0.98:0.72,0,g);
   }
-  outline(g,0.03);return g;
-}
-
-// Harvest timing helpers (15 minutes, starts only once mounted on a stand)
-var STAND_H=0.58;
-var HARVEST_TIME=15*60; // 15 minutes (900 seconds)
-function fmtTime(sec){
-  sec=Math.max(0,Math.ceil(sec));
-  var m=Math.floor(sec/60),s=sec%60;
-  return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-}
-function hiveSpeedMult(hObj){
-  var tierMult=hObj.tier===1?1:(hObj.tier===2?1.2:1.45);
-  return tierMult*(1+forageLevel*0.15);
-}
-function hiveRemSec(hObj){
-  return Math.max(0,(1-hObj.prog)*HARVEST_TIME/hiveSpeedMult(hObj));
-}
-
-// Hive Stand mesh builder (crafted from Scrap)
-function makeStandMesh(){
-  var g=new THREE.Group();
-  [[-0.42,-0.34],[0.42,-0.34],[-0.42,0.34],[0.42,0.34]].forEach(function(q){
-    mesh(new THREE.CylinderGeometry(0.065,0.075,STAND_H,10),0x6f7a84,q[0],STAND_H/2,q[1],g);
-  });
-  mesh(rbox(1.02,0.1,0.86,0.03),0x9a6232,0,STAND_H+0.02,0,g);
-  mesh(rbox(0.92,0.06,0.1,0.02),0x7c8a96,0,0.22,-0.34,g);
-  mesh(rbox(0.92,0.06,0.1,0.02),0x7c8a96,0,0.22,0.34,g);
+  mesh(new THREE.BoxGeometry(0.4,0.05,0.04),0x3a2410,0,0.12,0.33,g);
   outline(g,0.028);return g;
 }
-
-// Crawling ant cluster visual for unmounted ground hives
-function makeAntCluster(){
-  var g=new THREE.Group(),antG=new THREE.SphereGeometry(0.045,8,6);
-  for(var j=0;j<7;j++){
-    var ang=j*(Math.PI*2/7),rad=0.45+rnd(-0.06,0.08);
-    var a=mesh(antG,0x2a140c,Math.cos(ang)*rad,0.12+rnd(0,0.38),Math.sin(ang)*rad,g);
-    a.scale.set(1,0.8,1.5);a.userData.noOut=true;a.castShadow=false;
-  }
-  g.visible=false;return g;
-}
-
-// Carried box & carried stand attachments on player
-var carry=new THREE.Group();carry.position.set(0,0.98,0.62);carry.scale.setScalar(0.85);body.add(carry);
-var carryStand=new THREE.Group();carryStand.position.set(0,0.9,0.72);carryStand.scale.setScalar(0.75);body.add(carryStand);
-
-// Dashed ground marker builder (for tree ladder zone)
-function makeMark(r,col,op){
+function makeStandMesh(){
   var g=new THREE.Group();
-  var dm=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide});
-  var fm=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.12,depthWrite:false});
-  var n=Math.max(12,Math.round(r*13)),w=r>1.5?0.14:0.11,j,seg=Math.PI*2/n;
-  for(j=0;j<n;j++){
-    var d=new THREE.Mesh(new THREE.RingGeometry(r-w,r,6,1,j*seg,seg*0.55),dm);
-    d.rotation.x=-Math.PI/2;d.position.y=0.09;g.add(d);
-  }
-  var f=new THREE.Mesh(new THREE.CircleGeometry(r-w,48),fm);
-  f.rotation.x=-Math.PI/2;f.position.y=0.085;g.add(f);
-  g.visible=false;scene.add(g);return{g:g,dm:dm,fm:fm};
+  mesh(rbox(1.12,0.1,0.96,0.03),0xb87a3e,0,0.62,0,g);
+  [[-0.44,-0.36],[0.44,-0.36],[-0.44,0.36],[0.44,0.36]].forEach(function(q){
+    mesh(new THREE.CylinderGeometry(0.06,0.075,0.62,10),0x6f7a84,q[0],0.31,q[1],g);
+  });
+  mesh(rbox(0.92,0.06,0.06,0.015),0x8a929a,0,0.24,-0.36,g);
+  mesh(rbox(0.92,0.06,0.06,0.015),0x8a929a,0,0.24,0.36,g);
+  outline(g,0.025);return g;
 }
 
-// Crisp square placeholder texture & marker builder ('STAND' / 'HIVE')
-var sqTexCache={};
-function getSquareTex(label){
-  if(sqTexCache[label])return sqTexCache[label];
-  var cv=document.createElement('canvas');cv.width=256;cv.height=256;
-  var cx=cv.getContext('2d');
-  cx.clearRect(0,0,256,256);
-  cx.fillStyle='rgba(255,255,255,0.22)';
-  cx.beginPath();cx.roundRect(16,16,224,224,22);cx.fill();
-  cx.setLineDash([24,14]);cx.lineCap='round';
-  cx.strokeStyle='rgba(74,46,22,0.55)';cx.lineWidth=18;
-  cx.beginPath();cx.roundRect(18,18,220,220,20);cx.stroke();
-  cx.strokeStyle='#ffffff';cx.lineWidth=11;
-  cx.beginPath();cx.roundRect(18,18,220,220,20);cx.stroke();
-  cx.setLineDash([]);
-  cx.font='700 54px Fredoka,system-ui,sans-serif';
-  cx.textAlign='center';cx.textBaseline='middle';
-  cx.lineWidth=12;cx.strokeStyle='#4a2e16';cx.strokeText(label,128,132);
-  cx.fillStyle='#ffffff';cx.fillText(label,128,132);
-  var tx=new THREE.CanvasTexture(cv);tx.encoding=THREE.sRGBEncoding;
-  sqTexCache[label]=tx;return tx;
-}
-function makeSquareMark(size,label,col,op){
-  var g=new THREE.Group();
-  var mat=new THREE.MeshBasicMaterial({map:getSquareTex(label),color:L(col),transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide});
-  var pl=new THREE.Mesh(new THREE.PlaneGeometry(size,size),mat);
-  pl.rotation.x=-Math.PI/2;pl.position.y=0.09;pl.userData.noOut=true;
-  g.add(pl);
-  g.visible=false;scene.add(g);
-  return{g:g,mat:mat,label:label};
-}
+// Vertical Box Rack along right-hand fence (holds 3 columns x 4 = 12 boxes)
+var RX=8.85,RZ=7.6,rack=new THREE.Group();rack.position.set(RX,0,RZ);scene.add(rack);
+mesh(rbox(1.15,0.12,3.5,0.04),0xa8723c,0,0.18,0,rack);
+[[-0.45,-1.55],[0.45,-1.55],[-0.45,1.55],[0.45,1.55]].forEach(function(q){
+  mesh(new THREE.CylinderGeometry(0.06,0.07,2.4,10),0x8a5a2b,q[0],1.2,q[1],rack);
+});
+mesh(rbox(1.1,0.08,3.4,0.03),0xc48a4e,0,2.35,0,rack);
+var rackLbl=makeLabelPlane('BOX RACK',1.8,0.45,'#fff8e6');rackLbl.position.set(-1.05,0.09,0);rackLbl.rotation.z=Math.PI/2;rack.add(rackLbl);
+outline(rack,0.028);
+var rackBoxes=new THREE.Group();rack.add(rackBoxes);
+var rackMark=makeSquareMarker(1.8,'RACK',0x80c8ff,0.45);rackMark.g.position.set(RX,0,RZ);rackMark.g.visible=false;scene.add(rackMark.g);
 
-// Tree capture box spots (3 spots near the big tree)
-var spots=[[2.4,-8.2],[-1.5,-7],[-5.3,-8.4]],apiaryHives=[],squash=[],swarmFlights=[];
-var spotMark=makeSquareMark(1.45,'HIVE',0xF6B93B,0.95);
-var spot=spotMark.g;
+// 3 Tree Capture Spots (Square HIVE Markers)
+var treeSpots=[[2.4,-8.2],[-1.5,-7.0],[-5.3,-8.4]];
+var treeSpotMark=makeSquareMarker(1.35,'HIVE',0xF6B93B,0.9);treeSpotMark.g.visible=false;scene.add(treeSpotMark.g);
 
-// 10 Designated Stand Spots spaced across the enclosed meadow
+// 10 Designated Stand Spots across the enclosed meadow (Square STAND Markers)
 var standCoords=[
-  [-6.2,-3.2],[-2.0,-3.2],[2.2,-3.2],[6.2,-3.2],
-  [-6.2,1.4],[-1.5,1.4],[3.2,1.4],
-  [-6.2,6.0],[0.2,6.0],[6.2,6.0]
+  [-6.8,-1.8],[-2.6,-1.8],[2.0,-1.8],[6.2,-1.8],
+  [-6.8,2.4],[-2.6,2.4],[2.0,2.4],[6.0,2.4],
+  [-5.8,6.6],[2.8,6.6]
 ];
-var standSpots=standCoords.map(function(c,idx){
-  var mk=makeSquareMark(1.55,'STAND',0xF3E9D2,0.75);
-  mk.g.position.set(c[0],0,c[1]);
-  mk.g.visible=true;
-  return{idx:idx,x:c[0],z:c[1],mark:mk,stand:null,hive:null};
+var standMarkers=standCoords.map(function(c){
+  var m=makeSquareMarker(1.45,'STAND',0xF6B93B,0.42);
+  m.g.position.set(c[0],0,c[1]);m.g.visible=false;scene.add(m.g);
+  var topHive=makeSquareMarker(1.05,'HIVE',0x72e06a,0.9);
+  topHive.g.position.set(c[0],0.68,c[1]);topHive.g.visible=false;scene.add(topHive.g);
+  return{m:m,topHive:topHive,x:c[0],z:c[1]};
 });
 
-// State & HUD references
-var state={wood:0,scrap:0,honey:0,coins:0,box:0};
-var carryingStand=false,carryingHive=null,carryingQueen=false;
-var woodEl=document.getElementById('wood'),scrapEl=document.getElementById('scrap'),honeyEl=document.getElementById('honey');
-var coinsEl=document.getElementById('coins'),boxesEl=document.getElementById('boxes');
-var goalEl=document.getElementById('goal'),bannerEl=document.getElementById('banner'),bannerT=null;
-var progEl=document.getElementById('prog'),progArc=document.getElementById('progArc');
-var promptEl=document.getElementById('prompt'),promptIco=document.getElementById('promptIco'),promptTxt=document.getElementById('promptTxt');
-var promptCost=document.getElementById('promptCost'),costIco=document.getElementById('costIco'),costVal=document.getElementById('costVal');
-var altBtn=document.getElementById('altBtn'),altIco=document.getElementById('altIco'),altTxt=document.getElementById('altTxt');
-var prompt2El=document.getElementById('prompt2'),prompt2Ico=document.getElementById('prompt2Ico'),prompt2Txt=document.getElementById('prompt2Txt');
-var smokePill=document.getElementById('smokePill'),smokeTEl=document.getElementById('smokeT'),downBtn=document.getElementById('downBtn');
-
-function updHud(){
-  woodEl.textContent=state.wood;
-  scrapEl.textContent=state.scrap;
-  honeyEl.textContent=state.honey;
-  coinsEl.textContent=state.coins;
-  boxesEl.textContent=state.box;
-}
-function isHandsBusy(){return carrying||carryingStand||!!carryingHive||carryingQueen||state.box>0;}
-function getFreeTreeSpot(){
-  for(var idx=0;idx<spots.length;idx++){
-    var used=apiaryHives.some(function(h){return h.treeSpot===idx;});
-    if(!used)return idx;
-  }
-  return -1;
-}
-function getTotalStands(){
-  var cnt=carryingStand?1:0;
-  standSpots.forEach(function(sp){if(sp.stand)cnt++;});
-  return cnt;
-}
-function hasEmptyBox(){return apiaryHives.some(function(h){return !h.populated;});}
-function hasUnmountedPopHive(){return apiaryHives.some(function(h){return h.populated&&h.standSpot===null;});}
-function hasFreeStand(){return standSpots.some(function(sp){return sp.stand&&!sp.hive;});}
-function hasPestHive(){return apiaryHives.some(function(h){return h.pests;});}
-
-function updateCarryBox(){
-  while(carry.children.length)carry.remove(carry.children[0]);
-  if(carryingHive){carry.add(beeBox(carryingHive.tier));}
-  else if(state.box>0){carry.add(beeBox(1));}
-}
-function updateCarryStand(){
-  while(carryStand.children.length)carryStand.remove(carryStand.children[0]);
-  if(carryingStand){carryStand.add(makeStandMesh());}
-}
-
-var craft=null,chips=[],chipG=new THREE.BoxGeometry(0.09,0.04,0.07),near=null;
-var benchObj={kind:'bench',g:bench,r:2.4,rs:1.7,py:2.4,ok:function(){return !craft&&!isHandsBusy();}};
-var spotObj={kind:'spot',g:spot,r:1.5,rs:1,py:1.3};
-var marketObj={kind:'market',g:market,r:2.2,rs:1.2,py:2.2};
-
-// Folding A-frame step ladder
-var HT=2.4,LSP=0.6,LA=Math.atan(LSP/HT),LL=Math.hypot(HT,LSP),carrying=false,atHive=false,litHive=false;
+// Folding A-Frame Ladder (unlocked via workbench)
+var HT=2.4,LSP=0.6,LA=Math.atan(LSP/HT),LL=Math.hypot(HT,LSP);
 var ladder=new THREE.Group(),lad=new THREE.Group();ladder.add(lad);scene.add(ladder);
 var rungG=new THREE.CylinderGeometry(0.055,0.055,0.64,12),sides=[];
 [-1,1].forEach(function(sd){
@@ -633,1156 +627,1228 @@ var rungG=new THREE.CylinderGeometry(0.055,0.055,0.64,12),sides=[];
   for(var j=0;j<5;j++)mesh(rungG,0xd9a35e,0,-LL+0.42+j*0.4,sd*0.06,s).rotation.z=Math.PI/2;
 });
 mesh(rbox(0.82,0.09,0.5,0.03),0xc98a4e,0,HT+0.045,0,lad);
-mesh(new THREE.CylinderGeometry(0.06,0.06,0.78,12),0x9b6332,0,HT-0.02,0,lad).rotation.z=Math.PI/2;
 var spread=new THREE.Group();lad.add(spread);
 [-0.32,0.32].forEach(function(lx){mesh(new THREE.CylinderGeometry(0.03,0.03,LSP+0.06,8),0x8a929a,lx,HT/2,0,spread).rotation.x=Math.PI/2;});
 function fold(open){sides[0].rotation.x=open?LA:0;sides[1].rotation.x=open?-LA:0;spread.visible=open;}
-var ladderObj={kind:'ladder',g:ladder,r:1.9,rs:1.2,py:2.9};
-function setStand(lx,lz,ry){scene.add(ladder);ladder.position.set(lx,0,lz);ladder.rotation.set(0,ry,0);lad.position.set(0,0,0);lad.rotation.set(0,0,0);fold(true);ladderObj.py=2.9;}
-function setCarry(){body.add(ladder);ladder.position.set(0.55,1.5,-0.1);ladder.rotation.set(Math.PI/2-0.35,0,0);lad.position.set(0,-HT/2,0);lad.rotation.set(0,Math.PI/2,0);fold(false);}
-var hp=hive.getWorldPosition(new THREE.Vector3());
-function setHive(lx,lz,ry){setStand(lx,lz,ry);ladderObj.py=1.7;}
-var ladderSolid=true;setStand(-4.8,12.5,Math.PI/2);outline(ladder,0.03);
+outline(ladder,0.03);
+ladder.visible=false;
 
-// Tree hive ladder placement zone
-var HR=2.5,hMark=makeMark(HR,0xF6B93B,0.85),ghost=makeMark(0.9,0xffffff,0.35);hMark.g.position.set(hp.x,0,hp.z);
-var sparks=[],sparkM=new THREE.MeshBasicMaterial({color:0xFFE680}),sparkG=new THREE.OctahedronGeometry(0.07);
-for(i=0;i<16;i++){
-  var sa=rnd(0,Math.PI*2),sr=Math.sqrt(Math.random())*(HR-0.3),sk=new THREE.Mesh(sparkG,sparkM);
-  sk.position.set(Math.cos(sa)*sr,0.2,Math.sin(sa)*sr);hMark.g.add(sk);sparks.push({m:sk,ph:i/16});
+function setStandLadder(lx,lz,ry){
+  scene.add(ladder);ladder.position.set(lx,0,lz);ladder.rotation.set(0,ry,0);
+  lad.position.set(0,0,0);lad.rotation.set(0,0,0);fold(true);
 }
-var hTarget=new THREE.Object3D(),placeHive={kind:'place',g:hTarget,py:1.4},placeGhost={kind:'place',g:ghost.g,py:1.2};
+function setCarryLadder(){
+  body.add(ladder);ladder.position.set(0.55,1.5,-0.1);ladder.rotation.set(Math.PI/2-0.35,0,0);
+  lad.position.set(0,-HT/2,0);lad.rotation.set(0,Math.PI/2,0);fold(false);
+}
 
-// UI helpers
+// Ladder placement markers near wild tree hive
+function makeRingMark(r,col,op){
+  var g=new THREE.Group(),dm=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide}),fm=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.12,depthWrite:false});
+  var n=Math.max(12,Math.round(r*13)),w=0.13,seg=Math.PI*2/n;
+  for(var j=0;j<n;j++){var d=new THREE.Mesh(new THREE.RingGeometry(r-w,r,6,1,j*seg,seg*0.55),dm);d.rotation.x=-Math.PI/2;d.position.y=0.09;g.add(d);}
+  var f=new THREE.Mesh(new THREE.CircleGeometry(r-w,40),fm);f.rotation.x=-Math.PI/2;f.position.y=0.085;g.add(f);
+  g.visible=false;scene.add(g);return{g:g,dm:dm,fm:fm};
+}
+var HR=2.5,hMark=makeRingMark(HR,0xF6B93B,0.85),ghost=makeRingMark(0.9,0xffffff,0.35);
+hMark.g.position.set(hp.x,0,hp.z);
+var hTarget=new THREE.Object3D();
+
+// ================= UNIFIED GAME STATE & MOBILE LOCALSTORAGE =================
+var SAVE_KEY='honeybee_sim_save_v1';
+var HARVEST_SECS=900; // 15 minutes once mounted on a stand
+var FIRST_HARVEST_SECS=45; // Fast 45s first-batch tutorial harvest
+
+function defaultGameState(){
+  return{
+    version:1,
+    wood:0,scrap:0,honey:0,coins:0,box:0,
+    benchFixed:false,hasLadder:false,hasRack:false,
+    cutsceneDone:false,firstHarvestDone:false,
+    player:{x:0,z:6.4,ry:Math.PI},
+    carryType:null, // null | 'ladder' | 'stand' | 'queen' | 'hive'
+    carryHive:null,
+    ladder:{x:5.2,z:9.8,ry:0,atHive:false},
+    rackCount:0,
+    flowerLevel:0,
+    stands:[], // [{slot:0..9}]
+    hives:[], // [{id,slotType:'tree'|'stand',slotIdx,populated,tier,timer,ready,ants}]
+    savedAt:Date.now()
+  };
+}
+var gameState=defaultGameState();
+
+function syncGameState(){
+  if(typeof gameState.firstHarvestDone!=='boolean'){
+    gameState.firstHarvestDone=!!(gameState.coins>0||gameState.honey>0);
+  }
+}
+function getHarvestSecs(){
+  return gameState.firstHarvestDone?HARVEST_SECS:FIRST_HARVEST_SECS;
+}
+
+// Runtime scene collections synchronized with gameState
+var standMeshes={}; // slot -> THREE.Group
+var hiveActors=[];  // [{data,g,bees:[],antG,tagEl}]
+var squash=[],chips=[],puffs=[],drips=[];
+var chipG=new THREE.BoxGeometry(0.09,0.04,0.07),puffG=new THREE.SphereGeometry(1,10,8),dripG=new THREE.SphereGeometry(0.06,8,6);
+
+// DOM references
+var woodEl=document.getElementById('wood'),scrapEl=document.getElementById('scrap'),honeyEl=document.getElementById('honey'),coinsEl=document.getElementById('coins'),boxesEl=document.getElementById('boxes');
+var goalEl=document.getElementById('goal'),bannerEl=document.getElementById('banner');
+var progEl=document.getElementById('prog'),progArc=document.getElementById('progArc');
+var promptEl=document.getElementById('prompt'),promptIco=document.getElementById('promptIco'),promptTxt=document.getElementById('promptTxt'),promptCost=document.getElementById('promptCost'),promptCostIco=document.getElementById('promptCostIco'),promptCostVal=document.getElementById('promptCostVal');
+var prompt2El=document.getElementById('prompt2'),prompt2Ico=document.getElementById('prompt2Ico'),prompt2Txt=document.getElementById('prompt2Txt'),prompt2Cost=document.getElementById('prompt2Cost'),prompt2CostIco=document.getElementById('prompt2CostIco'),prompt2CostVal=document.getElementById('prompt2CostVal');
+var smokePill=document.getElementById('smokePill'),smokeTEl=document.getElementById('smokeT'),downBtn=document.getElementById('downBtn');
+var craftModal=document.getElementById('craftModal'),menuModal=document.getElementById('menuModal'),saveStatus=document.getElementById('saveStatus');
+var cutEl=document.getElementById('cutscene'),cutWho=document.getElementById('cutWho'),cutTxt=document.getElementById('cutTxt'),cutHint=document.getElementById('cutHint');
+
+var bannerT=null;
 function showBanner(s){
   bannerEl.textContent=s;bannerEl.style.display='block';
-  bannerEl.animate([{transform:'translateX(-50%) scale(.6)',opacity:0},{transform:'translateX(-50%) scale(1.1)',opacity:1},{transform:'translateX(-50%) scale(1)',opacity:1}],{duration:380});
-  clearTimeout(bannerT);bannerT=setTimeout(function(){bannerEl.style.display='none';},3200);
+  bannerEl.animate([{transform:'translateX(-50%) scale(.7)',opacity:0},{transform:'translateX(-50%) scale(1.06)',opacity:1},{transform:'translateX(-50%) scale(1)',opacity:1}],{duration:340});
+  clearTimeout(bannerT);bannerT=setTimeout(function(){bannerEl.style.display='none';},3000);
 }
-function popText(txt,worldPos,cls){
+function projectToFrame(v3){
+  var v=v3.clone().project(camera);
+  if(v.z>1)return null;
+  return{x:(v.x*0.5+0.5)*frame.clientWidth,y:(-v.y*0.5+0.5)*frame.clientHeight};
+}
+function popText(txt,wPos,cls){
+  var p=projectToFrame(wPos);if(!p)return;
   var el=document.createElement('div');el.className='x-pop'+(cls?' '+cls:'');el.textContent=txt;
-  var p=worldPos.clone().project(camera),r=frame.getBoundingClientRect();
-  el.style.left=(p.x*0.5+0.5)*r.width+'px';el.style.top=(-p.y*0.5+0.5)*r.height+'px';
-  frame.appendChild(el);
-  el.animate([{transform:'translate(-50%,-50%) scale(.6)',opacity:1},{transform:'translate(-50%,-150%) scale(1.05)',opacity:0}],{duration:950,easing:'ease-out'}).onfinish=function(){el.remove();};
+  el.style.left=p.x+'px';el.style.top=p.y+'px';frame.appendChild(el);
+  el.animate([{transform:'translate(-50%,-50%) scale(.7)',opacity:1},{transform:'translate(-50%,-150%) scale(1.05)',opacity:0}],{duration:950,easing:'ease-out'}).onfinish=function(){el.remove();};
 }
-function flashBtn(el){
-  if(!el||el.style.display==='none')return;
-  el.classList.add('x-press');setTimeout(function(){el.classList.remove('x-press');},130);
+
+function updHud(){
+  woodEl.textContent=gameState.wood;
+  scrapEl.textContent=gameState.scrap;
+  honeyEl.textContent=gameState.honey;
+  coinsEl.textContent=gameState.coins;
+  boxesEl.textContent=gameState.box;
 }
-function clearNear(){near=null;promptEl.style.display='none';altBtn.style.display='none';prompt2El.style.display='none';ring.visible=false;}
+
+function rebuildCarryVisual(){
+  while(carry.children.length)carry.remove(carry.children[0]);
+  scoop.visible=(gameState.carryType==='queen');
+  if(gameState.carryType==='ladder'&&gameState.hasLadder){
+    ladder.visible=true;setCarryLadder();
+  }else{
+    if(gameState.hasLadder){ladder.visible=true;setStandLadder(gameState.ladder.x,gameState.ladder.z,gameState.ladder.ry);}
+    else ladder.visible=false;
+  }
+  if(gameState.carryType==='stand'){
+    var sm=makeStandMesh();sm.scale.setScalar(0.75);carry.add(sm);
+  }else if(gameState.carryType==='hive'&&gameState.carryHive){
+    carry.add(makeBeeBox(gameState.carryHive.tier));
+  }else if(!gameState.carryType&&gameState.box>0){
+    carry.add(makeBeeBox(1));
+  }
+}
+
+function rebuildRackVisual(){
+  rack.visible=gameState.hasRack;
+  updatePlaceholderVisibility();
+  while(rackBoxes.children.length)rackBoxes.remove(rackBoxes.children[0]);
+  for(var idx=0;idx<gameState.rackCount;idx++){
+    var col=idx%3,row=Math.floor(idx/3);
+    var b=makeBeeBox(1);b.scale.setScalar(0.74);
+    b.position.set(0,0.24+row*0.52,(col-1)*1.08);
+    b.rotation.y=-Math.PI/2;
+    rackBoxes.add(b);
+  }
+}
+
+function rebuildWorkbenchVisual(){
+  benchFixed.visible=gameState.benchFixed;
+  benchBroken.visible=!gameState.benchFixed;
+  repairMark.g.visible=!gameState.benchFixed;
+  benchLbl.visible=gameState.benchFixed;
+  updatePlaceholderVisibility();
+}
+
+function hasPopulatedHive(){
+  return gameState.hives.some(function(h){return !!h.populated;})||gameState.carryType==='queen'||gameState.carryType==='hive';
+}
+
+function updatePlaceholderVisibility(){
+  var showBenchMarks=!cutsceneActive&&!!gameState.benchFixed;
+  rackMark.g.visible=showBenchMarks&&!gameState.hasRack;
+  var showStandMarks=showBenchMarks&&(gameState.carryType==='stand'||gameState.carryType==='hive'||hasPopulatedHive());
+  standMarkers.forEach(function(sm,idx){
+    var hasSt=gameState.stands.some(function(st){return st.slot===idx;});
+    var hasHv=gameState.hives.some(function(h){return h.slotType==='stand'&&h.slotIdx===idx;});
+    sm.m.g.visible=showStandMarks&&!hasSt;
+    sm.topHive.g.visible=showBenchMarks&&hasSt&&!hasHv&&gameState.carryType==='hive';
+  });
+}
+
+function clearHiveActor(actor){
+  scene.remove(actor.g);
+  actor.bees.forEach(function(b){scene.remove(b.b.g);});
+  if(actor.tagEl)actor.tagEl.remove();
+}
+
+function spawnHiveActor(data){
+  var g=makeBeeBox(data.tier);
+  var pos=data.slotType==='stand'?{x:standCoords[data.slotIdx][0],y:0.67,z:standCoords[data.slotIdx][1]}:{x:treeSpots[data.slotIdx][0],y:0,z:treeSpots[data.slotIdx][1]};
+  g.position.set(pos.x,pos.y,pos.z);
+  scene.add(g);
+  var antG=new THREE.Group();
+  for(var a=0;a<5;a++){var am=mesh(new THREE.SphereGeometry(0.055,6,6),0x2a1208,Math.cos(a*1.25)*0.48,0.12,Math.sin(a*1.25)*0.4,antG);am.castShadow=false;}
+  antG.visible=!!data.ants;g.add(antG);
+  var tagEl=document.createElement('div');tagEl.className='x-tag';frame.appendChild(tagEl);
+  var actor={data:data,g:g,bees:[],antG:antG,tagEl:tagEl};
+  if(data.populated)populateActorBees(actor);
+  hiveActors.push(actor);
+  return actor;
+}
+function populateActorBees(actor){
+  var need=actor.data.tier>=3?5:3;
+  while(actor.bees.length<need){
+    var b=makeBee(false);scene.add(b.g);
+    b.g.position.copy(actor.g.position).add(new THREE.Vector3(0,0.7,0));
+    actor.bees.push({b:b,ph:rnd(0,6.28),mode:'orbit',fl:flowerPts[Math.floor(Math.random()*flowerPts.length)],ft:rnd(2,6)});
+  }
+}
+
+function rebuildAllWorldFromState(){
+  syncGameState();
+  rebuildWorkbenchVisual();
+  rebuildRackVisual();
+  // Stands
+  Object.keys(standMeshes).forEach(function(k){scene.remove(standMeshes[k]);});
+  standMeshes={};
+  gameState.stands.forEach(function(st){
+    var m=makeStandMesh();m.position.set(standCoords[st.slot][0],0,standCoords[st.slot][1]);
+    scene.add(m);standMeshes[st.slot]=m;
+  });
+  // Hives
+  hiveActors.forEach(clearHiveActor);hiveActors=[];
+  gameState.hives.forEach(spawnHiveActor);
+  // Player & Carry
+  player.position.set(gameState.player.x,0,gameState.player.z);
+  player.rotation.y=gameState.player.ry;
+  rebuildCarryVisual();
+  updatePlaceholderVisibility();
+  updHud();
+  goal();
+}
+
+function saveGame(){
+  try{
+    syncGameState();
+    gameState.player.x=Number(player.position.x.toFixed(2));
+    gameState.player.z=Number(player.position.z.toFixed(2));
+    gameState.player.ry=Number(player.rotation.y.toFixed(2));
+    gameState.savedAt=Date.now();
+    localStorage.setItem(SAVE_KEY,JSON.stringify(gameState));
+    if(saveStatus)saveStatus.textContent='Saved just now';
+  }catch(e){}
+}
+
+function loadGame(){
+  try{
+    var raw=localStorage.getItem(SAVE_KEY);
+    if(raw){
+      var parsed=JSON.parse(raw);
+      var def=defaultGameState();
+      gameState=Object.assign({},def,parsed);
+      syncGameState();
+      gameState.player=Object.assign({},def.player,parsed.player||{});
+      gameState.ladder=Object.assign({},def.ladder,parsed.ladder||{});
+      if(!Array.isArray(gameState.stands))gameState.stands=[];
+      if(!Array.isArray(gameState.hives))gameState.hives=[];
+      // Apply offline elapsed time to mounted hive timers (45s first batch, 15m after)
+      var elapsed=Math.max(0,(Date.now()-(gameState.savedAt||Date.now()))/1000);
+      var flowMult=1+gameState.flowerLevel*0.12;
+      var defSecs=getHarvestSecs();
+      gameState.hives.forEach(function(h){
+        if(h.populated&&h.slotType==='stand'&&!h.ready){
+          var tierMult=h.tier===3?1.45:h.tier===2?1.2:1.0;
+          var curT=(typeof h.timer==='number')?h.timer:defSecs;
+          h.timer=Math.max(0,curT-elapsed*flowMult*tierMult);
+          if(h.timer<=0)h.ready=true;
+        }
+      });
+      for(var fi=0;fi<Math.min(5,gameState.flowerLevel||0);fi++)addWildflowerPatch(fi);
+    }
+  }catch(e){gameState=defaultGameState();}
+  rebuildAllWorldFromState();
+}
+
+setInterval(function(){if(playing&&!cutsceneActive)saveGame();},5000);
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden')saveGame();
+  else if(typeof clock!=='undefined'&&clock)clock.getDelta();
+});
+window.addEventListener('pagehide',saveGame);
+
+// ================= OPENING CUTSCENE & REACTIVE WIFE DIALOGUE =================
+var playing=false,cutsceneActive=false,wifeChatActive=false,cutBeat=0,cutT=0,cutZoomIn=0,cutWalkOut=0;
+var cutBeats=[
+  {who:'Wife',txt:"Honey, look around... the barn's nearly bare. If we don't come up with something soon, it's going to be a rough winter.",dur:4.6},
+  {who:'Husband',txt:"I know, love. Trust me, I've been racking my brain all week trying to think of a way out.",dur:4.2},
+  {who:'Husband',txt:"Hold on... do you hear that? Look up by the big oak!",dur:3.4,sfx:'buzz'},
+  {who:'Husband',txt:"A whole wild honeybee colony, right on our own land!",dur:3.8},
+  {who:'Husband',txt:"Okay, hear me out—crazy idea. What if we start a honey farm? Right here in the yard.",dur:4.6},
+  {who:'Wife',txt:"A honey farm? With what, darling? We don't even have a single box to put them in.",dur:4.4},
+  {who:'Husband',txt:"I'll build them! All I need is a solid place to work.",dur:3.6},
+  {who:'Husband',txt:"There's plenty of loose wood and scrap out here. If I patch up that old workbench, I can build boxes, a ladder, stands—the whole setup.",dur:5.4},
+  {who:'Wife',txt:"Alright, beekeeper. Fix that bench first, and I'll believe it!",dur:3.8}
+];
+function getWifeMilestoneLine(){
+  if(!gameState.benchFixed){
+    return "There's loose wood and scrap scattered around the yard—gather some to patch up that broken workbench.";
+  }
+  if(!hasPopulatedHive()){
+    return "You actually fixed the workbench! Now build a bee box and a ladder so you can coax a queen from the oak tree.";
+  }
+  if(gameState.coins<=0&&gameState.flowerLevel<=0){
+    return "Look at those bees settling into your box! Once they've filled it with honey, take it to the market crate.";
+  }
+  return "Who would've guessed your 'crazy idea' would turn our empty yard into a real little honey farm?";
+}
+function showCutBeat(){
+  var b=cutBeats[cutBeat];
+  cutWho.textContent=b.who;cutTxt.textContent=b.txt;cutHint.textContent='Tap to continue ▸';cutT=0;
+  if(b.sfx)playSfx(b.sfx);
+}
+function startCutscene(){
+  wifeChatActive=false;cutsceneActive=true;cutBeat=0;cutT=0;
+  player.position.set(-0.95,0,9.85);player.rotation.y=Math.PI*0.85;
+  wife.position.set(1.05,0,9.85);wife.rotation.y=-Math.PI*0.85;
+  document.getElementById('cutSkip').style.display='inline-block';
+  cutEl.style.display='flex';
+  document.getElementById('hud').style.display='none';
+  goalEl.style.display='none';
+  document.getElementById('camTools').style.display='none';
+  updatePlaceholderVisibility();
+  showCutBeat();
+}
+function openWifeDialogue(){
+  if(cutsceneActive||wifeChatActive)return;
+  wifeChatActive=true;
+  cutWho.textContent='Wife';
+  cutTxt.textContent=getWifeMilestoneLine();
+  cutHint.textContent='Tap to close ✕';
+  document.getElementById('cutSkip').style.display='none';
+  cutEl.style.display='flex';
+  clearNear();playSfx('pick');
+}
+function closeWifeDialogue(){
+  if(!wifeChatActive)return;
+  wifeChatActive=false;
+  cutEl.style.display='none';
+  goal();
+}
+function endCutscene(){
+  cutsceneActive=false;gameState.cutsceneDone=true;
+  cutEl.style.display='none';
+  document.getElementById('hud').style.display='flex';
+  goalEl.style.display='block';
+  document.getElementById('camTools').style.display='flex';
+  cutZoomIn=1.2;cutWalkOut=1.0;
+  wife.rotation.y=Math.PI;
+  updatePlaceholderVisibility();
+  showBanner('Gather 6 Wood & 4 Scrap to repair the Workbench');
+  goal();saveGame();
+}
+document.getElementById('cutBox').addEventListener('click',function(e){
+  e.stopPropagation();
+  if(wifeChatActive){closeWifeDialogue();return;}
+  if(!cutsceneActive)return;
+  cutBeat++;if(cutBeat>=cutBeats.length)endCutscene();else showCutBeat();
+});
+document.getElementById('cutSkip').addEventListener('click',function(e){
+  e.stopPropagation();if(cutsceneActive)endCutscene();
+});
+
+// ================= GOALS & CRAFTING HUB =================
+function hasEmptyTreeBox(){return gameState.hives.some(function(h){return h.slotType==='tree'&&!h.populated;});}
+function hasPopulatedTreeBox(){return gameState.hives.some(function(h){return h.slotType==='tree'&&h.populated;});}
+function hasEmptyStand(){return gameState.stands.some(function(st){return !gameState.hives.some(function(h){return h.slotType==='stand'&&h.slotIdx===st.slot;});});}
 
 function goal(){
   var g='';
-  if(carrying){
-    g='Set Ladder at the Tree Hive';
-  }else if(carryingQueen){
-    g=onTop?'Climb Down with the Queen 👑':'Move to Your Empty Box & Place the Queen 👑';
-  }else if(carryingStand){
-    g='Place Hive Stand on a Meadow Marker';
-  }else if(carryingHive){
-    g=hasFreeStand()?'Mount Captured Hive on an Empty Stand!':'Set Hive Down or Craft a Stand (6 Scrap)';
-  }else if(onTop){
-    if(smokedT<=0)g='Use Smoke to Calm the Wild Bees';
-    else if(hasEmptyBox())g='Tap Capture Queen to Catch Her in Your Scoop!';
-    else g='Harvest Wild Honey or Climb Down';
-  }else if(hasPestHive()){
-    g='Brush Ants off Ground Hive (or Mount on Stand!)';
-  }else if(state.box>0){
-    g='Place Your Bee Box Near the Big Tree';
-  }else if(apiaryHives.length===0){
-    g=state.wood<10?'Walk Near Logs to Collect Wood ('+state.wood+'/10)':'Craft a Bee Box at the Workbench';
-  }else if(hasEmptyBox()){
-    g=atHive?'Climb the Ladder & Capture the Queen!':'Bring the Ladder to the Tree Hive';
-  }else if(hasUnmountedPopHive()){
-    if(hasFreeStand())g='Pick Up Captured Hive & Mount It on a Stand!';
-    else if(state.scrap<6)g='Walk Near Scrap to Gather ('+state.scrap+'/6) for a Stand';
-    else g='Craft a Hive Stand at the Workbench (6 Scrap)';
-  }else if(state.honey>0){
-    g='Sell Honey at the Market Crate ('+(state.honey*8)+' Coins)';
-  }else if(forageLevel<5&&state.coins>=10){
-    g='Plant Wildflowers at Market (+15% Nectar Speed!)';
-  }else{
-    g='Expand Your Apiary! ('+apiaryHives.length+' Hives · '+getTotalStands()+'/10 Stands)';
-  }
+  if(!gameState.benchFixed)g='Gather 6 Wood & 4 Scrap -> Repair Workbench';
+  else if(gameState.carryType==='queen')g='Bring the Queen to an empty Bee Box';
+  else if(gameState.carryType==='stand')g='Place Hive Stand on a STAND marker';
+  else if(gameState.carryType==='hive')g=hasEmptyStand()?'Mount Captured Hive on a Stand':'Craft & place a Hive Stand first';
+  else if(gameState.carryType==='ladder')g='Place Ladder by the wild tree hive';
+  else if(onTop)g=smokedT>0?(hasEmptyTreeBox()?'Capture Queen or Harvest Honey':'Harvest Wild Honey'):'Use Smoker to calm the wild bees';
+  else if(gameState.box>0)g='Place Bee Box near tree'+(gameState.hasRack?' or Box Rack':'');
+  else if(!gameState.hasLadder)g='Craft an A-Frame Ladder at Workbench';
+  else if(!hasEmptyTreeBox()&&gameState.hives.length===0)g='Craft a Bee Box & place it near the tree';
+  else if(hasEmptyTreeBox()&&!gameState.ladder.atHive)g='Carry Ladder to the wild tree hive';
+  else if(hasEmptyTreeBox()&&gameState.ladder.atHive)g='Climb Ladder, Smoke & Capture the Queen';
+  else if(hasPopulatedTreeBox())g='Craft a Stand & mount your captured Hive';
+  else if(gameState.honey>0)g='Sell Honey at the Cottage Market Crate';
+  else g='Expand your apiary (10 Stand spots)';
   goalEl.textContent=g;
 }
 
-// Ladder actions
-function pickUp(){
-  if(isHandsBusy())return;
-  carrying=true;atHive=false;
-  for(var j=squash.length-1;j>=0;j--)if(squash[j].g===ladder)squash.splice(j,1);
-  ladder.scale.setScalar(1);setCarry();sfx('wood');clearNear();goal();
+function updCraftButtons(){
+  var cBox=document.getElementById('cBoxBtn'),cStand=document.getElementById('cStandBtn'),cLad=document.getElementById('cLadBtn'),cRack=document.getElementById('cRackBtn');
+  var handsBusy=!!gameState.carryType||gameState.box>0;
+  cBox.className='x-btn'+(gameState.wood>=10&&!handsBusy?'':' dis');
+  cStand.className='x-btn'+(gameState.scrap>=6&&!handsBusy&&gameState.stands.length<10?'':' dis');
+  if(gameState.hasLadder){cLad.textContent='Built ✓';cLad.className='x-btn done';}
+  else{cLad.textContent='Craft';cLad.className='x-btn'+(gameState.wood>=8&&gameState.scrap>=4?'':' dis');}
+  if(gameState.hasRack){cRack.textContent='Built ✓';cRack.className='x-btn done';}
+  else{cRack.textContent='Craft';cRack.className='x-btn'+(gameState.wood>=10&&gameState.scrap>=4?'':' dis');}
 }
-function placeLadder(){
-  if(!carrying)return;
-  carrying=false;
-  if(litHive){
-    setHive(hTarget.position.x,hTarget.position.z,hTarget.rotation.y);
-    atHive=true;popText('Ladder ready!',new THREE.Vector3(hTarget.position.x,3.4,hTarget.position.z));
-    showBanner('Climb the ladder!');
-  }else{
-    setStand(ghost.g.position.x,ghost.g.position.z,ghost.g.rotation.y);
-  }
-  sfx('wood');
-  ladderSolid=false;ladder.scale.setScalar(0.001);squash.push({g:ladder,t:0});
-  hMark.g.visible=ghost.g.visible=false;litHive=false;clearNear();goal();
-}
+function openCraft(){updCraftButtons();craftModal.style.display='flex';}
+function closeCraft(){craftModal.style.display='none';}
+document.getElementById('craftClose').addEventListener('click',closeCraft);
+craftModal.addEventListener('click',function(e){if(e.target===craftModal)closeCraft();});
 
-// Climb, Smoke, Wild Harvest & Swarm Capture
-var climb=null,onTop=false,climbS=1,faceL=0,faceH=0,smokeA=null,smokedT=0,harv=null,capA=null;
-var hiveHoney=3,refillT=0,beeK=0,beeTo=0,puffs=[],shakeT=0,TOPY=HT+0.09;
-var climbObj={kind:'climb',g:ladder,r:1.9,rs:1.2,py:1.7},hAnchor=new THREE.Object3D();hAnchor.position.copy(hp);
-var topObj={kind:'smoke',g:hAnchor,py:hp.y+1.1,noRing:true},puffG=new THREE.SphereGeometry(1,12,8);
-
-function lerpA(a,b,f){return a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*f;}
-function shake(){
-  if(promptEl.style.display==='block')promptEl.animate([0,-8,8,-6,6,-3,0].map(function(ox){return{transform:'translate(calc(-50% + '+ox+'px),-100%)'};}),{duration:420});
-  shakeT=0.4;
-}
-function spawnPuffAt(origin,count){
-  for(var j=0;j<count;j++){
-    var pm=new THREE.Mesh(puffG,new THREE.MeshBasicMaterial({color:0xf4f6f8,transparent:true,opacity:0.75,depthWrite:false}));
-    pm.position.copy(origin);pm.scale.setScalar(0.12);scene.add(pm);
-    puffs.push({m:pm,v:new THREE.Vector3(rnd(-0.8,0.8),rnd(1.0,1.8),rnd(-0.8,0.8)),t:0,life:rnd(0.6,0.95)});
+var craft=null;
+function startCraft(kind){
+  closeCraft();
+  if(kind==='repair'){
+    if(gameState.wood<6||gameState.scrap<4){playSfx('bad');popText('Need 6 🪵 & 4 🔩',new THREE.Vector3(BX,2.2,BZ),'x-bad');return;}
+    gameState.wood-=6;gameState.scrap-=4;
+  }else if(kind==='box'){
+    if(gameState.wood<10)return;gameState.wood-=10;
+  }else if(kind==='stand'){
+    if(gameState.scrap<6)return;gameState.scrap-=6;
+  }else if(kind==='ladder'){
+    if(gameState.wood<8||gameState.scrap<4)return;gameState.wood-=8;gameState.scrap-=4;
+  }else if(kind==='rack'){
+    if(gameState.wood<10||gameState.scrap<4)return;gameState.wood-=10;gameState.scrap-=4;
   }
+  updHud();saveGame();
+  while(craftPreview.children.length)craftPreview.remove(craftPreview.children[0]);
+  var pv=kind==='stand'?makeStandMesh():makeBeeBox(1);pv.scale.setScalar(0.01);craftPreview.add(pv);
+  craft={kind:kind,t:0,dur:2.5,pv:pv,hitT:0};
+  pHam.visible=true;benchHam.visible=false;
+  progEl.querySelector('span').textContent='🔨';progArc.style.strokeDashoffset='100.5';progEl.style.display='block';
+  player.rotation.y=Math.atan2(BX-player.position.x,BZ-player.position.z);
+  clearNear();
 }
+document.getElementById('cBoxBtn').addEventListener('click',function(){startCraft('box');});
+document.getElementById('cStandBtn').addEventListener('click',function(){startCraft('stand');});
+document.getElementById('cLadBtn').addEventListener('click',function(){startCraft('ladder');});
+document.getElementById('cRackBtn').addEventListener('click',function(){startCraft('rack');});
+
+// Settings & Save Modal
+var resetConfirm=false;
+document.getElementById('sndBtn').addEventListener('click',function(e){
+  e.stopPropagation();soundOn=!soundOn;this.textContent=soundOn?'🔊':'🔇';if(soundOn)playSfx('pick');
+});
+document.getElementById('menuBtn').addEventListener('click',function(e){
+  e.stopPropagation();resetConfirm=false;document.getElementById('resetBtn').textContent='Reset Save';
+  menuModal.style.display='flex';
+});
+document.getElementById('menuClose').addEventListener('click',function(){menuModal.style.display='none';});
+menuModal.addEventListener('click',function(e){if(e.target===menuModal)menuModal.style.display='none';});
+document.getElementById('saveNowBtn').addEventListener('click',function(){saveGame();playSfx('ok');showBanner('Progress saved!');});
+document.getElementById('replayCutBtn').addEventListener('click',function(){menuModal.style.display='none';startCutscene();});
+document.getElementById('resetBtn').addEventListener('click',function(){
+  if(!resetConfirm){resetConfirm=true;this.textContent='Tap to Confirm';return;}
+  try{localStorage.removeItem(SAVE_KEY);}catch(e){}
+  gameState=defaultGameState();rebuildAllWorldFromState();
+  menuModal.style.display='none';startCutscene();
+});
+
+// ================= TREE HIVE CLIMB, SMOKE, HARVEST, QUEEN CAPTURE =================
+var climb=null,onTop=false,climbS=1,faceL=0,faceH=0,TOPY=HT+0.09;
+var smokeA=null,smokedT=0,harv=null,capA=null,hiveHoney=3,refillT=0,beeK=0,beeTo=0,ladderSolid=true;
 
 function climbUp(){
-  if(!atHive||climb||onTop||isHandsBusy())return;
+  if(!gameState.ladder.atHive||climb||onTop||gameState.carryType)return;
   var p=player.position,ry=ladder.rotation.y;
   var lz=(p.x-ladder.position.x)*Math.sin(ry)+(p.z-ladder.position.z)*Math.cos(ry);
   climbS=lz>=0?1:-1;faceL=ry+(climbS>0?Math.PI:0);
   faceH=Math.atan2(hp.x-ladder.position.x,hp.z-ladder.position.z);
-  climb={t:0,dir:1,s:0};clearNear();
+  climb={t:0,dir:1};clearNear();
 }
 function climbDown(){
   if(!onTop||climb||smokeA||harv||capA)return;
-  onTop=false;climb={t:0,dir:-1,s:6};clearNear();downBtn.style.display='none';goal();
-}
-function updClimb(dt){
-  if(!climb)return;
-  climb.t+=dt;
-  var k=Math.min(1,climb.t/1.2),kk=climb.dir>0?k:1-k,st=kk*6,fl=Math.floor(st),fr=st-fl;
-  var y=Math.min(6,fl+fr*fr*(3-2*fr))/6;
-  climb.s=st;
-  var ry=ladder.rotation.y,d=(LSP+0.45)*(1-y)*climbS,p=player.position;
-  p.set(ladder.position.x+Math.sin(ry)*d,y*TOPY,ladder.position.z+Math.cos(ry)*d);
-  player.rotation.y=y>0.8?lerpA(faceL,faceH,(y-0.8)/0.2):faceL;
-  if(k>=1){
-    var up=climb.dir>0;climb=null;
-    if(up){onTop=true;player.rotation.y=faceH;goal();showBanner(smokedT>0?'Harvest or Capture Swarm!':'Use smoke to calm the bees');}
-    else{p.y=0;player.rotation.y=faceL+Math.PI;goal();}
-  }
+  onTop=false;climb={t:0,dir:-1};clearNear();downBtn.style.display='none';goal();
 }
 function startSmoke(){
   if(!onTop||climb||smokeA||harv||capA||smokedT>0)return;
-  smokeA={t:0,n:0};smoker.visible=true;sfx('smoke');clearNear();
+  smokeA={t:0,dur:2.55,n:0};smoker.visible=true;clearNear();playSfx('buzz');
 }
 function tryHarvest(){
   if(!onTop||climb||smokeA||harv||capA)return;
-  if(smokedT<=0){shake();popText('Bees are guarding! Use smoke first',hp.clone().setY(hp.y+1.3),'x-bad');return;}
-  if(hiveHoney<=0){shake();popText('Wild hive refilling...',hp.clone().setY(hp.y+1.3),'x-bad');return;}
-  harv={t:0,dripT:0};harvJar.visible=true;harvKnife.visible=true;
+  if(smokedT<=0){playSfx('bad');popText('Smoke the bees first!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
+  if(hiveHoney<=0){playSfx('bad');popText('Wild hive refilling...',hp.clone().setY(hp.y+1.2),'x-bad');return;}
+  harv={t:0,dur:2.5,dt:0};hKnife.visible=hJar.visible=true;
   progEl.querySelector('span').textContent='🍯';progArc.style.strokeDashoffset='100.5';progEl.style.display='block';clearNear();
 }
 function tryCapture(){
-  if(!onTop||climb||smokeA||harv||capA||carryingQueen)return;
-  if(smokedT<=0){shake();popText('Calm bees with smoke first!',hp.clone().setY(hp.y+1.3),'x-bad');return;}
-  var empty=apiaryHives.find(function(h){return !h.populated;});
-  if(!empty){shake();popText('Place an empty box first!',hp.clone().setY(hp.y+1.3),'x-bad');return;}
-  capA={t:0,target:empty};swarmScoop.visible=true;capQueen.g.visible=true;capQueen.g.position.copy(hp);
-  progEl.querySelector('span').textContent='👑';progArc.style.strokeDashoffset='100.5';progEl.style.display='block';clearNear();
+  if(!onTop||climb||smokeA||harv||capA)return;
+  if(smokedT<=0){playSfx('bad');popText('Smoke the bees first!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
+  if(gameState.carryType==='queen'){playSfx('bad');popText('Already carrying Queen!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
+  if(!hasEmptyTreeBox()){playSfx('bad');popText('Place an empty Bee Box first!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
+  capA={t:0,dur:2.6};scoop.visible=true;
+  progEl.querySelector('span').textContent='👑';progArc.style.strokeDashoffset='100.5';progEl.style.display='block';clearNear();playSfx('buzz');
 }
 
-function addWorkerBeesToHive(hObj,count){
-  for(var j=0;j<count;j++){
-    var b=createBeeMesh(hObj.tier>=2?0xffa822:0xF6B93B,false);
-    b.g.scale.setScalar(0.88);
-    var fl=flowers[Math.floor(Math.random()*flowers.length)]||new THREE.Vector3(0,0.5,0);
-    hObj.bees.push({g:b.g,wl:b.wl,wr:b.wr,pollen:b.pollen,ph:rnd(0,6.28),sp:rnd(0.45,0.85),fl:fl});
-  }
+// ================= INTERACTIONS & TOUCH PROMPTS =================
+var near=null,near2=null,litHive=false;
+function clearNear(){near=null;near2=null;promptEl.style.display='none';prompt2El.style.display='none';ring.visible=false;}
+function flashBtn(el){el.classList.add('pressed');setTimeout(function(){el.classList.remove('pressed');},150);}
+function bindPromptBtn(el,fn){
+  el.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();flashBtn(el);fn();});
 }
 
-function placeQueenInHive(targetHive){
-  if(!carryingQueen||!targetHive||targetHive.populated)return;
-  carryingQueen=false;
-  var start=new THREE.Vector3();swarmScoop.getWorldPosition(start);start.y+=0.2;
-  swarmScoop.visible=false;capQueen.g.visible=false;
-  targetHive.populated=true;
-  var end=targetHive.g.position.clone().add(new THREE.Vector3(0,0.4,0));
-  var qFly=createBeeMesh(0xF6B93B,true);
-  qFly.g.position.copy(start);
-  swarmFlights.push({
-    g:qFly.g,wl:qFly.wl,wr:qFly.wr,start:start,end:end,
-    delay:0,t:0,dur:0.48,arc:0.45,off:0,target:targetHive,isQ:true
-  });
-  // All wild bees surrounding the tree hive follow the Queen into the captured box
-  var followIdx=0;
-  bees.forEach(function(b){
-    if(b.state==='tree'){
-      b.state='following';
-      b.start.copy(b.g.position);
-      b.target=targetHive;
-      b.t=0;b.delay=0.22+followIdx*0.18;b.dur=1.45+followIdx*0.12;
-      b.arc=1.6+followIdx*0.2;b.off=rnd(-0.55,0.55);
-      followIdx++;
-    }
-  });
-  sfx('honey');
-  popText('Queen Placed! 👑',targetHive.g.position.clone().setY(1.6));
-  showBanner('The wild bees are following the Queen into the hive!');
-  clearNear();goal();
+function setPromptUI(el,icoEl,txtEl,costEl,costIcoEl,costValEl,cfg){
+  icoEl.textContent=cfg.ico;icoEl.className='x-ico '+(cfg.cls||'w');
+  txtEl.textContent=cfg.txt;
+  if(cfg.cost){
+    costEl.hidden=false;costIcoEl.textContent=cfg.costIco;costIcoEl.className='x-ico '+(cfg.costCls||'w');
+    costValEl.textContent=cfg.cost;costEl.classList.toggle('x-short',!!cfg.short);
+  }else costEl.hidden=true;
+  el.style.display='block';
 }
 
-var nozW=new THREE.Vector3();
-function updHoney(dt,t){
-  if(smokeA){
-    smokeA.t+=dt;
-    if(smokeA.t>0.4)beeTo=1;
-    var want=Math.floor(smokeA.t/0.075);
-    while(smokeA.n<want){
-      smokeA.n++;
-      noz.getWorldPosition(nozW);
-      var pm=new THREE.Mesh(puffG,new THREE.MeshBasicMaterial({color:0xf4f6f8,transparent:true,opacity:0.78,depthWrite:false}));
-      pm.position.copy(nozW);pm.scale.setScalar(0.11);scene.add(pm);
-      var dir=hp.clone().sub(nozW).normalize();
-      puffs.push({m:pm,v:dir.multiplyScalar(rnd(2.0,3.1)).add(new THREE.Vector3(rnd(-0.35,0.35),rnd(0.25,0.65),rnd(-0.35,0.35))),t:0,life:rnd(0.6,0.9)});
-    }
-    if(smokeA.t>=2.55){
-      smokeA=null;smoker.visible=false;smokedT=20;
-      popText('Bees calmed!',hp.clone().setY(hp.y+1.2));
-      showBanner(hasEmptyBox()?'Tap Capture Queen!':'Harvest the honey!');
-      goal();
-    }
-  }
-  if(smokedT>0){
-    smokedT=Math.max(0,smokedT-dt);
-    smokePill.style.display='flex';
-    smokeTEl.textContent='Smoke '+Math.ceil(smokedT)+'s';
-    beeTo=smokedT>0?1:0;
-  }else{
-    smokePill.style.display='none';
-    if(!smokeA)beeTo=0;
-  }
-  beeK+=(beeTo-beeK)*Math.min(1,dt*3.5);
-
-  // Wild honey harvest animation & dripping honey droplets
-  if(harv){
-    harv.t+=dt;harv.dripT+=dt;
-    if(harv.dripT>=0.16){
-      harv.dripT=0;
-      var dp=new THREE.Mesh(dripG,M(0xF6B93B));
-      dp.position.copy(hp).add(new THREE.Vector3(rnd(-0.18,0.18),-0.35,rnd(-0.18,0.18)));
-      dp.userData.noOut=true;scene.add(dp);
-      honeyDrips.push({m:dp,v:new THREE.Vector3(rnd(-0.2,0.2),-1.4,rnd(-0.2,0.2)),t:0});
-    }
-    var fk=Math.min(1,harv.t/2.5);
-    progArc.style.strokeDashoffset=(100.5*(1-fk)).toFixed(1);
-    var pPos=hp.clone().setY(hp.y+1.2).project(camera),r=frame.getBoundingClientRect();
-    progEl.style.left=(pPos.x*0.5+0.5)*r.width+'px';progEl.style.top=(-pPos.y*0.5+0.5)*r.height+'px';
-    if(fk>=1){
-      harv=null;harvJar.visible=false;harvKnife.visible=false;progEl.style.display='none';
-      hiveHoney--;state.honey++;updHud();sfx('honey');
-      popText('+1 🍯',hp.clone().setY(hp.y+1.1));
-      goal();
-    }
-  }
-  for(var dj=honeyDrips.length-1;dj>=0;dj--){
-    var dr=honeyDrips[dj];dr.t+=dt;dr.v.y-=4.5*dt;dr.m.position.addScaledVector(dr.v,dt);
-    dr.m.scale.setScalar(Math.max(0.01,1-dr.t*1.6));
-    if(dr.t>0.62){scene.remove(dr.m);honeyDrips.splice(dj,1);}
-  }
-
-  // Swarm capture animation: Queen spirals out of tree hive into scoop
-  if(capA){
-    capA.t+=dt;
-    var ck=Math.min(1,capA.t/2.6);
-    var scoopW=new THREE.Vector3();swarmScoop.getWorldPosition(scoopW);scoopW.y+=0.2;
-    var qStart=hp.clone().add(new THREE.Vector3(0,-0.4,0.45));
-    var qPos=qStart.clone().lerp(scoopW,ck);
-    var swirl=(1-ck)*0.42;
-    qPos.x+=Math.cos(t*14)*swirl;qPos.z+=Math.sin(t*14)*swirl;qPos.y+=Math.sin(ck*Math.PI)*0.35;
-    capQueen.g.position.copy(qPos);
-    capQueen.g.rotation.y=Math.atan2(scoopW.x-qPos.x,scoopW.z-qPos.z);
-    capQueen.wl.rotation.z=0.5+Math.sin(t*45)*0.6;capQueen.wr.rotation.z=-0.5-Math.sin(t*45)*0.6;
-    progArc.style.strokeDashoffset=(100.5*(1-ck)).toFixed(1);
-    var cPos=hp.clone().setY(hp.y+1.2).project(camera),cr=frame.getBoundingClientRect();
-    progEl.style.left=(cPos.x*0.5+0.5)*cr.width+'px';progEl.style.top=(-cPos.y*0.5+0.5)*cr.height+'px';
-    if(ck>=1){
-      capA=null;carryingQueen=true;progEl.style.display='none';
-      sfx('honey');
-      popText('Queen Caught! 👑',hp.clone().setY(hp.y+1.2));
-      showBanner('Climb down & place the Queen in your box!');
-      goal();
-    }
-  }
-
-  if(hiveHoney<3){refillT+=dt;if(refillT>=18){refillT=0;hiveHoney++;}}
-
-  for(var j=puffs.length-1;j>=0;j--){
-    var pf=puffs[j];pf.t+=dt;pf.m.position.addScaledVector(pf.v,dt);
-    var pk=pf.t/pf.life;
-    pf.m.scale.setScalar(0.12+pk*0.42);pf.m.material.opacity=Math.max(0,0.72*(1-pk));
-    if(pk>=1){scene.remove(pf.m);pf.m.material.dispose();puffs.splice(j,1);}
-  }
-  for(j=swarmFlights.length-1;j>=0;j--){
-    var sf=swarmFlights[j];sf.t+=dt;
-    if(sf.t<sf.delay)continue;
-    var u=Math.min(1,(sf.t-sf.delay)/sf.dur);
-    sf.g.position.lerpVectors(sf.start,sf.end,u);
-    sf.g.position.y+=Math.sin(u*Math.PI)*sf.arc;
-    sf.g.position.x+=Math.sin(u*Math.PI*2)*sf.off;
-    sf.g.rotation.y=Math.atan2(sf.end.x-sf.start.x,sf.end.z-sf.start.z);
-    sf.wl.rotation.z=0.5+Math.sin(t*45)*0.6;sf.wr.rotation.z=-0.5-Math.sin(t*45)*0.6;
-    if(u>=1){
-      scene.remove(sf.g);
-      if(sf.isQ){
-        squash.push({g:sf.target.g,t:0.12});
-        if(sf.target.bees.length===0)addWorkerBeesToHive(sf.target,1);
-      }
-      swarmFlights.splice(j,1);
-    }
-  }
-}
-
-// Crafting (Bee Box or Hive Stand) on Workbench with piece-by-piece assembly
-function clearBenchWork(){while(benchWork.children.length)benchWork.remove(benchWork.children[0]);}
-function buildBenchWorkParts(kind){
-  clearBenchWork();
-  var parts=[];
-  if(kind==='box'){
-    var p1=mesh(rbox(0.92,0.08,0.76,0.03),0xa8723c,0,0.04,0,benchWork);
-    var p2=mesh(rbox(0.82,0.48,0.66,0.04),0xc98a4e,0,0.32,0,benchWork);
-    var p3=mesh(rbox(0.92,0.09,0.76,0.03),0x9a6232,0,0.60,0,benchWork);
-    var p4=mesh(new THREE.BoxGeometry(0.36,0.05,0.04),0x3a2410,0,0.14,0.33,benchWork);
-    parts=[p1,p2,p3,p4];
-  }else{
-    var legs=new THREE.Group();benchWork.add(legs);
-    [[-0.42,-0.34],[0.42,-0.34],[-0.42,0.34],[0.42,0.34]].forEach(function(q){
-      mesh(new THREE.CylinderGeometry(0.065,0.075,STAND_H,10),0x6f7a84,q[0],STAND_H/2,q[1],legs);
-    });
-    var br1=mesh(rbox(0.92,0.06,0.1,0.02),0x7c8a96,0,0.22,-0.34,benchWork);
-    var br2=mesh(rbox(0.92,0.06,0.1,0.02),0x7c8a96,0,0.22,0.34,benchWork);
-    var top=mesh(rbox(1.02,0.1,0.86,0.03),0x9a6232,0,STAND_H+0.02,0,benchWork);
-    parts=[legs,br1,br2,top];
-  }
-  outline(benchWork,0.025);
-  parts.forEach(function(pt){pt.visible=false;});
-  return parts;
-}
-
-function startCraft(kind){
-  if(craft||isHandsBusy())return;
-  if(kind==='box'){
-    if(getFreeTreeSpot()===-1){popText('Move a Hive to a Stand first!',bench.position.clone().setY(2.2),'x-bad');return;}
-    if(state.wood<10){
-      promptEl.animate([0,-8,8,-6,6,-3,0].map(function(ox){return{transform:'translate(calc(-50% + '+ox+'px),-100%)'};}),{duration:420});
-      popText('Need '+(10-state.wood)+' more wood',bench.position.clone().setY(2.2),'x-bad');return;
-    }
-    state.wood-=10;
-  }else if(kind==='stand'){
-    if(getTotalStands()>=standSpots.length){popText('All 10 Stands built!',bench.position.clone().setY(2.2),'x-bad');return;}
-    if(state.scrap<6){
-      altBtn.animate([0,-8,8,-6,6,-3,0].map(function(ox){return{transform:'translate(calc(-50% + '+ox+'px),-100%)'};}),{duration:420});
-      popText('Need '+(6-state.scrap)+' more scrap',bench.position.clone().setY(2.2),'x-bad');return;
-    }
-    state.scrap-=6;
-  }
-  updHud();
-  var parts=buildBenchWorkParts(kind);
-  craft={kind:kind,t:0,chipT:0,parts:parts};
-  ham.visible=false;craftHammer.visible=true;
-  progEl.querySelector('span').textContent=kind==='box'?'🔨':'🔧';
-  progArc.style.strokeDashoffset='100.5';progEl.style.display='block';
-  clearNear();
-}
-
-function updCraft(dt){
-  if(!craft)return;
-  craft.t+=dt;craft.chipT+=dt;
-  var k=Math.min(1,craft.t/2.5);
-  // Reveal crafted parts progressively as hammering advances
-  for(var pi=0;pi<craft.parts.length;pi++){
-    var thresh=(pi+0.15)/craft.parts.length;
-    if(k>=thresh&&!craft.parts[pi].visible){
-      craft.parts[pi].visible=true;
-      craft.parts[pi].scale.setScalar(0.01);
-      squash.push({g:craft.parts[pi],t:0});
-      sfx(craft.kind==='box'?'wood':'scrap');
-    }
-  }
-  progArc.style.strokeDashoffset=(100.5*(1-k)).toFixed(1);
-  var pPos=bench.position.clone().setY(2.4).project(camera),r=frame.getBoundingClientRect();
-  progEl.style.left=(pPos.x*0.5+0.5)*r.width+'px';progEl.style.top=(-pPos.y*0.5+0.5)*r.height+'px';
-  if(craft.chipT>0.12){
-    craft.chipT=0;
-    var ch=new THREE.Mesh(chipG,M(craft.kind==='box'?0xe8c38a:0x9aa6b2));
-    ch.position.set(BX+rnd(-0.35,0.35),1.25,BZ+rnd(-0.2,0.2));scene.add(ch);
-    chips.push({m:ch,v:new THREE.Vector3(rnd(-1.6,1.6),rnd(2.2,3.4),rnd(-1.6,1.6)),t:0});
-  }
-  if(k>=1){
-    var ck=craft.kind;craft=null;
-    clearBenchWork();ham.visible=true;craftHammer.visible=false;progEl.style.display='none';
-    if(ck==='box'){
-      state.box++;updHud();updateCarryBox();sfx('craft');
-      popText('+1 Bee Box!',bench.position.clone().setY(2.3));
-      showBanner('Place the box near the big tree!');
-    }else{
-      carryingStand=true;updateCarryStand();sfx('craft');
-      popText('+1 Hive Stand!',bench.position.clone().setY(2.3));
-      showBanner('Place stand on any meadow marker!');
-    }
-    goal();
-  }
-}
-
-// Place Box near Tree (or set carried captured hive back down on a tree spot)
-function placeBox(){
-  var freeIdx=getFreeTreeSpot();
-  if(freeIdx===-1)return;
-  var sp=spots[freeIdx];
-  if(carryingHive){
-    var ch=carryingHive;carryingHive=null;updateCarryBox();
-    ch.treeSpot=freeIdx;ch.standSpot=null;
-    ch.g.position.set(sp[0],0,sp[1]);ch.g.visible=true;
-    ch.g.scale.setScalar(0.001);squash.push({g:ch.g,t:0});
-    sfx('wood');popText('Hive Set Down',ch.g.position.clone().setY(1.6));
-    clearNear();goal();return;
-  }
-  if(state.box<=0)return;
-  state.box--;updHud();updateCarryBox();
-  var bx=beeBox(1);bx.position.set(sp[0],0,sp[1]);bx.scale.setScalar(0.001);scene.add(bx);
-  var ants=makeAntCluster();bx.add(ants);
-  squash.push({g:bx,t:0});
-  var tag=document.createElement('div');tag.className='x-tag';frame.appendChild(tag);
-  apiaryHives.push({
-    kind:'apiary',g:bx,tier:1,populated:false,honey:0,prog:0,
-    pests:false,pestCheckT:0,antCluster:ants,
-    bees:[],tag:tag,treeSpot:freeIdx,standSpot:null
-  });
-  sfx('wood');
-  popText('Empty Box Placed!',new THREE.Vector3(sp[0],1.5,sp[1]));
-  showBanner(atHive?'Climb ladder & capture a swarm!':'Bring ladder to tree hive!');
-  clearNear();goal();
-}
-
-// Stand placement, pickup & hive mounting
-function placeStandOnSpot(sp){
-  if(!carryingStand||sp.stand)return;
-  carryingStand=false;updateCarryStand();
-  var st=makeStandMesh();st.position.set(sp.x,0,sp.z);st.scale.setScalar(0.001);scene.add(st);
-  squash.push({g:st,t:0});
-  sp.stand=st;sfx('scrap');
-  popText('Stand Placed!',new THREE.Vector3(sp.x,1.4,sp.z));
-  clearNear();goal();
-}
-
-function pickUpStandFromSpot(sp){
-  if(isHandsBusy()||!sp.stand||sp.hive)return;
-  scene.remove(sp.stand);sp.stand=null;
-  carryingStand=true;updateCarryStand();sfx('scrap');
-  popText('Moving Stand',new THREE.Vector3(sp.x,1.4,sp.z));
-  clearNear();goal();
-}
-
-function pickUpApiaryHive(hObj){
-  if(isHandsBusy()||!hObj.populated)return;
-  if(hObj.standSpot!==null){standSpots[hObj.standSpot].hive=null;hObj.standSpot=null;}
-  if(hObj.treeSpot!==null){hObj.treeSpot=null;}
-  hObj.pests=false;if(hObj.antCluster)hObj.antCluster.visible=false;
-  hObj.g.visible=false;hObj.tag.style.display='none';
-  carryingHive=hObj;updateCarryBox();sfx('wood');
-  popText('Carrying Hive 🐝',player.position.clone().setY(2.4));
-  showBanner(hasFreeStand()?'Mount on any empty Stand!':'Craft & place a Stand first!');
-  clearNear();goal();
-}
-
-function mountHiveOnSpot(sp){
-  if(!carryingHive||!sp.stand||sp.hive)return;
-  var hObj=carryingHive;carryingHive=null;updateCarryBox();
-  hObj.standSpot=sp.idx;hObj.treeSpot=null;sp.hive=hObj;
-  hObj.pests=false;if(hObj.antCluster)hObj.antCluster.visible=false;
-  hObj.g.position.set(sp.x,STAND_H+0.07,sp.z);
-  hObj.g.visible=true;hObj.g.scale.setScalar(0.001);squash.push({g:hObj.g,t:0});
-  sfx('craft');
-  popText('Mounted! 15m Timer Started ⏳',new THREE.Vector3(sp.x,2.0,sp.z));
-  clearNear();goal();
-}
-
-// Apiary Harvest, Pest Clearing & Upgrades
-function brushPests(hObj){
-  if(!hObj||!hObj.pests)return;
-  hObj.pests=false;if(hObj.antCluster)hObj.antCluster.visible=false;
-  spawnPuffAt(hObj.g.position.clone().add(new THREE.Vector3(0,0.4,0)),4);
-  sfx('pest');popText('Ants Cleared! 🧹',hObj.g.position.clone().setY(1.6));
-  clearNear();goal();
-}
-
-function harvestApiaryHive(hObj){
-  if(!hObj||hObj.honey<=0)return;
-  if(hObj.pests){brushPests(hObj);return;}
-  var amt=hObj.honey;hObj.honey=0;state.honey+=amt;
-  var waxBonus=hObj.tier>=2?hObj.tier:0;
-  if(waxBonus>0)state.coins+=waxBonus;
-  updHud();
-  spawnPuffAt(hObj.g.position.clone().add(new THREE.Vector3(0,0.65,0)),4);
-  sfx('honey');
-  popText('+'+amt+' 🍯'+(waxBonus?' +'+waxBonus+'🪙 Wax':''),hObj.g.position.clone().setY(1.9));
-  squash.push({g:hObj.g,t:0.1});
-  clearNear();goal();
-}
-
-function upgradeApiaryHive(hObj){
-  if(!hObj||hObj.tier>=3)return;
-  var cost=hObj.tier===1?15:30;
-  if(state.coins<cost){
-    altBtn.animate([0,-8,8,-6,6,-3,0].map(function(ox){return{transform:'translate(calc(-50% + '+ox+'px),-100%)'};}),{duration:420});
-    popText('Need '+(cost-state.coins)+' more coins',hObj.g.position.clone().setY(1.9),'x-bad');return;
-  }
-  state.coins-=cost;updHud();hObj.tier++;
-  var pos=hObj.g.position.clone();scene.remove(hObj.g);
-  hObj.g=beeBox(hObj.tier);hObj.g.position.copy(pos);hObj.g.scale.setScalar(0.001);scene.add(hObj.g);
-  hObj.antCluster=makeAntCluster();hObj.g.add(hObj.antCluster);
-  squash.push({g:hObj.g,t:0});
-  addWorkerBeesToHive(hObj,2);sfx('craft');
-  popText('Tier '+hObj.tier+' Hive! ⬆️',pos.clone().setY(2.1));
-  clearNear();goal();
-}
-
-// Market: Sell Honey & Plant Wildflowers
-function sellHoney(){
-  if(state.honey<=0){popText('No honey to sell!',market.position.clone().setY(2),'x-bad');return;}
-  var earned=state.honey*8;state.coins+=earned;state.honey=0;updHud();sfx('coin');
-  popText('+'+earned+' 🪙',market.position.clone().setY(2.1));
-  showBanner('Sold honey for '+earned+' Coins!');
-  clearNear();goal();
-}
-function plantForage(){
-  if(forageLevel>=5){popText('Meadow is in full bloom! 🌸',market.position.clone().setY(2));return;}
-  if(state.coins<10){
-    altBtn.animate([0,-8,8,-6,6,-3,0].map(function(ox){return{transform:'translate(calc(-50% + '+ox+'px),-100%)'};}),{duration:420});
-    popText('Need '+(10-state.coins)+' more coins',market.position.clone().setY(2),'x-bad');return;
-  }
-  state.coins-=10;forageLevel++;updHud();sfx('plant');
-  for(var j=0;j<10;j++){
-    var fx=rnd(-W+1,W-1),fz=rnd(-H+2,8);
-    spawnFlower(fx,fz,j+forageLevel*3);
-  }
-  popText('Wildflowers Planted! +15% Speed 🌸',market.position.clone().setY(2.2));
-  showBanner('Nectar Flow Lv.'+forageLevel+' (+'+(forageLevel*15)+'% speed)');
-  clearNear();goal();
-}
-
-// Update Apiary Hives (15-min stand-only timer, ground ants, pollen foraging bees & tags)
-function updApiary(dt,t){
-  var r=frame.getBoundingClientRect();
-  apiaryHives.forEach(function(h){
-    var isCarried=(carryingHive===h);
-    var onStand=(h.standSpot!==null);
-    if(h.populated&&!isCarried){
-      if(!onStand){
-        // Ground hives can attract crawling ants and do not start honey production until placed on a stand
-        h.pestCheckT+=dt;
-        if(h.pestCheckT>=22&&!h.pests){
-          h.pestCheckT=0;
-          if(Math.random()<0.45){
-            h.pests=true;if(h.antCluster)h.antCluster.visible=true;
-            popText('Ants on ground hive! 🐜',h.g.position.clone().setY(1.6),'x-bad');
-            goal();
-          }
-        }
-        if(h.pests&&h.antCluster)h.antCluster.rotation.y=t*2.4;
-      }else{
-        var maxH=h.tier;
-        if(h.honey<maxH){
-          h.prog+=dt*hiveSpeedMult(h)/HARVEST_TIME;
-          if(h.prog>=1){h.prog=0;h.honey++;popText('🍯 Ready!',h.g.position.clone().setY(1.8));}
-        }
-      }
-    }
-    var home=isCarried?player.position.clone().add(new THREE.Vector3(0,1.5,0)):h.g.position;
-    h.bees.forEach(function(b,idx){
-      if(isCarried){
-        var ang=t*3.2+b.ph+idx*1.5;
-        b.g.position.set(home.x+Math.cos(ang)*1.1,home.y+0.3+Math.sin(t*4+idx)*0.2,home.z+Math.sin(ang)*1.1);
-        b.g.rotation.y=-ang;if(b.pollen)b.pollen.visible=false;
-      }else{
-        var cyc=(t*b.sp+b.ph)%2;
-        var out=cyc<1?cyc:2-cyc;
-        var returning=(cyc>=1);
-        var u=out*out*(3-2*out);
-        var bx=home.x+(b.fl.x-home.x)*u;
-        var bz=home.z+(b.fl.z-home.z)*u;
-        var by=home.y+0.55+Math.sin(u*Math.PI)*1.15+Math.sin(t*5+idx)*0.08;
-        b.g.position.set(bx,by,bz);
-        var tx=returning?home.x:b.fl.x,tz=returning?home.z:b.fl.z;
-        b.g.rotation.y=Math.atan2(tx-bx,tz-bz);
-        if(b.pollen)b.pollen.visible=returning;
-      }
-      b.wl.rotation.z=0.5+Math.sin(t*42+idx)*0.55;b.wr.rotation.z=-0.5-Math.sin(t*42+idx)*0.55;
-    });
-    if(isCarried){h.tag.style.display='none';return;}
-    var tp=h.g.position.clone().add(new THREE.Vector3(0,h.tier>=3?1.5:1.25,0)).project(camera);
-    if(tp.z<1){
-      h.tag.style.display='block';
-      h.tag.style.left=(tp.x*0.5+0.5)*r.width+'px';
-      h.tag.style.top=(-tp.y*0.5+0.5)*r.height+'px';
-      if(!h.populated){
-        if(carryingQueen){h.tag.textContent='👑 Place Queen Here!';h.tag.className='x-tag ready';}
-        else{h.tag.textContent='📦 Empty Box';h.tag.className='x-tag';}
-      }
-      else if(h.pests){h.tag.textContent='🐜 Ants! Clear or Stand';h.tag.className='x-tag pest';}
-      else if(!onStand){h.tag.textContent='📦 Place on Stand';h.tag.className='x-tag';}
-      else if(h.honey>0){h.tag.textContent='🍯 Ready ('+h.honey+')';h.tag.className='x-tag ready';}
-      else{h.tag.textContent='⏳ '+fmtTime(hiveRemSec(h));h.tag.className='x-tag';}
-    }else h.tag.style.display='none';
-  });
-}
-
-// Primary / Secondary / Tertiary Action Dispatchers
 function doPrimary(){
-  if(!playing||!near)return;
-  flashBtn(promptEl);
-  if(near.kind==='bench')startCraft('box');
-  else if(near.kind==='spot')placeBox();
-  else if(near.kind==='ladder')pickUp();
-  else if(near.kind==='place')placeLadder();
-  else if(near.kind==='climb')climbUp();
-  else if(near.kind==='smoke')startSmoke();
-  else if(near.kind==='harvest')tryHarvest();
-  else if(near.kind==='placeQueen')placeQueenInHive(near.h);
-  else if(near.kind==='market')sellHoney();
-  else if(near.kind==='standPlace')placeStandOnSpot(near.sp);
-  else if(near.kind==='standMove')pickUpStandFromSpot(near.sp);
-  else if(near.kind==='standMount')mountHiveOnSpot(near.sp);
-  else if(near.kind==='apiary'){
-    if(near.pests)brushPests(near);
-    else if(near.honey>0)harvestApiaryHive(near);
-    else if(near.populated)pickUpApiaryHive(near);
+  if(!near)return;
+  var k=near.kind;
+  if(k==='talkWife')openWifeDialogue();
+  else if(k==='repair')startCraft('repair');
+  else if(k==='bench')openCraft();
+  else if(k==='placeBox'){
+    if(gameState.box<=0)return;
+    var freeTree=-1;
+    for(var ti=0;ti<3;ti++)if(!gameState.hives.some(function(h){return h.slotType==='tree'&&h.slotIdx===ti;})){freeTree=ti;break;}
+    if(freeTree<0)return;
+    gameState.box--;
+    var hd={id:Date.now()+Math.random(),slotType:'tree',slotIdx:freeTree,populated:false,tier:1,timer:getHarvestSecs(),ready:false,ants:false};
+    gameState.hives.push(hd);
+    var act=spawnHiveActor(hd);act.g.scale.setScalar(0.01);squash.push({g:act.g,t:0});
+    rebuildCarryVisual();updHud();playSfx('ok');popText('Box placed!',act.g.position.clone().setY(1.3));goal();saveGame();
+  }else if(k==='stackRack'){
+    if(gameState.box<=0||gameState.rackCount>=12)return;
+    gameState.box--;gameState.rackCount++;rebuildCarryVisual();rebuildRackVisual();updHud();playSfx('ok');
+    popText('Stacked ('+gameState.rackCount+'/12)',new THREE.Vector3(RX,2.2,RZ));goal();saveGame();
+  }else if(k==='takeRack'){
+    if(gameState.rackCount<=0||gameState.carryType||gameState.box>0)return;
+    gameState.rackCount--;gameState.box++;rebuildCarryVisual();rebuildRackVisual();updHud();playSfx('pick');
+    popText('+1 Bee Box',new THREE.Vector3(RX,2.2,RZ));goal();saveGame();
+  }else if(k==='pickLadder'){
+    if(gameState.carryType||gameState.box>0){playSfx('bad');popText('Hands full!',player.position.clone().setY(2.4),'x-bad');return;}
+    gameState.carryType='ladder';gameState.ladder.atHive=false;rebuildCarryVisual();playSfx('pick');clearNear();goal();saveGame();
+  }else if(k==='placeLadder'){
+    if(gameState.carryType!=='ladder')return;
+    gameState.carryType=null;
+    if(litHive){
+      gameState.ladder={x:hTarget.position.x,z:hTarget.position.z,ry:hTarget.rotation.y,atHive:true};
+      popText('Ladder ready!',new THREE.Vector3(hTarget.position.x,3.2,hTarget.position.z));showBanner('Climb the ladder!');
+    }else{
+      gameState.ladder={x:ghost.g.position.x,z:ghost.g.position.z,ry:ghost.g.rotation.y,atHive:false};
+    }
+    ladderSolid=false;rebuildCarryVisual();ladder.scale.setScalar(0.01);squash.push({g:ladder,t:0});
+    hMark.g.visible=ghost.g.visible=false;litHive=false;playSfx('ok');clearNear();goal();saveGame();
+  }else if(k==='climb')climbUp();
+  else if(k==='smoke')startSmoke();
+  else if(k==='harvestWild')tryHarvest();
+  else if(k==='placeQueen'){
+    var a=near.actor;
+    a.data.populated=true;gameState.carryType=null;rebuildCarryVisual();
+    populateActorBees(a);playSfx('ok');
+    popText('👑 Colony Captured!',a.g.position.clone().setY(1.6));
+    showBanner('Wild bees are following the Queen into your box!');
+    // Send all wild tree bees flying down to follow the Queen
+    wildBees.forEach(function(wb,idx){wb.follow=a.g.position.clone().add(new THREE.Vector3(0,0.6,0));wb.delay=idx*0.22;});
+    clearNear();goal();saveGame();
+  }else if(k==='placeStand'){
+    var slot=near.slot;
+    gameState.carryType=null;gameState.stands.push({slot:slot});
+    var sm=makeStandMesh();sm.position.set(standCoords[slot][0],0,standCoords[slot][1]);sm.scale.setScalar(0.01);
+    scene.add(sm);standMeshes[slot]=sm;squash.push({g:sm,t:0});
+    rebuildCarryVisual();playSfx('ok');popText('Stand placed!',sm.position.clone().setY(1.4));clearNear();goal();saveGame();
+  }else if(k==='moveStand'){
+    if(gameState.carryType||gameState.box>0){playSfx('bad');popText('Hands full!',player.position.clone().setY(2.4),'x-bad');return;}
+    var sIdx=near.slot;
+    gameState.stands=gameState.stands.filter(function(st){return st.slot!==sIdx;});
+    if(standMeshes[sIdx]){scene.remove(standMeshes[sIdx]);delete standMeshes[sIdx];}
+    gameState.carryType='stand';rebuildCarryVisual();playSfx('pick');clearNear();goal();saveGame();
+  }else if(k==='mountHive'){
+    var mSlot=near.slot,hd2=gameState.carryHive;
+    hd2.slotType='stand';hd2.slotIdx=mSlot;hd2.ants=false;
+    var batchSecs=getHarvestSecs();
+    if(hd2.timer===undefined||hd2.timer<=0||hd2.timer>batchSecs)hd2.timer=batchSecs;
+    gameState.hives.push(hd2);gameState.carryType=null;gameState.carryHive=null;
+    var na=spawnHiveActor(hd2);na.g.scale.setScalar(0.01);squash.push({g:na.g,t:0});
+    rebuildCarryVisual();playSfx('ok');
+    popText(gameState.firstHarvestDone?'15:00 Honey Timer Started!':'45s First Harvest Started!',na.g.position.clone().setY(1.9));
+    clearNear();goal();saveGame();
+  }else if(k==='brushAnts'){
+    near.actor.data.ants=false;near.actor.antG.visible=false;playSfx('ok');
+    popText('Ants brushed off!',near.actor.g.position.clone().setY(1.3));saveGame();
+  }else if(k==='harvestApiary'){
+    var ha=near.actor,wasFirst=!gameState.firstHarvestDone;
+    ha.data.ready=false;
+    if(wasFirst)gameState.firstHarvestDone=true;
+    ha.data.timer=getHarvestSecs();
+    var yieldH=ha.data.tier===3?3:ha.data.tier===2?2:1;
+    gameState.honey+=yieldH;
+    var waxBonus=ha.data.tier>=2?ha.data.tier*3:0;
+    if(waxBonus>0)gameState.coins+=waxBonus;
+    // Gentle smoke puffs
+    for(var sp=0;sp<5;sp++){
+      var pm=new THREE.Mesh(puffG,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.65,depthWrite:false}));
+      pm.position.copy(ha.g.position).add(new THREE.Vector3(rnd(-0.3,0.3),0.8,rnd(-0.3,0.3)));pm.scale.setScalar(0.16);
+      scene.add(pm);puffs.push({m:pm,v:new THREE.Vector3(rnd(-0.3,0.3),1.1,rnd(-0.3,0.3)),t:0});
+    }
+    updHud();playSfx('ok');
+    popText('+'+yieldH+' 🍯'+(waxBonus?' +'+waxBonus+' 🪙 Wax':''),ha.g.position.clone().setY(1.8));
+    if(wasFirst)showBanner('First batch harvested! Future batches take 15 minutes.');
+    goal();saveGame();
+  }else if(k==='sellHoney'){
+    if(gameState.honey<=0){playSfx('bad');popText('No honey to sell',crate.position.clone().setY(1.6),'x-bad');return;}
+    var earned=gameState.honey*5;gameState.coins+=earned;gameState.honey=0;
+    updHud();playSfx('coin');popText('+'+earned+' 🪙',crate.position.clone().setY(1.7));goal();saveGame();
   }
 }
-function doAlt(){
-  if(!playing||!near)return;
-  flashBtn(altBtn);
-  if(near.kind==='bench')startCraft('stand');
-  else if(near.kind==='harvest'&&hasEmptyBox())tryCapture();
-  else if(near.kind==='apiary'&&near.populated&&near.tier<3)upgradeApiaryHive(near);
-  else if(near.kind==='market'&&forageLevel<5)plantForage();
-}
-function doPrompt2(){
-  if(!playing||!near)return;
-  flashBtn(prompt2El);
-  if(near.kind==='climb')pickUp();
-  else if(near.kind==='apiary'&&near.populated)pickUpApiaryHive(near);
+
+function doSecondary(){
+  if(!near2)return;
+  var k=near2.kind;
+  if(k==='captureQueen')tryCapture();
+  else if(k==='pickLadder'){
+    if(gameState.carryType||gameState.box>0){playSfx('bad');popText('Hands full!',player.position.clone().setY(2.4),'x-bad');return;}
+    gameState.carryType='ladder';gameState.ladder.atHive=false;rebuildCarryVisual();playSfx('pick');clearNear();goal();saveGame();
+  }else if(k==='pickHive'){
+    if(gameState.carryType||gameState.box>0){playSfx('bad');popText('Hands full!',player.position.clone().setY(2.4),'x-bad');return;}
+    var pa=near2.actor;
+    gameState.hives=gameState.hives.filter(function(h){return h.id!==pa.data.id;});
+    clearHiveActor(pa);hiveActors=hiveActors.filter(function(x){return x!==pa;});
+    gameState.carryType='hive';gameState.carryHive=pa.data;
+    rebuildCarryVisual();playSfx('pick');popText('Carry to a Hive Stand!',player.position.clone().setY(2.4));clearNear();goal();saveGame();
+  }else if(k==='upgradeHive'){
+    var ua=near2.actor,nt=ua.data.tier+1,cW=nt===2?12:20,cC=nt===2?15:35;
+    if(gameState.wood<cW||gameState.coins<cC){playSfx('bad');popText('Need '+cW+' 🪵 & '+cC+' 🪙',ua.g.position.clone().setY(1.8),'x-bad');return;}
+    gameState.wood-=cW;gameState.coins-=cC;ua.data.tier=nt;
+    var oldPos=ua.g.position.clone();clearHiveActor(ua);hiveActors=hiveActors.filter(function(x){return x!==ua;});
+    var nu=spawnHiveActor(ua.data);nu.g.scale.setScalar(0.01);squash.push({g:nu.g,t:0});
+    updHud();playSfx('ok');popText('Upgraded to Tier '+nt+'!',oldPos.setY(2.0));saveGame();
+  }else if(k==='plantFlowers'){
+    if(gameState.flowerLevel>=5)return;
+    if(gameState.coins<10){playSfx('bad');popText('Need 10 🪙',crate.position.clone().setY(1.6),'x-bad');return;}
+    gameState.coins-=10;addWildflowerPatch(gameState.flowerLevel);gameState.flowerLevel++;
+    updHud();playSfx('ok');popText('🌸 Nectar Flow +12%!',crate.position.clone().setY(1.8));saveGame();
+  }
 }
 
-// Pointer click/tap listeners on prompt buttons (touch-screen style)
-function bindPrompt(el,fn){
-  el.addEventListener('pointerdown',function(e){e.stopPropagation();});
-  el.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();fn();});
-}
-bindPrompt(promptEl,doPrimary);
-bindPrompt(altBtn,doAlt);
-bindPrompt(prompt2El,doPrompt2);
-bindPrompt(downBtn,function(){flashBtn(downBtn);climbDown();});
+bindPromptBtn(promptEl,doPrimary);
+bindPromptBtn(prompt2El,doSecondary);
+bindPromptBtn(downBtn,function(){climbDown();});
 
-// Movement controls (WASD / Arrows + Touch/Mouse Virtual Joystick)
+// Start button
+document.getElementById('play').addEventListener('click',function(e){
+  e.stopPropagation();initAudio();playing=true;
+  document.getElementById('start').style.display='none';
+  if(!gameState.cutsceneDone)startCutscene();
+});
+
+// Movement controls (WASD / Arrows + Virtual Joystick)
 var keys={},joy={on:false,id:null,x:0,y:0,vx:0,vy:0};
 var joyEl=document.getElementById('joy'),knob=document.getElementById('knob');
 window.addEventListener('keydown',function(e){keys[e.code]=true;});
 window.addEventListener('keyup',function(e){keys[e.code]=false;});
 
 frame.addEventListener('pointerdown',function(e){
-  if(!playing)return;
-  if(e.target.closest&&e.target.closest('.x-prompt,#sndBtn,#start'))return;
+  if(!playing||cutsceneActive||wifeChatActive)return;
+  if(e.target.closest&&e.target.closest('.x-prompt,#camTools,#start,.x-modal,#cutscene'))return;
   var r=frame.getBoundingClientRect();
-  joy.on=true;joy.id=e.pointerId;
-  joy.x=e.clientX-r.left;joy.y=e.clientY-r.top;
-  joy.vx=0;joy.vy=0;
-  joyEl.style.left=joy.x+'px';joyEl.style.top=joy.y+'px';
-  knob.style.transform='translate(0px,0px)';
-  joyEl.style.display='block';
+  joy.on=true;joy.id=e.pointerId;joy.x=e.clientX-r.left;joy.y=e.clientY-r.top;joy.vx=0;joy.vy=0;
+  joyEl.style.left=joy.x+'px';joyEl.style.top=joy.y+'px';knob.style.transform='translate(0px,0px)';joyEl.style.display='block';
 });
 window.addEventListener('pointermove',function(e){
   if(!joy.on||e.pointerId!==joy.id)return;
   var r=frame.getBoundingClientRect();
-  var dx=(e.clientX-r.left)-joy.x,dy=(e.clientY-r.top)-joy.y;
-  var d=Math.hypot(dx,dy),maxR=42;
+  var dx=(e.clientX-r.left)-joy.x,dy=(e.clientY-r.top)-joy.y,d=Math.hypot(dx,dy),maxR=42;
   if(d>maxR){dx=dx/d*maxR;dy=dy/d*maxR;}
-  joy.vx=dx/maxR;joy.vy=dy/maxR;
-  knob.style.transform='translate('+dx+'px,'+dy+'px)';
+  joy.vx=dx/maxR;joy.vy=dy/maxR;knob.style.transform='translate('+dx+'px,'+dy+'px)';
 });
-function endJoy(e){
-  if(!joy.on||e.pointerId!==joy.id)return;
-  joy.on=false;joy.id=null;joy.vx=0;joy.vy=0;
-  joyEl.style.display='none';
-}
-window.addEventListener('pointerup',endJoy);
-window.addEventListener('pointercancel',endJoy);
+function endJoy(e){if(!joy.on||e.pointerId!==joy.id)return;joy.on=false;joy.id=null;joy.vx=0;joy.vy=0;joyEl.style.display='none';}
+window.addEventListener('pointerup',endJoy);window.addEventListener('pointercancel',endJoy);
 
 // Collision helpers
-function pushOut(px,pz,cx,cz,rad){
-  var dx=px-cx,dz=pz-cz,d=Math.hypot(dx,dz);
-  if(d<rad&&d>0.0001){var f=rad/d;return[cx+dx*f,cz+dz*f];}
-  return[px,pz];
+function pushOut(p,cx,cz,r){
+  var dx=p.x-cx,dz=p.z-cz,d=Math.hypot(dx,dz);
+  if(d<r&&d>0.0001){p.x=cx+dx/d*r;p.z=cz+dz/d*r;}
 }
-function pushBox(px,pz,cx,cz,hx,hz){
-  var dx=px-cx,dz=pz-cz;
-  if(Math.abs(dx)<hx&&Math.abs(dz)<hz){
-    if(hx-Math.abs(dx)<hz-Math.abs(dz))return[cx+(dx<0?-hx:hx),pz];
-    else return[px,cz+(dz<0?-hz:hz)];
+function pushBox(p,cx,cz,hw,hd){
+  var dx=p.x-cx,dz=p.z-cz;
+  if(Math.abs(dx)<hw&&Math.abs(dz)<hd){
+    if(hw-Math.abs(dx)<hd-Math.abs(dz))p.x=cx+Math.sign(dx||1)*hw;
+    else p.z=cz+Math.sign(dz||1)*hd;
   }
-  return[px,pz];
 }
 
-// Responsive renderer resize
+// Responsive canvas sizing (adapts cleanly to portrait, landscape & mobile browser bars)
 function resize(){
-  var r=frame.getBoundingClientRect();
-  renderer.setSize(r.width,r.height,false);
-  camera.aspect=r.width/r.height;
+  var w=frame.clientWidth||window.innerWidth,h=frame.clientHeight||window.innerHeight;
+  if(w<1||h<1)return;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,isMobile?1.5:2));
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;
+  // Slightly tighter vertical FOV in landscape so the yard stays comfortably framed on sideways phones
+  camera.fov=(w>h)?44:52;
   camera.updateProjectionMatrix();
 }
 window.addEventListener('resize',resize);
-resize();
+window.addEventListener('orientationchange',function(){setTimeout(resize,120);setTimeout(resize,350);});
+if(window.visualViewport)window.visualViewport.addEventListener('resize',resize);
 
-// Main animation loop
-var camPos=new THREE.Vector3(0,11.2,19.2),camLook=new THREE.Vector3(0,1.0,5.8);
+// Unobstructed 3/4 Action Close-Up Camera
+function getActionCam(aPos,bPos,dist,height,sideBias){
+  var mid=aPos.clone().lerp(bPos,0.5);
+  var dir=bPos.clone().sub(aPos);dir.y=0;
+  if(dir.lengthSq()<0.01)dir.set(0,0,-1);else dir.normalize();
+  var right=new THREE.Vector3(-dir.z,0,dir.x);
+  var c1=mid.clone().addScaledVector(right,dist*0.82).addScaledVector(dir,-dist*0.42);c1.y=mid.y+height;
+  var c2=mid.clone().addScaledVector(right,-dist*0.82).addScaledVector(dir,-dist*0.42);c2.y=mid.y+height;
+  var pick=(c1.distanceTo(camera.position)<=c2.distanceTo(camera.position))?c1:c2;
+  if(sideBias&&Math.abs(pick.x)<3.2&&pick.z>9.5)pick=(pick===c1?c2:c1);
+  return{pos:pick,look:mid};
+}
+
+function fmtTime(sec){
+  var s=Math.max(0,Math.ceil(sec)),m=Math.floor(s/60),r=s%60;
+  return m+':'+(r<10?'0':'')+r;
+}
+
+// ================= MAIN ANIMATION LOOP =================
 var clock=new THREE.Clock();
+var camPos=new THREE.Vector3(0,12.4,20.4),camLook=new THREE.Vector3(0,1,5.8);
+
 function animate(){
   requestAnimationFrame(animate);
+  if(contextLost)return;
   var dt=Math.min(0.05,clock.getDelta()),t=clock.elapsedTime;
-  hive.getWorldPosition(hiveWorld);
 
-  // Animate clouds & wild bees (orbiting tree hive, or following Queen into captured box)
-  clouds.forEach(function(c){c.position.x+=c.userData.v*dt;if(c.position.x>30)c.position.x=-30;});
-  bees.forEach(function(b,idx){
-    if(b.state==='following'){
-      b.t+=dt;
-      if(b.t<b.delay){
-        // Briefly buzz around tree hive before taking off in sequence
-        var spd0=b.sp*1.2,ang0=t*spd0+b.ph;
-        b.g.position.set(hiveWorld.x+Math.cos(ang0)*b.r,hiveWorld.y+b.yo+Math.sin(t*3+b.ph)*0.2,hiveWorld.z+Math.sin(ang0)*b.r);
-        b.start.copy(b.g.position);
-      }else{
-        var u=Math.min(1,(b.t-b.delay)/b.dur);
-        var dest=(carryingHive===b.target)?player.position.clone().add(new THREE.Vector3(0,1.2,0)):b.target.g.position.clone().add(new THREE.Vector3(0,0.45,0));
-        b.g.position.lerpVectors(b.start,dest,u);
-        b.g.position.y+=Math.sin(u*Math.PI)*b.arc;
-        b.g.position.x+=Math.sin(u*Math.PI*2)*b.off;
-        b.g.rotation.y=Math.atan2(dest.x-b.g.position.x,dest.z-b.g.position.z);
-        if(u>=1){
-          b.g.visible=false;b.state='respawning';b.respawnT=14+idx*1.2;
-          if(b.target){
-            if(b.target.bees.length<4)addWorkerBeesToHive(b.target,1);
-            if(b.target.g.visible)squash.push({g:b.target.g,t:0.16});
-            if(idx===bees.length-1){
-              popText('Swarm Settled! 🐝',dest.clone().add(new THREE.Vector3(0,1.1,0)));
-              showBanner('Mount your hive on a Stand to start honey!');
-              goal();
-            }
-          }
-          b.target=null;
-        }
-      }
-      b.wl.rotation.z=0.5+Math.sin(t*44)*0.6;
-      b.wr.rotation.z=-0.5-Math.sin(t*44)*0.6;
-      return;
+  // Clouds & glowing wild hive
+  clouds.forEach(function(cl){cl.position.x+=cl.userData.v*dt;if(cl.position.x>34)cl.position.x=-34;});
+  hiveGlow.material.opacity=0.18+0.1*Math.sin(t*2.6);
+  hive.rotation.z=Math.sin(t*1.5)*0.03;
+
+  // Opening Cutscene update
+  if(cutsceneActive){
+    cutT+=dt;
+    var bObj=cutBeats[cutBeat];
+    if(cutBeat===2||cutBeat===3){
+      player.rotation.y=lerpA(player.rotation.y,Math.atan2(hp.x-player.position.x,hp.z-player.position.z),dt*5);
+      wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(hp.x-wife.position.x,hp.z-wife.position.z),dt*5);
+    }else if(cutBeat===7){
+      player.rotation.y=lerpA(player.rotation.y,Math.atan2(BX-player.position.x,BZ-player.position.z),dt*5);
+    }else{
+      player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dt*5);
+      wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z),dt*5);
     }
-    if(b.state==='respawning'){
-      b.respawnT-=dt;
-      if(b.respawnT<=0){b.state='tree';b.g.visible=true;}
-      return;
-    }
-    var spd=b.sp*(1-beeK*0.65),ang=t*spd+b.ph,rad=b.r*(1+beeK*0.95);
-    var bx=hiveWorld.x+Math.cos(ang)*rad,bz=hiveWorld.z+Math.sin(ang)*rad;
-    var by=hiveWorld.y+b.yo+Math.sin(t*2.4+b.ph)*0.25+beeK*0.9;
-    b.g.position.set(bx,by,bz);b.g.rotation.y=-ang;
-    b.wl.rotation.z=0.5+Math.sin(t*36*(1-beeK*0.4))*0.55;
-    b.wr.rotation.z=-0.5-Math.sin(t*36*(1-beeK*0.4))*0.55;
-  });
-
-  // Keep captured Queen buzzing safely inside the player's scoop while carrying her
-  if(carryingQueen&&!capA){
-    var scW=new THREE.Vector3();swarmScoop.getWorldPosition(scW);
-    capQueen.g.visible=true;
-    capQueen.g.position.set(scW.x+Math.cos(t*7)*0.05,scW.y+0.18+Math.sin(t*9)*0.04,scW.z+Math.sin(t*7)*0.05);
-    capQueen.g.rotation.y=player.rotation.y+Math.sin(t*5)*0.4;
-    capQueen.wl.rotation.z=0.5+Math.sin(t*46)*0.6;
-    capQueen.wr.rotation.z=-0.5-Math.sin(t*46)*0.6;
+    var talkBob=Math.abs(Math.sin(t*7))*0.06;
+    if(bObj.who==='Husband'){body.position.y=talkBob;wBody.position.y=0;armR.rotation.x=-0.5+Math.sin(t*6)*0.2;}
+    else{wBody.position.y=talkBob;body.position.y=0;armR.rotation.x=0;wArmL.rotation.x=-0.4+Math.sin(t*5)*0.15;}
+    if(cutT>bObj.dur){cutBeat++;if(cutBeat>=cutBeats.length)endCutscene();else showCutBeat();}
+  }else if(wifeChatActive){
+    player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dt*7);
+    wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z),dt*7);
+    wBody.position.y=Math.abs(Math.sin(t*7))*0.05;
+    wArmL.rotation.x=-0.35+Math.sin(t*5)*0.15;
+  }else{
+    wBody.position.y=Math.sin(t*2.2)*0.02;wArmL.rotation.x=0;
   }
 
-  // Update logs & scraps (Auto-collect magnet + spin + respawn)
-  function updatePickupList(list,isScrap){
-    list.forEach(function(it){
-      if(!it.alive){
-        it.t+=dt;
-        if(it.t>12){
-          it.alive=true;it.flying=false;it.t=0;
-          it.g.position.set(it.hx,0,it.hz);it.g.visible=true;it.g.scale.setScalar(0.001);
-          squash.push({g:it.g,t:0});
-        }
-        return;
-      }
-      if(it.flying){
-        it.flyT+=dt;
-        var fk=Math.min(1,it.flyT/0.26);
-        var tgt=player.position.clone().add(new THREE.Vector3(0,1.0,0));
-        it.g.position.lerpVectors(it.startPos,tgt,fk*fk);
-        it.g.position.y+=Math.sin(fk*Math.PI)*0.85;
-        it.g.rotation.y+=dt*14;
-        it.g.scale.setScalar(Math.max(0.05,1-fk*0.65));
-        if(fk>=1){
-          it.flying=false;it.alive=false;it.t=0;it.g.visible=false;it.g.scale.setScalar(1);
-          if(isScrap){state.scrap+=2;sfx('scrap');popText('+2 🔩',tgt.clone().add(new THREE.Vector3(0,0.6,0)));}
-          else{state.wood+=2;sfx('wood');popText('+2 🪵',tgt.clone().add(new THREE.Vector3(0,0.6,0)));}
-          updHud();goal();
-        }
-        return;
-      }
-      it.g.position.y=Math.sin(t*2.4+it.ph)*0.06;
-      if(playing&&!climb&&!onTop){
-        var dist=Math.hypot(player.position.x-it.g.position.x,player.position.z-it.g.position.z);
-        if(dist<2.0){
-          it.flying=true;it.flyT=0;it.startPos.copy(it.g.position);
-        }
-      }
-    });
-  }
-  updatePickupList(logs,false);
-  updatePickupList(scraps,true);
-
-  // Pop-in squash animations & crafting chips
-  for(var j=squash.length-1;j>=0;j--){
-    var sq=squash[j];sq.t+=dt;var sk=Math.min(1,sq.t/0.35);
-    var scVal=sk<0.6?sk/0.6*1.16:1.16-(sk-0.6)/0.4*0.16;
-    sq.g.scale.setScalar(Math.max(0.001,scVal));
-    if(sk>=1){sq.g.scale.setScalar(1);squash.splice(j,1);}
-  }
-  for(j=chips.length-1;j>=0;j--){
-    var ch=chips[j];ch.t+=dt;ch.v.y-=9*dt;ch.m.position.addScaledVector(ch.v,dt);ch.m.rotation.x+=dt*8;
-    if(ch.t>0.55){scene.remove(ch.m);chips.splice(j,1);}
+  // Post-cutscene walk out into open yard
+  if(cutWalkOut>0){
+    cutWalkOut=Math.max(0,cutWalkOut-dt);
+    player.position.x+=((0)-player.position.x)*Math.min(1,dt*4.5);
+    player.position.z+=((6.4)-player.position.z)*Math.min(1,dt*4.5);
+    player.rotation.y=lerpA(player.rotation.y,Math.PI,dt*8);
+    var wc=Math.sin(t*14);body.position.y=Math.abs(wc)*0.12;footL.position.z=0.05+wc*0.18;footR.position.z=0.05-wc*0.18;
   }
 
   // Player Movement
   var vx=0,vz=0;
-  if(playing&&!climb&&!onTop&&!craft){
+  if(playing&&!cutsceneActive&&!wifeChatActive&&!climb&&!onTop&&!craft&&cutWalkOut<=0){
     if(keys.KeyW||keys.ArrowUp)vz-=1;if(keys.KeyS||keys.ArrowDown)vz+=1;
     if(keys.KeyA||keys.ArrowLeft)vx-=1;if(keys.KeyD||keys.ArrowRight)vx+=1;
     if(joy.on){vx+=joy.vx;vz+=joy.vy;}
   }
   var mag=Math.hypot(vx,vz);
   if(mag>0.05){
-    if(mag>1){vx/=mag;vz/=mag;}
-    var spd=5.8*dt;
-    var nx=player.position.x+vx*spd,nz=player.position.z+vz*spd;
-    nx=Math.max(-W+0.6,Math.min(W-0.6,nx));
-    nz=Math.max(-H+0.6,Math.min(H-0.6,nz));
-    var r1=pushBox(nx,nz,0,12.5,3.2,2.45);nx=r1[0];nz=r1[1];
-    r1=pushBox(nx,nz,3.6,12.2,1.3,1.3);nx=r1[0];nz=r1[1];
-    r1=pushBox(nx,nz,BX,BZ,1.65,1.05);nx=r1[0];nz=r1[1];
-    r1=pushBox(nx,nz,MX,MZ,1.15,1.0);nx=r1[0];nz=r1[1];
-    r1=pushOut(nx,nz,-1.5,-11,1.3);nx=r1[0];nz=r1[1];
-    // Rock collision deflection
-    for(var rk=0;rk<rocks.length;rk++){
-      r1=pushOut(nx,nz,rocks[rk][0],rocks[rk][1],rocks[rk][2]+0.52);nx=r1[0];nz=r1[1];
+    var spd=5.4*Math.min(1,mag);
+    player.position.x+=(vx/mag)*spd*dt;
+    player.position.z+=(vz/mag)*spd*dt;
+    player.rotation.y=lerpA(player.rotation.y,Math.atan2(vx,vz),dt*12);
+    var wk=Math.sin(t*13);
+    body.position.y=Math.abs(wk)*0.12;
+    footL.position.z=0.05+wk*0.2;footR.position.z=0.05-wk*0.2;
+    if(!gameState.carryType&&gameState.box===0){armL.rotation.x=-wk*0.55;armR.rotation.x=wk*0.55;}
+    else{armL.rotation.x=-0.75;armR.rotation.x=-0.75;}
+  }else if(!cutsceneActive&&cutWalkOut<=0&&!craft&&!smokeA&&!harv&&!capA&&!climb){
+    body.position.y=Math.sin(t*2.4)*0.025;
+    footL.position.z=footR.position.z=0.05;
+    var hold=(gameState.carryType||gameState.box>0)?-0.75:0;
+    armL.rotation.x=armR.rotation.x=hold;
+  }
+
+  // Collisions inside enclosed yard
+  if(!onTop&&!climb&&!cutsceneActive){
+    player.position.x=Math.max(-W+0.6,Math.min(W-0.6,player.position.x));
+    player.position.z=Math.max(-H+0.6,Math.min(H-0.6,player.position.z));
+    pushBox(player.position,0,12.5,3.1,2.35);      // Cottage
+    pushOut(player.position,wife.position.x,wife.position.z,0.85); // Wife NPC
+    pushBox(player.position,3.6,12.2,1.2,1.3);     // Log pile
+    pushBox(player.position,BX,BZ,1.65,1.05);      // Workbench
+    pushBox(player.position,-2.9,10.2,1.05,0.95);  // Market crate
+    if(gameState.hasRack)pushBox(player.position,RX,RZ,1.05,2.2); // Vertical Box Rack
+    pushOut(player.position,-1.5,-11,1.35);        // Oak tree
+    rocks.forEach(function(r){pushOut(player.position,r[0],r[1],r[2]+0.52);}); // Rocks deflect character
+    if(gameState.hasLadder&&gameState.carryType!=='ladder'){
+      var dl=Math.hypot(player.position.x-ladder.position.x,player.position.z-ladder.position.z);
+      if(!ladderSolid&&dl>1.3)ladderSolid=true;
+      if(ladderSolid)pushOut(player.position,ladder.position.x,ladder.position.z,0.85);
     }
-    if(!carrying&&ladderSolid){r1=pushOut(nx,nz,ladder.position.x,ladder.position.z,0.85);nx=r1[0];nz=r1[1];}
-    else if(!carrying&&!ladderSolid&&Math.hypot(nx-ladder.position.x,nz-ladder.position.z)>1.35)ladderSolid=true;
-    standSpots.forEach(function(sp){if(sp.stand){var rs=pushOut(nx,nz,sp.x,sp.z,0.88);nx=rs[0];nz=rs[1];}});
-    apiaryHives.forEach(function(h){if(h.treeSpot!==null&&carryingHive!==h){var rh=pushOut(nx,nz,h.g.position.x,h.g.position.z,0.8);nx=rh[0];nz=rh[1];}});
-    player.position.x=nx;player.position.z=nz;
-    player.rotation.y=lerpA(player.rotation.y,Math.atan2(vx,vz),Math.min(1,dt*12));
-    var sw=Math.sin(t*13);
-    footL.position.z=0.05+sw*0.18;footR.position.z=0.05-sw*0.18;
-    body.position.y=Math.abs(sw)*0.08;
-    if(state.box>0||carryingStand||carryingHive){armL.rotation.x=armR.rotation.x=-1.15;}
-    else if(carryingQueen){armL.rotation.x=-sw*0.4;armR.rotation.x=-1.15;}
-    else if(carrying){armL.rotation.x=-0.3;armR.rotation.x=-1.0;}
-    else{armL.rotation.x=-sw*0.55;armR.rotation.x=sw*0.55;}
-  }else if(climb){
-    var cs=Math.sin(climb.s*Math.PI);
-    armL.rotation.x=-1.6+cs*0.4;armR.rotation.x=-1.6-cs*0.4;
-    footL.position.z=0.05+cs*0.1;footR.position.z=0.05-cs*0.1;body.position.y=0;
-  }else if(smokeA){
-    // Rhythmic bellows pumping while aiming smoker nozzle at the hive
-    var pump=Math.sin(t*14);
-    armR.rotation.x=-1.45+pump*0.14;armR.rotation.z=-0.08;
-    armL.rotation.x=-0.55+pump*0.08;
-    smokerBellows.position.y=0.16+pump*0.03;smokerBellows.rotation.x=pump*0.22;
-    body.position.y=Math.abs(pump)*0.025;
-  }else if(harv){
-    // Scooping honey with knife in right hand while holding honey jar in left
-    var scoop=Math.sin(t*9);
-    armL.rotation.x=-1.28;armL.rotation.z=0.18;
-    armR.rotation.x=-1.38+scoop*0.32;armR.rotation.z=-0.12-scoop*0.12;
-    body.position.y=Math.abs(scoop)*0.02;
-  }else if(capA){
-    // Coaxing Queen & swarm gently into wooden scoop
-    var sway=Math.sin(t*7);
-    armR.rotation.x=-1.35+sway*0.14;armR.rotation.z=-0.1+Math.cos(t*7)*0.08;
-    armL.rotation.x=-1.05-sway*0.12;armL.rotation.z=0.15;
-    body.position.y=Math.abs(sway)*0.025;
-  }else if(craft){
-    // Face the workbench and hammer rhythmically while left hand steadies workpiece
-    var faceB=Math.atan2(BX-player.position.x,BZ-player.position.z);
-    player.rotation.y=lerpA(player.rotation.y,faceB,Math.min(1,dt*14));
-    var hit=Math.sin(t*18);
-    armR.rotation.x=-1.35+hit*0.58;armR.rotation.z=-0.05;
-    armL.rotation.x=-1.05;armL.rotation.z=0.18;
-    body.position.y=Math.max(0,hit)*0.04;
-  }else{
-    footL.position.z=footR.position.z=0.05;body.position.y=0;
-    armL.rotation.z=armR.rotation.z=0;
-    if(state.box>0||carryingStand||carryingHive){armL.rotation.x=armR.rotation.x=-1.15;}
-    else if(carryingQueen){armL.rotation.x=0;armR.rotation.x=-1.15;}
-    else if(carrying){armL.rotation.x=-0.3;armR.rotation.x=-1.0;}
-    else{armL.rotation.x=armR.rotation.x=0;}
+    gameState.stands.forEach(function(st){pushOut(player.position,standCoords[st.slot][0],standCoords[st.slot][1],0.85);});
+    hiveActors.forEach(function(a){if(a.data.slotType==='tree')pushOut(player.position,a.g.position.x,a.g.position.z,0.85);});
   }
 
-  updClimb(dt);updHoney(dt,t);updCraft(dt);updApiary(dt,t);
-
-  // Stand markers & tree spot visibility
-  var freeTree=getFreeTreeSpot();
-  spot.visible=(state.box>0||!!carryingHive)&&freeTree!==-1;
-  if(spot.visible){
-    spot.position.set(spots[freeTree][0],0,spots[freeTree][1]);
-    spotMark.mat.opacity=0.72+Math.sin(t*4)*0.22;
-  }
-
-  standSpots.forEach(function(sp){
-    if(sp.stand&&!sp.hive&&carryingHive){
-      // Show glowing green HIVE square on top of an empty stand when carrying a captured hive
-      sp.mark.g.visible=true;
-      sp.mark.g.position.set(sp.x,STAND_H+0.02,sp.z);
-      if(sp.mark.label!=='HIVE'){sp.mark.mat.map=getSquareTex('HIVE');sp.mark.label='HIVE';sp.mark.mat.needsUpdate=true;}
-      sp.mark.mat.color.copy(L(0x66e885));
-      sp.mark.mat.opacity=0.82+Math.sin(t*6)*0.16;
-    }else if(!sp.stand){
-      // Show STAND square on the ground for all open stand locations
-      sp.mark.g.visible=true;
-      sp.mark.g.position.set(sp.x,0,sp.z);
-      if(sp.mark.label!=='STAND'){sp.mark.mat.map=getSquareTex('STAND');sp.mark.label='STAND';sp.mark.mat.needsUpdate=true;}
-      if(carryingStand){
-        sp.mark.mat.color.copy(L(0xF6B93B));
-        sp.mark.mat.opacity=0.82+Math.sin(t*5)*0.16;
-      }else{
-        sp.mark.mat.color.copy(L(0xF3E9D2));
-        sp.mark.mat.opacity=0.58;
+  // Auto-collect proximity magnet for Wood & Scrap
+  if(playing&&!cutsceneActive&&!onTop&&!climb){
+    logs.forEach(function(l){
+      if(!l.alive){l.t+=dt;if(l.t>14){l.alive=true;l.g.visible=true;l.g.scale.setScalar(0.01);squash.push({g:l.g,t:0});}return;}
+      l.g.position.y=Math.sin(t*2.4+l.ph)*0.05;
+      if(Math.hypot(player.position.x-l.g.position.x,player.position.z-l.g.position.z)<1.9){
+        l.alive=false;l.t=0;l.g.visible=false;
+        var fm=makeLog(scene,0.9,0.2,l.g.position.x,0.3,l.g.position.z);
+        flyItems.push({m:fm,t:0,kind:'wood'});
       }
-    }else{
-      sp.mark.g.visible=false;
+    });
+    scraps.forEach(function(s){
+      if(!s.alive){s.t+=dt;if(s.t>15){s.alive=true;s.g.visible=true;s.g.scale.setScalar(0.01);squash.push({g:s.g,t:0});}return;}
+      s.g.position.y=Math.sin(t*2.6+s.ph)*0.04;
+      if(Math.hypot(player.position.x-s.g.position.x,player.position.z-s.g.position.z)<1.9){
+        s.alive=false;s.t=0;s.g.visible=false;
+        var fm=makeScrapMesh();fm.position.copy(s.g.position);scene.add(fm);
+        flyItems.push({m:fm,t:0,kind:'scrap'});
+      }
+    });
+  }
+  for(i=flyItems.length-1;i>=0;i--){
+    var fi=flyItems[i];fi.t+=dt*3.4;
+    var k=Math.min(1,fi.t);
+    fi.m.position.lerp(player.position.clone().add(new THREE.Vector3(0,1.2,0)),k);
+    fi.m.position.y+=Math.sin(k*Math.PI)*0.6;
+    fi.m.rotation.y+=dt*10;fi.m.scale.setScalar(1-k*0.65);
+    if(k>=1){
+      scene.remove(fi.m);flyItems.splice(i,1);
+      if(fi.kind==='wood'){gameState.wood+=2;popText('+2 🪵',player.position.clone().setY(2.2));}
+      else{gameState.scrap+=2;popText('+2 🔩',player.position.clone().setY(2.2));}
+      playSfx('pick');updHud();goal();saveGame();
+    }
+  }
+
+  // Workbench Crafting Animation
+  if(craft){
+    craft.t+=dt;craft.hitT+=dt;
+    var ck=Math.min(1,craft.t/craft.dur);
+    craft.pv.scale.setScalar(Math.max(0.05,ck));craft.pv.rotation.y=ck*Math.PI*2;
+    armR.rotation.x=-1.1+Math.sin(craft.t*16)*0.75;armL.rotation.x=-0.75;
+    if(craft.hitT>0.32){
+      craft.hitT=0;playSfx('hit');
+      for(var c=0;c<3;c++){
+        var cm=mesh(chipG,c%2?0xd9a35e:0xF6B93B,BX,1.25,BZ);
+        chips.push({m:cm,v:new THREE.Vector3(rnd(-1.8,1.8),rnd(1.8,3.2),rnd(-1.8,1.8)),t:0});
+      }
+    }
+    progArc.style.strokeDashoffset=(100.5*(1-ck)).toFixed(1);
+    var pp=projectToFrame(new THREE.Vector3(BX,2.3,BZ));
+    if(pp){progEl.style.left=pp.x+'px';progEl.style.top=pp.y+'px';}
+    if(ck>=1){
+      var doneKind=craft.kind;craft=null;
+      pHam.visible=false;benchHam.visible=true;progEl.style.display='none';
+      while(craftPreview.children.length)craftPreview.remove(craftPreview.children[0]);
+      if(doneKind==='repair'){
+        gameState.benchFixed=true;rebuildWorkbenchVisual();
+        benchFixed.scale.setScalar(0.01);squash.push({g:benchFixed,t:0});
+        showBanner('Workbench repaired! Tap it to craft.');popText('Workbench Fixed!',new THREE.Vector3(BX,2.3,BZ));
+      }else if(doneKind==='box'){
+        gameState.box++;rebuildCarryVisual();popText('+1 Bee Box!',new THREE.Vector3(BX,2.3,BZ));
+      }else if(doneKind==='stand'){
+        gameState.carryType='stand';rebuildCarryVisual();popText('Hive Stand ready!',new THREE.Vector3(BX,2.3,BZ));
+      }else if(doneKind==='ladder'){
+        gameState.hasLadder=true;gameState.ladder={x:BX-1.6,z:BZ-2.2,ry:0,atHive:false};
+        rebuildCarryVisual();ladder.scale.setScalar(0.01);squash.push({g:ladder,t:0});
+        popText('Ladder built!',new THREE.Vector3(BX-1.6,2.4,BZ-2.2));
+      }else if(doneKind==='rack'){
+        gameState.hasRack=true;rebuildRackVisual();rack.scale.setScalar(0.01);squash.push({g:rack,t:0});
+        popText('Box Rack built!',new THREE.Vector3(RX,2.4,RZ));
+      }
+      playSfx('ok');updHud();goal();saveGame();
+    }
+  }
+
+  // Ladder climb animation
+  if(climb){
+    climb.t+=dt;
+    var lk=Math.min(1,climb.t/1.15),kk=climb.dir>0?lk:1-lk;
+    var st=kk*6,fl=Math.floor(st),fr=st-fl,y=Math.min(6,fl+fr*fr*(3-2*fr))/6;
+    var ry=ladder.rotation.y,d=(LSP+0.45)*(1-y)*climbS;
+    player.position.set(ladder.position.x+Math.sin(ry)*d,y*TOPY,ladder.position.z+Math.cos(ry)*d);
+    player.rotation.y=y>0.8?lerpA(faceL,faceH,(y-0.8)/0.2):faceL;
+    armL.rotation.x=-0.9+Math.sin(st*3)*0.4;armR.rotation.x=-0.9-Math.sin(st*3)*0.4;
+    if(lk>=1){
+      var wentUp=climb.dir>0;climb=null;
+      if(wentUp){onTop=true;player.rotation.y=faceH;goal();showBanner(smokedT>0?'Capture the Queen or Harvest Honey!':'Use smoke to calm the bees');}
+      else{player.position.y=0;player.rotation.y=faceL+Math.PI;goal();}
+    }
+  }
+
+  // Smoking, Wild Honey Harvest & Queen Capture animations
+  if(smokeA){
+    smokeA.t+=dt;if(smokeA.t>0.4)beeTo=1;
+    armR.rotation.x=-1.15+Math.sin(smokeA.t*14)*0.22;
+    if(smokeA.t>smokeA.n*0.24){
+      smokeA.n++;
+      var nw=noz.getWorldPosition(new THREE.Vector3());
+      var pm=new THREE.Mesh(puffG,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.75,depthWrite:false}));
+      pm.position.copy(nw);pm.scale.setScalar(0.14);scene.add(pm);
+      var toH=hp.clone().sub(nw).normalize().multiplyScalar(1.9);toH.y+=0.35;
+      puffs.push({m:pm,v:toH,t:0});
+    }
+    if(smokeA.t>=smokeA.dur){
+      smokeA=null;smoker.visible=false;smokedT=20;playSfx('ok');
+      popText('Bees calmed (20s)',hp.clone().setY(hp.y+1.2));goal();
+    }
+  }
+  if(smokedT>0){
+    smokedT=Math.max(0,smokedT-dt);
+    smokePill.style.display='flex';smokeTEl.textContent='Smoke '+Math.ceil(smokedT)+'s';
+    if(smokedT<=0){beeTo=0;smokePill.style.display='none';}
+  }else smokePill.style.display='none';
+
+  if(harv){
+    harv.t+=dt;harv.dt+=dt;
+    var hk=Math.min(1,harv.t/harv.dur);
+    armR.rotation.x=-1.05+Math.sin(harv.t*9)*0.25;armL.rotation.x=-0.95;
+    if(harv.dt>0.3){
+      harv.dt=0;
+      var dm=mesh(dripG,0xF6B93B,hp.x+rnd(-0.2,0.2),hp.y-0.4,hp.z+rnd(-0.2,0.2));
+      drips.push({m:dm,t:0});
+    }
+    progArc.style.strokeDashoffset=(100.5*(1-hk)).toFixed(1);
+    var hp2=projectToFrame(hp.clone().add(new THREE.Vector3(0,1.1,0)));
+    if(hp2){progEl.style.left=hp2.x+'px';progEl.style.top=hp2.y+'px';}
+    if(hk>=1){
+      harv=null;hKnife.visible=hJar.visible=false;progEl.style.display='none';
+      hiveHoney=Math.max(0,hiveHoney-1);gameState.honey+=1;
+      updHud();playSfx('ok');popText('+1 🍯 Wild Honey',hp.clone().setY(hp.y+1.2));goal();saveGame();
+    }
+  }
+  if(hiveHoney<3){refillT+=dt;if(refillT>18){refillT=0;hiveHoney++;}}
+
+  if(capA){
+    capA.t+=dt;
+    var qk=Math.min(1,capA.t/capA.dur);
+    armR.rotation.x=-1.1+Math.sin(capA.t*6)*0.12;
+    queenObj.g.position.set(Math.cos(qk*10)*(1-qk)*0.8,0.24+(1-qk)*0.9,0.18+(1-qk)*0.8);
+    queenObj.wl.rotation.z=Math.sin(t*45)*0.7;queenObj.wr.rotation.z=-Math.sin(t*45)*0.7;
+    progArc.style.strokeDashoffset=(100.5*(1-qk)).toFixed(1);
+    var qp=projectToFrame(hp.clone().add(new THREE.Vector3(0,1.1,0)));
+    if(qp){progEl.style.left=qp.x+'px';progEl.style.top=qp.y+'px';}
+    if(qk>=1){
+      capA=null;progEl.style.display='none';
+      gameState.carryType='queen';queenObj.g.position.set(0,0.24,0.18);
+      rebuildCarryVisual();playSfx('ok');
+      popText('👑 Queen Caught! Climb down!',hp.clone().setY(hp.y+1.3));
+      showBanner('Climb down & place the Queen in your empty Bee Box');
+      goal();saveGame();
+    }
+  }
+  if(gameState.carryType==='queen'){
+    queenObj.wl.rotation.z=Math.sin(t*42)*0.7;queenObj.wr.rotation.z=-Math.sin(t*42)*0.7;
+    queenObj.g.position.y=0.24+Math.sin(t*8)*0.05;
+  }
+
+  // Wild Bees Orbiting Tree Hive (or following the Queen into the newly captured box!)
+  beeK+=(beeTo-beeK)*Math.min(1,dt*3);
+  wildBees.forEach(function(wb){
+    wb.b.wl.rotation.z=Math.sin(t*45+wb.ph)*0.7;wb.b.wr.rotation.z=-Math.sin(t*45+wb.ph)*0.7;
+    if(wb.follow){
+      if(wb.delay>0){wb.delay-=dt;}
+      else{
+        wb.b.g.position.lerp(wb.follow,Math.min(1,dt*3.2));
+        wb.b.g.lookAt(wb.follow);
+        if(wb.b.g.position.distanceTo(wb.follow)<0.35){wb.follow=null;wb.repop=18;wb.b.g.visible=false;}
+      }
+      return;
+    }
+    if(wb.repop>0){wb.repop-=dt;if(wb.repop<=0)wb.b.g.visible=true;return;}
+    var a=t*wb.sp*(1-beeK*0.65)+wb.ph,rad=wb.r*(1+beeK*0.7);
+    var bx=hp.x+Math.cos(a)*rad,by=hp.y+wb.yo+Math.sin(a*2)*0.25+beeK*0.9,bz=hp.z+Math.sin(a)*rad;
+    wb.b.g.position.set(bx,by,bz);wb.b.g.rotation.y=-a;
+  });
+
+  // Apiary Hives: Stand Timer (45s first batch, 15m after), Ground Ant Risk, Pollen Foraging Bees & Floating Tags
+  var flowMult=1+gameState.flowerLevel*0.12;
+  hiveActors.forEach(function(a){
+    var d=a.data;
+    if(d.populated){
+      if(d.slotType==='stand'){
+        if(!d.ready){
+          var tMult=d.tier===3?1.45:d.tier===2?1.2:1.0;
+          d.timer=Math.max(0,d.timer-dt*flowMult*tMult);
+          if(d.timer<=0){d.ready=true;playSfx('ok');}
+        }
+      }else{
+        // Unmounted ground boxes near tree risk attracting ants
+        if(!d.ants&&Math.random()<dt*0.025){d.ants=true;a.antG.visible=true;}
+        if(d.ants)a.antG.rotation.y+=dt*1.6;
+      }
+      // Foraging worker bees (carry pollen baskets back from flowers)
+      a.bees.forEach(function(fb){
+        fb.b.wl.rotation.z=Math.sin(t*44+fb.ph)*0.7;fb.b.wr.rotation.z=-Math.sin(t*44+fb.ph)*0.7;
+        fb.ft-=dt;
+        var home=a.g.position.clone().add(new THREE.Vector3(0,0.65,0));
+        if(fb.mode==='orbit'){
+          var oa=t*2.1+fb.ph;
+          fb.b.g.position.set(home.x+Math.cos(oa)*0.85,home.y+Math.sin(oa*2)*0.18,home.z+Math.sin(oa)*0.85);
+          fb.b.g.rotation.y=-oa;fb.b.polL.visible=fb.b.polR.visible=false;
+          if(fb.ft<=0&&flowerPts.length){fb.mode='toFl';fb.fl=flowerPts[Math.floor(Math.random()*flowerPts.length)];fb.ft=rnd(4,7);}
+        }else if(fb.mode==='toFl'){
+          fb.b.g.position.lerp(fb.fl,Math.min(1,dt*2.2));fb.b.g.lookAt(fb.fl);
+          if(fb.b.g.position.distanceTo(fb.fl)<0.35){fb.mode='back';fb.b.polL.visible=fb.b.polR.visible=true;}
+        }else{
+          fb.b.g.position.lerp(home,Math.min(1,dt*2.2));fb.b.g.lookAt(home);
+          if(fb.b.g.position.distanceTo(home)<0.45){fb.mode='orbit';fb.ft=rnd(2.5,5.5);fb.b.polL.visible=fb.b.polR.visible=false;}
+        }
+      });
+    }
+    // Floating Status Tag
+    var tp=projectToFrame(a.g.position.clone().add(new THREE.Vector3(0,d.tier>=3?1.45:1.18,0)));
+    if(!tp||cutsceneActive||!playing){a.tagEl.style.display='none';}
+    else{
+      a.tagEl.style.display='block';a.tagEl.style.left=tp.x+'px';a.tagEl.style.top=tp.y+'px';
+      if(!d.populated){
+        a.tagEl.className='x-tag'+(gameState.carryType==='queen'?' ready':'');
+        a.tagEl.textContent=gameState.carryType==='queen'?'👑 Place Queen Here!':'📦 Empty Box';
+      }else if(d.ants){
+        a.tagEl.className='x-tag warn';a.tagEl.textContent='🐜 Ants! Brush Off';
+      }else if(d.slotType==='tree'){
+        a.tagEl.className='x-tag';a.tagEl.textContent='📦 Place on Stand';
+      }else if(d.ready){
+        a.tagEl.className='x-tag ready';a.tagEl.textContent='🍯 Ready! (T'+d.tier+')';
+      }else{
+        a.tagEl.className='x-tag';a.tagEl.textContent='⏳ '+fmtTime(d.timer)+' (T'+d.tier+')';
+      }
     }
   });
 
-  // Ladder placement preview
-  if(carrying){
+  // Update visual markers (Square STAND, Square HIVE, Ladder Ring)
+  updatePlaceholderVisibility();
+  var showTreeSpot=gameState.box>0&&!gameState.carryType;
+  var firstFreeTree=-1;
+  for(i=0;i<3;i++)if(!gameState.hives.some(function(h){return h.slotType==='tree'&&h.slotIdx===i;})){firstFreeTree=i;break;}
+  if(showTreeSpot&&firstFreeTree>=0){
+    treeSpotMark.g.visible=true;treeSpotMark.g.position.set(treeSpots[firstFreeTree][0],0,treeSpots[firstFreeTree][1]);
+    treeSpotMark.dm.opacity=0.65+0.25*Math.sin(t*4);
+  }else treeSpotMark.g.visible=false;
+
+  standMarkers.forEach(function(sm,idx){
+    var hasSt=gameState.stands.some(function(st){return st.slot===idx;});
+    var hasHv=gameState.hives.some(function(h){return h.slotType==='stand'&&h.slotIdx===idx;});
+    if(sm.m.g.visible)sm.m.dm.opacity=gameState.carryType==='stand'?(0.72+0.25*Math.sin(t*4.5)):0.28;
+    if(sm.topHive.g.visible)sm.topHive.dm.opacity=0.72+0.25*Math.sin(t*4.5);
+  });
+
+  // Ladder carrying preview
+  if(gameState.carryType==='ladder'){
     hMark.g.visible=true;
-    sparks.forEach(function(sk){var p=(t*0.5+sk.ph)%1;sk.m.position.y=0.15+p*1.4;sk.m.scale.setScalar(Math.sin(p*Math.PI));});
-    var fx=player.position.x+Math.sin(player.rotation.y)*1.5;
-    var fz=player.position.z+Math.cos(player.rotation.y)*1.5;
-    if(Math.hypot(fx-hp.x,fz-hp.z)<HR){
-      litHive=true;ghost.g.visible=false;
-      var angTo=Math.atan2(player.position.x-hp.x,player.position.z-hp.z);
-      hTarget.position.set(hp.x+Math.sin(angTo)*1.25,0,hp.z+Math.cos(angTo)*1.25);
-      hTarget.rotation.y=angTo+Math.PI;
+    var dh=Math.hypot(player.position.x-hp.x,player.position.z-hp.z);
+    litHive=dh<HR+1.1;
+    if(litHive){
+      var ang=Math.atan2(player.position.x-hp.x,player.position.z-hp.z);
+      hTarget.position.set(hp.x+Math.sin(ang)*1.35,0,hp.z+Math.cos(ang)*1.35);
+      hTarget.rotation.y=ang;ghost.g.visible=false;
     }else{
-      litHive=false;ghost.g.visible=true;
-      ghost.g.position.set(Math.max(-W+1,Math.min(W-1,fx)),0,Math.max(-H+1,Math.min(H-1,fz)));
+      ghost.g.visible=true;
+      ghost.g.position.set(player.position.x+Math.sin(player.rotation.y)*1.2,0,player.position.z+Math.cos(player.rotation.y)*1.2);
       ghost.g.rotation.y=player.rotation.y;
     }
-  }else{hMark.g.visible=ghost.g.visible=false;}
+  }else{hMark.g.visible=ghost.g.visible=false;litHive=false;}
 
-  // Context prompt selection (Touch/Click only)
-  var best=null,bestD=99;
-  if(playing&&!climb&&!craft&&!smokeA&&!harv&&!capA){
+  // Particles & squash pop-ins
+  for(i=squash.length-1;i>=0;i--){
+    var sq=squash[i];sq.t+=dt*4.5;
+    if(sq.t>=1){sq.g.scale.setScalar(1);squash.splice(i,1);}
+    else{var scv=Math.sin(sq.t*Math.PI*0.65)*1.12;sq.g.scale.set(scv,scv,scv);}
+  }
+  for(i=chips.length-1;i>=0;i--){
+    var ch=chips[i];ch.t+=dt;ch.v.y-=9.5*dt;ch.m.position.addScaledVector(ch.v,dt);ch.m.rotation.x+=dt*8;
+    if(ch.t>0.6){scene.remove(ch.m);chips.splice(i,1);}
+  }
+  for(i=puffs.length-1;i>=0;i--){
+    var pf=puffs[i];pf.t+=dt;pf.m.position.addScaledVector(pf.v,dt);
+    pf.m.scale.setScalar(0.16+pf.t*0.55);pf.m.material.opacity=Math.max(0,0.75-pf.t*0.85);
+    if(pf.t>0.9){scene.remove(pf.m);puffs.splice(i,1);}
+  }
+  for(i=drips.length-1;i>=0;i--){
+    var dr=drips[i];dr.t+=dt;dr.m.position.y-=dt*2.4;
+    if(dr.t>0.5){scene.remove(dr.m);drips.splice(i,1);}
+  }
+
+  // Context Prompt Selection (Touch / Click only)
+  near=null;near2=null;
+  if(playing&&!cutsceneActive&&!wifeChatActive&&!climb&&!craft&&!smokeA&&!harv&&!capA){
     if(onTop){
-      if(!carryingQueen){
-        topObj.kind=smokedT>0?'harvest':'smoke';best=topObj;
+      if(smokedT<=0)near={kind:'smoke',pos:hp.clone().setY(hp.y+1.1),ico:'💨',cls:'b',txt:'Smoke Bees'};
+      else{
+        near={kind:'harvestWild',pos:hp.clone().setY(hp.y+1.1),ico:'🍯',cls:'h',txt:'Harvest Honey ('+hiveHoney+')'};
+        if(hasEmptyTreeBox()&&gameState.carryType!=='queen')near2={kind:'captureQueen',pos:hp.clone().setY(hp.y+0.3),ico:'👑',cls:'c',txt:'Capture Queen'};
       }
-    }else if(carrying){
-      best=litHive?placeHive:placeGhost;
-    }else if(carryingQueen){
-      apiaryHives.forEach(function(h){
-        if(!h.populated){
-          var d=Math.hypot(player.position.x-h.g.position.x,player.position.z-h.g.position.z);
-          if(d<2.2&&d<bestD){bestD=d;best={kind:'placeQueen',h:h,g:h.g,py:1.5,rs:1.1};}
-        }
-      });
-    }else if(carryingStand){
-      standSpots.forEach(function(sp){
-        if(!sp.stand){
-          var d=Math.hypot(player.position.x-sp.x,player.position.z-sp.z);
-          if(d<1.9&&d<bestD){bestD=d;best={kind:'standPlace',sp:sp,g:sp.mark.g,py:1.2,rs:1.1};}
-        }
-      });
-    }else if(carryingHive){
-      standSpots.forEach(function(sp){
-        if(sp.stand&&!sp.hive){
-          var d=Math.hypot(player.position.x-sp.x,player.position.z-sp.z);
-          if(d<1.9&&d<bestD){bestD=d;best={kind:'standMount',sp:sp,g:sp.stand,py:1.5,rs:1.1};}
-        }
-      });
-      if(!best&&spot.visible){
-        var dsH=Math.hypot(player.position.x-spot.position.x,player.position.z-spot.position.z);
-        if(dsH<spotObj.r){best=spotObj;}
-      }
+      downBtn.style.display='block';
+      var dp=projectToFrame(player.position.clone().add(new THREE.Vector3(0,-0.2,0)));
+      if(dp){downBtn.style.left=dp.x+'px';downBtn.style.top=(dp.y+52)+'px';}
     }else{
-      var cands=[];
-      if(benchObj.ok())cands.push(benchObj);
-      if(state.box>0&&spot.visible)cands.push(spotObj);
-      if(state.honey>0||forageLevel<5)cands.push(marketObj);
-      cands.push(atHive?climbObj:ladderObj);
-      standSpots.forEach(function(sp){
-        if(sp.stand&&!sp.hive)cands.push({kind:'standMove',sp:sp,g:sp.stand,r:1.7,rs:1.0,py:1.4});
-      });
-      apiaryHives.forEach(function(h){
-        if(h.populated)cands.push(h);
-      });
-      cands.forEach(function(c){
-        var d=Math.hypot(player.position.x-c.g.position.x,player.position.z-c.g.position.z);
-        var rad=c.r||1.8;
-        if(d<rad&&d<bestD){bestD=d;best=c;}
-      });
-    }
-  }
-  near=best;
-
-  // Render floating action prompts
-  if(near){
-    promptEl.style.display='block';
-    promptCost.hidden=true;promptCost.classList.remove('x-short');
-    altBtn.style.display='none';prompt2El.style.display='none';
-
-    if(near.kind==='bench'){
-      promptIco.className='x-ico b';promptIco.textContent='📦';promptTxt.textContent='Craft Box';
-      promptCost.hidden=false;costIco.className='x-ico w';costIco.textContent='🪵';costVal.textContent='10';
-      if(state.wood<10)promptCost.classList.add('x-short');
-      if(getTotalStands()<standSpots.length){
-        altBtn.style.display='block';altIco.className='x-ico s';altIco.textContent='🔩';
-        altTxt.textContent='Craft Stand (6)';
-      }
-    }else if(near.kind==='spot'){
-      promptIco.className='x-ico b';promptIco.textContent='📦';
-      promptTxt.textContent=carryingHive?'Set Hive Down':'Place Box';
-    }else if(near.kind==='ladder'){
-      promptIco.className='x-ico w';promptIco.textContent='🪜';promptTxt.textContent='Pick Up Ladder';
-    }else if(near.kind==='place'){
-      promptIco.className='x-ico w';promptIco.textContent='🪜';promptTxt.textContent=litHive?'Set Ladder at Hive':'Place Ladder';
-    }else if(near.kind==='climb'){
-      promptIco.className='x-ico w';promptIco.textContent='🪜';promptTxt.textContent='Climb Ladder';
-      prompt2El.style.display='block';prompt2Ico.textContent='🪜';prompt2Txt.textContent='Pick Up Ladder';
-    }else if(near.kind==='smoke'){
-      promptIco.className='x-ico b';promptIco.textContent='💨';promptTxt.textContent='Use Smoker';
-    }else if(near.kind==='harvest'){
-      promptIco.className='x-ico h';promptIco.textContent='🍯';promptTxt.textContent='Harvest Honey ('+hiveHoney+')';
-      if(hasEmptyBox()){altBtn.style.display='block';altIco.className='x-ico h';altIco.textContent='👑';altTxt.textContent='Capture Queen';}
-    }else if(near.kind==='placeQueen'){
-      promptIco.className='x-ico h';promptIco.textContent='👑';promptTxt.textContent='Place Queen in Hive';
-    }else if(near.kind==='market'){
-      if(state.honey>0){
-        promptIco.className='x-ico c';promptIco.textContent='🪙';promptTxt.textContent='Sell Honey (+'+(state.honey*8)+')';
+      downBtn.style.display='none';
+      var px=player.position.x,pz=player.position.z;
+      if(gameState.carryType==='ladder'){
+        near={kind:'placeLadder',pos:(litHive?hTarget.position:ghost.g.position).clone().setY(1.4),ico:'🪜',cls:'w',txt:litHive?'Set Ladder at Hive':'Drop Ladder'};
+      }else if(gameState.carryType==='stand'){
+        var bestS=-1,bdS=2.4;
+        standMarkers.forEach(function(sm,idx){
+          if(gameState.stands.some(function(st){return st.slot===idx;}))return;
+          var d=Math.hypot(px-sm.x,pz-sm.z);if(d<bdS){bdS=d;bestS=idx;}
+        });
+        if(bestS>=0)near={kind:'placeStand',slot:bestS,pos:new THREE.Vector3(standCoords[bestS][0],1.2,standCoords[bestS][1]),ico:'🪵',cls:'w',txt:'Place Stand'};
+      }else if(gameState.carryType==='hive'){
+        var bestM=-1,bdM=2.4;
+        gameState.stands.forEach(function(st){
+          if(gameState.hives.some(function(h){return h.slotType==='stand'&&h.slotIdx===st.slot;}))return;
+          var d=Math.hypot(px-standCoords[st.slot][0],pz-standCoords[st.slot][1]);
+          if(d<bdM){bdM=d;bestM=st.slot;}
+        });
+        if(bestM>=0)near={kind:'mountHive',slot:bestM,pos:new THREE.Vector3(standCoords[bestM][0],1.6,standCoords[bestM][1]),ico:'📦',cls:'g',txt:'Place Hive on Stand'};
+      }else if(gameState.carryType==='queen'){
+        hiveActors.forEach(function(a){
+          if(!a.data.populated&&Math.hypot(px-a.g.position.x,pz-a.g.position.z)<2.3){
+            near={kind:'placeQueen',actor:a,pos:a.g.position.clone().setY(1.6),ico:'👑',cls:'c',txt:'Place Queen in Hive'};
+          }
+        });
       }else{
-        promptIco.className='x-ico c';promptIco.textContent='🍯';promptTxt.textContent='Market (0 Honey)';
-      }
-      if(forageLevel<5){
-        altBtn.style.display='block';altIco.className='x-ico h';altIco.textContent='🌸';
-        altTxt.textContent='Plant Flowers (10🪙)';
-      }
-    }else if(near.kind==='standPlace'){
-      promptIco.className='x-ico s';promptIco.textContent='🔩';promptTxt.textContent='Place Stand';
-    }else if(near.kind==='standMove'){
-      promptIco.className='x-ico s';promptIco.textContent='🔩';promptTxt.textContent='Move Stand';
-    }else if(near.kind==='standMount'){
-      promptIco.className='x-ico b';promptIco.textContent='🐝';promptTxt.textContent='Mount Hive';
-    }else if(near.kind==='apiary'){
-      if(near.pests){
-        promptIco.className='x-ico w';promptIco.textContent='🧹';promptTxt.textContent='Brush Ants';
-        prompt2El.style.display='block';prompt2Ico.textContent='🐝';prompt2Txt.textContent='Pick Up Hive';
-      }else if(near.honey>0){
-        promptIco.className='x-ico h';promptIco.textContent='🍯';promptTxt.textContent='Harvest ('+near.honey+')';
-        prompt2El.style.display='block';prompt2Ico.textContent='🐝';prompt2Txt.textContent='Pick Up Hive';
-      }else{
-        promptIco.className='x-ico b';promptIco.textContent='🐝';promptTxt.textContent='Pick Up Hive';
-      }
-      if(near.tier<3){
-        var uCost=near.tier===1?15:30;
-        altBtn.style.display='block';altIco.className='x-ico c';altIco.textContent='⬆️';
-        altTxt.textContent='Upgrade T'+(near.tier+1)+' ('+uCost+'🪙)';
+        // Check Workbench
+        if(Math.hypot(px-BX,pz-BZ)<2.7){
+          if(!gameState.benchFixed)near={kind:'repair',pos:new THREE.Vector3(BX,2.0,BZ),ico:'🔨',cls:'h',txt:'Repair Bench',cost:'6🪵 4🔩',costIco:'🛠️',costCls:'w',short:gameState.wood<6||gameState.scrap<4};
+          else near={kind:'bench',pos:new THREE.Vector3(BX,2.1,BZ),ico:'🔨',cls:'h',txt:'Open Workbench'};
+        }
+        // Check Box Placement near Tree
+        if(!near&&showTreeSpot&&firstFreeTree>=0&&Math.hypot(px-treeSpots[firstFreeTree][0],pz-treeSpots[firstFreeTree][1])<2.2){
+          near={kind:'placeBox',pos:new THREE.Vector3(treeSpots[firstFreeTree][0],1.4,treeSpots[firstFreeTree][1]),ico:'📦',cls:'b',txt:'Place Bee Box'};
+        }
+        // Check Vertical Box Rack
+        if(!near&&gameState.hasRack&&Math.hypot(px-RX,pz-RZ)<2.6){
+          if(gameState.box>0&&gameState.rackCount<12)near={kind:'stackRack',pos:new THREE.Vector3(RX,2.2,RZ),ico:'📚',cls:'w',txt:'Stack Box ('+gameState.rackCount+'/12)'};
+          else if(gameState.box===0&&gameState.rackCount>0)near={kind:'takeRack',pos:new THREE.Vector3(RX,2.2,RZ),ico:'📦',cls:'b',txt:'Take Box ('+gameState.rackCount+')'};
+        }
+        // Check Ladder
+        if(!near&&gameState.hasLadder&&Math.hypot(px-ladder.position.x,pz-ladder.position.z)<2.2){
+          if(gameState.ladder.atHive){
+            near={kind:'climb',pos:ladder.position.clone().setY(2.2),ico:'🪜',cls:'w',txt:'Climb Ladder'};
+            near2={kind:'pickLadder',pos:ladder.position.clone().setY(1.3),ico:'🪜',cls:'b',txt:'Pick Up Ladder'};
+          }else near={kind:'pickLadder',pos:ladder.position.clone().setY(2.3),ico:'🪜',cls:'w',txt:'Pick Up Ladder'};
+        }
+        // Check Market Crate
+        if(!near&&Math.hypot(px-crate.position.x,pz-crate.position.z)<2.4){
+          near={kind:'sellHoney',pos:crate.position.clone().setY(1.7),ico:'🪙',cls:'c',txt:'Sell Honey ('+gameState.honey+')'};
+          if(gameState.flowerLevel<5)near2={kind:'plantFlowers',pos:crate.position.clone().setY(0.9),ico:'🌸',cls:'g',txt:'Plant Flowers',cost:'10',costIco:'🪙',costCls:'c',short:gameState.coins<10};
+        }
+        // Check Wife NPC (free hands)
+        if(!near&&gameState.box===0&&Math.hypot(px-wife.position.x,pz-wife.position.z)<2.4){
+          near={kind:'talkWife',pos:wife.position.clone().setY(2.25),ico:'💬',cls:'b',txt:'Talk'};
+        }
+        // Check Apiary Hives
+        if(!near){
+          hiveActors.forEach(function(a){
+            if(near||Math.hypot(px-a.g.position.x,pz-a.g.position.z)>2.1)return;
+            var d=a.data;
+            if(d.ants)near={kind:'brushAnts',actor:a,pos:a.g.position.clone().setY(1.6),ico:'🧹',cls:'b',txt:'Brush Ants'};
+            else if(d.slotType==='stand'&&d.ready)near={kind:'harvestApiary',actor:a,pos:a.g.position.clone().setY(1.8),ico:'🍯',cls:'h',txt:'Harvest Honey'};
+            if(d.populated&&d.slotType==='tree')near2={kind:'pickHive',actor:a,pos:a.g.position.clone().setY(1.0),ico:'📦',cls:'g',txt:'Pick Up Hive'};
+            else if(d.slotType==='stand'&&d.tier<3){
+              var nw=d.tier===1?12:20,nc=d.tier===1?15:35;
+              near2={kind:'upgradeHive',actor:a,pos:a.g.position.clone().setY(1.0),ico:'⬆️',cls:'c',txt:'Upgrade T'+(d.tier+1),cost:nw+'🪵 '+nc+'🪙',costIco:'🪙',costCls:'c',short:gameState.wood<nw||gameState.coins<nc};
+            }
+          });
+        }
+        // Check Empty Stands (Relocate)
+        if(!near&&!near2){
+          gameState.stands.forEach(function(st){
+            if(near||gameState.hives.some(function(h){return h.slotType==='stand'&&h.slotIdx===st.slot;}))return;
+            if(Math.hypot(px-standCoords[st.slot][0],pz-standCoords[st.slot][1])<2.1){
+              near={kind:'moveStand',slot:st.slot,pos:new THREE.Vector3(standCoords[st.slot][0],1.4,standCoords[st.slot][1]),ico:'🪵',cls:'w',txt:'Move Stand'};
+            }
+          });
+        }
       }
     }
-
-    var wp=near.g.position.clone();wp.y=near.py||1.8;
-    var proj=wp.project(camera),rect=frame.getBoundingClientRect();
-    var sx=Math.max(85,Math.min(rect.width-85,(proj.x*0.5+0.5)*rect.width));
-    var sy=Math.max(120,Math.min(rect.height-55,(-proj.y*0.5+0.5)*rect.height));
-    promptEl.style.left=sx+'px';promptEl.style.top=sy+'px';
-    var nextY=sy+48;
-    if(altBtn.style.display==='block'){altBtn.style.left=sx+'px';altBtn.style.top=nextY+'px';nextY+=48;}
-    if(prompt2El.style.display==='block'){prompt2El.style.left=sx+'px';prompt2El.style.top=nextY+'px';}
-
-    if(!near.noRing){
-      ring.visible=true;ring.position.set(near.g.position.x,0,near.g.position.z);
-      ring.scale.setScalar((near.rs||1)*(1+Math.sin(t*4)*0.06));
-    }else ring.visible=false;
-  }else{
-    promptEl.style.display='none';altBtn.style.display='none';prompt2El.style.display='none';ring.visible=false;
-  }
-
-  if(onTop&&!climb&&!smokeA&&!harv&&!capA){
-    downBtn.style.display='block';
-    downBtn.style.left='50%';downBtn.style.top=(frame.getBoundingClientRect().height-26)+'px';
   }else downBtn.style.display='none';
 
-  // Check whether a camera ray is obstructed by the cottage or log pile
-  function camBlocked(pos,look){
-    for(var s=0;s<=2;s++){
-      var u=s*0.35;
-      var px=pos.x+(look.x-pos.x)*u,py=pos.y+(look.y-pos.y)*u,pz=pos.z+(look.z-pos.z)*u;
-      if(px>-3.6&&px<4.9&&pz>9.6&&pz<15.2&&py<6.0)return true;
+  // Position Primary & Secondary Prompt Pills (clamped cleanly inside mobile safe areas)
+  var padX=Math.min(105,Math.max(76,frame.clientWidth*0.24));
+  var padTop=105,padBot=86;
+  if(near){
+    setPromptUI(promptEl,promptIco,promptTxt,promptCost,promptCostIco,promptCostVal,near);
+    var p1=projectToFrame(near.pos);
+    if(p1){promptEl.style.left=Math.max(padX,Math.min(frame.clientWidth-padX,p1.x))+'px';promptEl.style.top=Math.max(padTop,Math.min(frame.clientHeight-padBot,p1.y))+'px';}
+    ring.visible=!onTop;ring.position.set(near.pos.x,0,near.pos.z);
+  }else{promptEl.style.display='none';ring.visible=false;}
+
+  if(near2){
+    setPromptUI(prompt2El,prompt2Ico,prompt2Txt,prompt2Cost,prompt2CostIco,prompt2CostVal,near2);
+    var p2=projectToFrame(near2.pos);
+    if(p2){
+      var y2=Math.max(padTop+44,Math.min(frame.clientHeight-32,p2.y+(near?48:0)));
+      prompt2El.style.left=Math.max(padX,Math.min(frame.clientWidth-padX,p2.x))+'px';prompt2El.style.top=y2+'px';
     }
-    return false;
-  }
+  }else prompt2El.style.display='none';
 
-  // Closest 3/4 side-front action camera framed for full portrait visibility
-  function getActionCam(pPos,tPos,sideDist,frontBias,yOff){
-    var mid=pPos.clone().lerp(tPos,0.5);
-    var span=pPos.distanceTo(tPos);
-    var scale=Math.max(1,Math.min(1.35,span/1.65));
-    var sd=sideDist*scale,fb=frontBias*scale;
-    var fwd=new THREE.Vector3(tPos.x-pPos.x,0,tPos.z-pPos.z);
-    if(fwd.lengthSq()<0.001)fwd.set(0,0,-1);else fwd.normalize();
-    var s1=new THREE.Vector3(-fwd.z,0,fwd.x),s2=new THREE.Vector3(fwd.z,0,-fwd.x);
-    var c1=mid.clone().addScaledVector(s1,sd).addScaledVector(fwd,fb);c1.y=mid.y+yOff;
-    var c2=mid.clone().addScaledVector(s2,sd).addScaledVector(fwd,fb);c2.y=mid.y+yOff;
-    var pen1=(Math.abs(c1.x)>W+1.2||Math.abs(c1.z)>H+1.2?120:0)+(camBlocked(c1,mid)?600:0);
-    var pen2=(Math.abs(c2.x)>W+1.2||Math.abs(c2.z)>H+1.2?120:0)+(camBlocked(c2,mid)?600:0);
-    var chosen=(c1.distanceToSquared(camPos)+pen1<=c2.distanceToSquared(camPos)+pen2)?c1:c2;
-    return{pos:chosen,look:mid};
-  }
-
-  // Smooth Camera Follow & Action Shots
+  // Smooth Camera Follow, Opening Cutscene & Unobstructed Action Shots
   var targetCam,targetLook,camSpeed=5;
-  if(smokeA||harv||capA){
+  if(cutsceneActive){
+    if(cutBeat===3){
+      targetCam=new THREE.Vector3(hp.x+4.2,hp.y+2.2,hp.z+8.2);
+      targetLook=new THREE.Vector3(hp.x,hp.y-0.1,hp.z);camSpeed=2.2;
+    }else if(cutBeat===7){
+      var drift=Math.min(1,cutT/4.0);
+      targetCam=new THREE.Vector3(BX-0.8+drift*1.4,5.4,BZ-7.6+drift*0.5);
+      targetLook=new THREE.Vector3(BX-0.3,0.85,BZ-0.5);camSpeed=2.4;
+    }else if(cutBeat===8){
+      targetCam=new THREE.Vector3(0.05,4.8,2.2);
+      targetLook=new THREE.Vector3(0.05,1.5,9.6);camSpeed=2.6;
+    }else{
+      targetCam=new THREE.Vector3(0.05,4.1,2.6);
+      targetLook=new THREE.Vector3(0.05,1.55,9.85);camSpeed=2.8;
+    }
+  }else if(smokeA||harv||capA){
     var pHead=player.position.clone().add(new THREE.Vector3(0,1.35,0));
     var hFocus=hp.clone().add(new THREE.Vector3(0,-0.2,0));
-    var ac=getActionCam(pHead,hFocus,6.0,1.8,1.55);
+    var ac=getActionCam(pHead,hFocus,6.0,1.8,true);
     targetCam=ac.pos;targetLook=ac.look;camSpeed=7;
   }else if(craft){
     var pBench=player.position.clone().add(new THREE.Vector3(0,1.15,0));
     var bFocus=new THREE.Vector3(BX,1.2,BZ);
-    var bMid=pBench.clone().lerp(bFocus,0.5);
-    // Keep workbench close-up on the open +X side so the cottage & log pile never block the view
-    var zSide=(player.position.z<=BZ)?3.9:-4.5;
-    targetCam=new THREE.Vector3(BX+3.6,3.5,BZ+zSide);
-    targetLook=bMid;camSpeed=7;
+    targetCam=new THREE.Vector3(BX+2.4,4.3,BZ+5.2);
+    targetLook=pBench.lerp(bFocus,0.5);camSpeed=6;
   }else if(onTop){
     targetCam=new THREE.Vector3(hp.x+3.5,hp.y+3.2,hp.z+6.8);
     targetLook=new THREE.Vector3(hp.x,hp.y-0.3,hp.z);
   }else{
-    targetCam=new THREE.Vector3(player.position.x*0.72,11.2,player.position.z+12.2);
-    targetLook=new THREE.Vector3(player.position.x*0.85,1.0,player.position.z-1.2);
+    var arcY=0;
+    if(cutZoomIn>0){cutZoomIn=Math.max(0,cutZoomIn-dt);camSpeed=2.6;arcY=Math.sin((cutZoomIn/1.2)*Math.PI)*6.5;}
+    var behindHouse=Math.max(0,Math.min(1,(3.6-Math.abs(player.position.x))/1.2))*Math.max(0,Math.min(1,(player.position.z-7.2)/2.2))*(player.position.z<11.8?1:0);
+    var camY=(12.4+behindHouse*4.8)+arcY;
+    var camZOff=13.6-behindHouse*4.2;
+    targetCam=new THREE.Vector3(player.position.x*0.72,camY,player.position.z+camZOff);
+    targetLook=new THREE.Vector3(player.position.x*0.85,1.0,player.position.z-1.2+behindHouse*0.8);
   }
   camPos.lerp(targetCam,Math.min(1,dt*camSpeed));
   camLook.lerp(targetLook,Math.min(1,dt*(camSpeed+1)));
@@ -1793,7 +1859,8 @@ function animate(){
 
   renderer.render(scene,camera);
 }
-window.onload=function(){resize();animate();};
+
+window.onload=function(){loadGame();resize();animate();};
 })();
 </script>
 </body>
