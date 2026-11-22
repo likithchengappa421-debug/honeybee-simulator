@@ -164,6 +164,7 @@
     <button id="play" type="button">Play</button>
   </div>
 </div>
+<audio id="openingMusic" src="assets/Music/Prologue_bee_entry.mp3" preload="auto" loop hidden aria-hidden="true"></audio>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -199,8 +200,32 @@ document.addEventListener('gesturestart',function(e){e.preventDefault();},{passi
 
 // Synthesized Web Audio SFX (no external URLs) + iOS first-touch unlock
 var audioCtx=null,soundOn=true;
+var openingMusic=document.getElementById('openingMusic'),openingMusicFade=null,openingMusicLevel=0;
+openingMusic.volume=0;
 function initAudio(){if(!audioCtx){var AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
 window.addEventListener('touchstart',function unlock(){initAudio();window.removeEventListener('touchstart',unlock);},{passive:true});
+function fadeOpeningMusicTo(level,duration,stopWhenDone){
+  openingMusicLevel=Math.max(0,Math.min(1,level));
+  openingMusicFade={from:openingMusic.volume,to:soundOn?openingMusicLevel:0,duration:Math.max(0.001,duration),elapsed:0,stopWhenDone:!!stopWhenDone};
+}
+function startOpeningMusic(){
+  if(!soundOn)return;
+  initAudio();openingMusic.pause();openingMusic.currentTime=0;openingMusic.volume=0;
+  var playRequest=openingMusic.play();
+  if(playRequest&&typeof playRequest.catch==='function')playRequest.catch(function(error){console.warn('Opening music playback failed:',error);});
+  fadeOpeningMusicTo(0.62,0.65,false);
+}
+function updateOpeningMusic(dt){
+  if(!openingMusicFade)return;
+  var fade=openingMusicFade;
+  fade.elapsed=Math.min(fade.duration,fade.elapsed+dt);
+  var k=smoothstep01(fade.elapsed/fade.duration);
+  openingMusic.volume=fade.from+(fade.to-fade.from)*k;
+  if(fade.elapsed>=fade.duration){
+    openingMusic.volume=fade.to;openingMusicFade=null;
+    if(fade.stopWhenDone){openingMusic.pause();openingMusic.currentTime=0;}
+  }
+}
 function playSfx(type){
   if(!soundOn)return;
   try{
@@ -259,6 +284,11 @@ function rbox(w,h,d,b){
 }
 function rnd(a,b){return a+Math.random()*(b-a);}
 function lerpA(a,b,f){return a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*f;}
+function dampFactor(rate,dt){return 1-Math.exp(-rate*dt);}
+function smoothstep01(value){var k=Math.max(0,Math.min(1,value));return k*k*(3-2*k);}
+function faceTargetY(group,target,dt,rate){
+  group.rotation.y=lerpA(group.rotation.y,Math.atan2(target.x-group.position.x,target.z-group.position.z),dampFactor(rate,dt));
+}
 function makeLabelPlane(txt,w,h,col,bg){
   var c=document.createElement('canvas');c.width=256;c.height=Math.round(256*(h/w));
   var cx=c.getContext('2d');
@@ -956,7 +986,7 @@ function walkWifeTo(target,phase,beats,isBenchTutorial,waypoints){
   var from=wife.position.clone(),to=target.clone();
   wifeWalk={
     phase:phase,from:from,to:to,t:0,duration:Math.max(0.7,from.distanceTo(to)/2.5),
-    waypoints:waypoints?waypoints.slice():[],beats:beats||[],isBenchTutorial:!!isBenchTutorial
+    waypoints:waypoints?waypoints.slice():[],beats:beats||[],isBenchTutorial:!!isBenchTutorial,stridePhase:0
   };
 }
 function startBenchTutorial(){
@@ -975,9 +1005,11 @@ function startBenchTutorial(){
 function showCutBeat(){
   var b=cutBeats[cutBeat];
   cutWho.textContent=b.who;cutTxt.textContent=b.txt;cutHint.textContent='Tap to continue ▸';cutT=0;
+  if(cutBeat===0)fadeOpeningMusicTo(0.16,1.2,false);
   if(b.sfx)playSfx(b.sfx);
 }
 function startCutscene(){
+  startOpeningMusic();
   wifeChatActive=false;cutsceneActive=true;cutPhase='bee-look';cutBeat=0;cutT=0;
   wifeWalk=null;wife.visible=true;
   player.position.set(-0.95,0,9.85);
@@ -1028,6 +1060,7 @@ function advanceWifeChat(){
   wifeChatBeat++;showWifeChatBeat();
 }
 function endCutscene(){
+  fadeOpeningMusicTo(0,0.9,true);
   cutsceneActive=false;gameState.cutsceneDone=true;
   openingBee.g.visible=false;
   beeSpeechEl.style.display='none';
@@ -1125,7 +1158,8 @@ document.getElementById('cRackBtn').addEventListener('click',function(){startCra
 // Settings & Save Modal
 var resetConfirm=false;
 document.getElementById('sndBtn').addEventListener('click',function(e){
-  e.stopPropagation();soundOn=!soundOn;this.textContent=soundOn?'🔊':'🔇';if(soundOn)playSfx('pick');
+  e.stopPropagation();soundOn=!soundOn;this.textContent=soundOn?'🔊':'🔇';
+  fadeOpeningMusicTo(openingMusicLevel,0.18,false);if(soundOn)playSfx('pick');
 });
 document.getElementById('menuBtn').addEventListener('click',function(e){
   e.stopPropagation();resetConfirm=false;document.getElementById('resetBtn').textContent='Reset Save';
@@ -1174,7 +1208,11 @@ function tryCapture(){
   if(smokedT<=0){playSfx('bad');popText('Smoke the bees first!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
   if(gameState.carryType==='queen'){playSfx('bad');popText('Already carrying Queen!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
   if(!hasEmptyTreeBox()){playSfx('bad');popText('Place an empty Bee Box first!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
-  capA={t:0,dur:2.6};scoop.visible=true;
+  var queenStart=hp.clone().add(new THREE.Vector3(0,0.6,0)),queenEndLocal=new THREE.Vector3(0,0.24,0.18);
+  scoop.updateWorldMatrix(true,false);
+  capA={t:0,dur:2.6,from:queenStart,endLocal:queenEndLocal};
+  queenObj.g.position.copy(scoop.worldToLocal(queenStart.clone()));
+  scoop.visible=true;
   progEl.querySelector('span').textContent='👑';progArc.style.strokeDashoffset='100.5';progEl.style.display='block';clearNear();playSfx('buzz');
 }
 
@@ -1407,13 +1445,14 @@ function fmtTime(sec){
 }
 
 // ================= MAIN ANIMATION LOOP =================
-var clock=new THREE.Clock();
+var clock=new THREE.Clock(),playerWalkPhase=0,playerWalkWeight=0,playerVelocity=new THREE.Vector2();
 var camPos=new THREE.Vector3(0,12.4,20.4),camLook=new THREE.Vector3(0,1,5.8);
 
 function animate(){
   requestAnimationFrame(animate);
   if(contextLost)return;
   var dt=Math.min(0.05,clock.getDelta()),t=clock.elapsedTime;
+  updateOpeningMusic(dt);
 
   // Clouds & glowing wild hive
   clouds.forEach(function(cl){cl.position.x+=cl.userData.v*dt;if(cl.position.x>34)cl.position.x=-34;});
@@ -1434,11 +1473,11 @@ function animate(){
         openingCamFrom.copy(camPos);openingLookFrom.copy(camLook);playSfx('buzz');
       }
     }else if(cutPhase==='bee-flight'){
-      var flightK=Math.min(1,cutT/3.5),beePos=openingBeePath.getPointAt(flightK);
+      var flightK=Math.min(1,cutT/3.5),flightEase=smoothstep01(flightK),beePos=openingBeePath.getPointAt(flightEase);
       openingBee.g.position.copy(beePos);
-      openingBee.g.lookAt(openingBeePath.getPointAt(Math.min(1,flightK+0.01)));
+      openingBee.g.lookAt(openingBeePath.getPointAt(Math.min(1,flightEase+0.01)));
       var flightQuaternion=openingBee.g.quaternion.clone();
-      openingBee.g.quaternion.copy(openingBeeStartQuaternion).slerp(flightQuaternion,Math.min(1,flightK/0.14));
+      openingBee.g.quaternion.copy(openingBeeStartQuaternion).slerp(flightQuaternion,smoothstep01(flightK/0.14));
       var beeScale=1.5+(1-1.5)*flightK;
       openingBee.g.scale.setScalar(beeScale);
       openingBee.wl.rotation.z=Math.sin(t*48)*0.72;openingBee.wr.rotation.z=-Math.sin(t*48)*0.72;
@@ -1467,29 +1506,42 @@ function animate(){
     }else{
       var bObj=cutBeats[cutBeat];
       if(cutBeat===2||cutBeat===3){
-        player.rotation.y=lerpA(player.rotation.y,Math.atan2(hp.x-player.position.x,hp.z-player.position.z),dt*5);
-        wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(hp.x-wife.position.x,hp.z-wife.position.z),dt*5);
+        player.rotation.y=lerpA(player.rotation.y,Math.atan2(hp.x-player.position.x,hp.z-player.position.z),dampFactor(5,dt));
+        wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(hp.x-wife.position.x,hp.z-wife.position.z),dampFactor(5,dt));
       }else if(cutBeat===7){
-        player.rotation.y=lerpA(player.rotation.y,Math.atan2(BX-player.position.x,BZ-player.position.z),dt*5);
+        player.rotation.y=lerpA(player.rotation.y,Math.atan2(BX-player.position.x,BZ-player.position.z),dampFactor(5,dt));
       }else{
-        player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dt*5);
-        wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z),dt*5);
+        player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dampFactor(5,dt));
+        wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z),dampFactor(5,dt));
       }
-      var talkBob=Math.abs(Math.sin(t*7))*0.06;
-      if(bObj.who==='Husband'){body.position.y=talkBob;wBody.position.y=0;armR.rotation.x=-0.5+Math.sin(t*6)*0.2;}
-      else{wBody.position.y=talkBob;body.position.y=0;armR.rotation.x=0;wArmL.rotation.x=-0.4+Math.sin(t*5)*0.15;}
+      var talkPulse=Math.max(0,Math.sin(t*4.2+(bObj.who==='Husband'?Math.PI:0)));
+      var talkBob=0.018+Math.sin(t*2.2)*0.012+talkPulse*0.025;
+      if(bObj.who==='Husband'){
+        body.position.y=talkBob;body.rotation.z=-0.012-talkPulse*0.018;
+        wBody.position.y=Math.sin(t*1.8)*0.012;wBody.rotation.z=Math.sin(t*1.8)*0.008;
+        armR.rotation.x=-0.48+talkPulse*0.2;
+      }else{
+        wBody.position.y=talkBob;wBody.rotation.z=0.012+talkPulse*0.016;
+        body.position.y=Math.sin(t*1.8)*0.012;body.rotation.z=Math.sin(t*1.8)*0.008;
+        armR.rotation.x=0;wArmL.rotation.x=-0.36-talkPulse*0.2;
+      }
     }
   }else if(wifeWalk){
     var walk=wifeWalk;
     walk.t=Math.min(walk.duration,walk.t+dt);
-    var walkK=walk.t/walk.duration,walkEase=walkK*walkK*(3-2*walkK);
+    var previousWifePosition=wife.position.clone();
+    var walkK=walk.t/walk.duration,walkEase=smoothstep01(walkK);
     wife.position.lerpVectors(walk.from,walk.to,walkEase);
-    wife.rotation.y=Math.atan2(walk.to.x-walk.from.x,walk.to.z-walk.from.z);
-    var wifeStride=Math.sin(t*12);
-    wBody.position.y=Math.abs(wifeStride)*0.1;
+    var stepDistance=wife.position.distanceTo(previousWifePosition);
+    walk.stridePhase+=stepDistance*2.4;
+    var strideWeight=Math.min(1,stepDistance/Math.max(dt,0.0001)/2.5);
+    var wifeStride=Math.sin(walk.stridePhase)*strideWeight;
+    faceTargetY(wife,walk.to,dt,9);
+    wBody.position.y=Math.abs(Math.sin(walk.stridePhase))*0.09*strideWeight;
+    wBody.rotation.z=-wifeStride*0.025;
     wArmL.rotation.x=-wifeStride*0.45;wArmR.rotation.x=wifeStride*0.45;
     if(walk.phase==='approach'){
-      player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dt*7);
+      player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dampFactor(7,dt));
     }
     if(walkK>=1){
       wife.position.copy(walk.to);
@@ -1504,46 +1556,65 @@ function animate(){
       }
     }
   }else if(wifeChatActive){
-    player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dt*7);
-    wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z),dt*7);
-    wBody.position.y=Math.abs(Math.sin(t*7))*0.05;
-    wArmL.rotation.x=-0.35+Math.sin(t*5)*0.15;
+    player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dampFactor(7,dt));
+    wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z),dampFactor(7,dt));
+    var chatPulse=Math.max(0,Math.sin(t*3.8));
+    wBody.position.y=0.012+Math.sin(t*2)*0.01+chatPulse*0.018;
+    wBody.rotation.z=0.01+chatPulse*0.012;
+    wArmL.rotation.x=-0.34-chatPulse*0.16;wArmR.rotation.x=chatPulse*0.08;
   }else{
-    wBody.position.y=Math.sin(t*2.2)*0.02;wArmL.rotation.x=0;
+    wBody.position.y=Math.sin(t*1.8)*0.018;wBody.rotation.z=Math.sin(t*1.3)*0.012;
+    wArmL.rotation.x=wArmR.rotation.x=0;
   }
 
   // Post-cutscene walk out into open yard
   if(cutWalkOut>0){
     cutWalkOut=Math.max(0,cutWalkOut-dt);
-    player.position.x+=((0)-player.position.x)*Math.min(1,dt*4.5);
-    player.position.z+=((6.4)-player.position.z)*Math.min(1,dt*4.5);
-    player.rotation.y=lerpA(player.rotation.y,Math.PI,dt*8);
-    var wc=Math.sin(t*14);body.position.y=Math.abs(wc)*0.12;footL.position.z=0.05+wc*0.18;footR.position.z=0.05-wc*0.18;
+    var exitBlend=dampFactor(4.5,dt);
+    player.position.x+=(0-player.position.x)*exitBlend;
+    player.position.z+=(6.4-player.position.z)*exitBlend;
+    player.rotation.y=lerpA(player.rotation.y,Math.PI,dampFactor(8,dt));
+    var wc=Math.sin(t*14);body.position.y=Math.abs(wc)*0.1;body.rotation.z=-wc*0.015;
+    footL.position.z=0.05+wc*0.17;footR.position.z=0.05-wc*0.17;
+    armL.rotation.x=-wc*0.4;armR.rotation.x=wc*0.4;
   }
 
   // Player Movement
   var vx=0,vz=0;
-  if(playing&&!cutsceneActive&&!wifeChatActive&&!(wifeWalk&&wifeWalk.phase==='approach')&&!climb&&!onTop&&!craft&&cutWalkOut<=0){
+  var canMove=playing&&!cutsceneActive&&!wifeChatActive&&!(wifeWalk&&wifeWalk.phase==='approach')&&!climb&&!onTop&&!craft&&cutWalkOut<=0;
+  if(canMove){
     if(keys.KeyW||keys.ArrowUp)vz-=1;if(keys.KeyS||keys.ArrowDown)vz+=1;
     if(keys.KeyA||keys.ArrowLeft)vx-=1;if(keys.KeyD||keys.ArrowRight)vx+=1;
     if(joy.on){vx+=joy.vx;vz+=joy.vy;}
   }
-  var mag=Math.hypot(vx,vz);
-  if(mag>0.05){
-    var spd=5.4*Math.min(1,mag);
-    player.position.x+=(vx/mag)*spd*dt;
-    player.position.z+=(vz/mag)*spd*dt;
-    player.rotation.y=lerpA(player.rotation.y,Math.atan2(vx,vz),dt*12);
-    var wk=Math.sin(t*13);
-    body.position.y=Math.abs(wk)*0.12;
-    footL.position.z=0.05+wk*0.2;footR.position.z=0.05-wk*0.2;
-    if(!gameState.carryType&&gameState.box===0){armL.rotation.x=-wk*0.55;armR.rotation.x=wk*0.55;}
+  var mag=Math.hypot(vx,vz),desiredSpeed=mag>0.05?5.4*Math.min(1,mag):0;
+  var desiredVX=mag>0.05?vx/mag*desiredSpeed:0,desiredVZ=mag>0.05?vz/mag*desiredSpeed:0;
+  if(!canMove)playerVelocity.set(0,0);
+  else{
+    var velocityBlend=dampFactor(desiredSpeed>0?18:24,dt);
+    playerVelocity.x+=(desiredVX-playerVelocity.x)*velocityBlend;
+    playerVelocity.y+=(desiredVZ-playerVelocity.y)*velocityBlend;
+  }
+  var spd=Math.hypot(playerVelocity.x,playerVelocity.y),walkTarget=Math.min(1,spd/3.5);
+  playerWalkWeight+=(walkTarget-playerWalkWeight)*dampFactor(14,dt);
+  if(spd>0.05){
+    player.position.x+=playerVelocity.x*dt;
+    player.position.z+=playerVelocity.y*dt;
+    player.rotation.y=lerpA(player.rotation.y,Math.atan2(playerVelocity.x,playerVelocity.y),dampFactor(12,dt));
+    playerWalkPhase+=spd*dt*2.4;
+    var wk=Math.sin(playerWalkPhase);
+    body.position.y=Math.sin(t*2.4)*0.018*(1-playerWalkWeight)+Math.abs(wk)*0.095*playerWalkWeight;
+    body.rotation.z=-wk*0.018*playerWalkWeight;
+    footL.position.z=0.05+wk*0.17*playerWalkWeight;footR.position.z=0.05-wk*0.17*playerWalkWeight;
+    if(!gameState.carryType&&gameState.box===0){armL.rotation.x=-wk*0.48*playerWalkWeight;armR.rotation.x=wk*0.48*playerWalkWeight;}
     else{armL.rotation.x=-0.75;armR.rotation.x=-0.75;}
   }else if(!cutsceneActive&&cutWalkOut<=0&&!craft&&!smokeA&&!harv&&!capA&&!climb){
-    body.position.y=Math.sin(t*2.4)*0.025;
-    footL.position.z=footR.position.z=0.05;
-    var hold=(gameState.carryType||gameState.box>0)?-0.75:0;
-    armL.rotation.x=armR.rotation.x=hold;
+    var idleGait=Math.sin(playerWalkPhase),hold=(gameState.carryType||gameState.box>0)?-0.75:0;
+    body.position.y=Math.sin(t*2.2)*0.02*(1-playerWalkWeight)+Math.abs(idleGait)*0.095*playerWalkWeight;
+    body.rotation.z=Math.sin(t*1.5)*0.01*(1-playerWalkWeight)-idleGait*0.018*playerWalkWeight;
+    footL.position.z=0.05+idleGait*0.17*playerWalkWeight;footR.position.z=0.05-idleGait*0.17*playerWalkWeight;
+    armL.rotation.x=hold*(1-playerWalkWeight)-idleGait*0.48*playerWalkWeight;
+    armR.rotation.x=hold*(1-playerWalkWeight)+idleGait*0.48*playerWalkWeight;
   }
 
   // Collisions inside enclosed yard
@@ -1647,7 +1718,7 @@ function animate(){
   if(climb){
     climb.t+=dt;
     var lk=Math.min(1,climb.t/1.15),kk=climb.dir>0?lk:1-lk;
-    var st=kk*6,fl=Math.floor(st),fr=st-fl,y=Math.min(6,fl+fr*fr*(3-2*fr))/6;
+    var st=kk*6,y=smoothstep01(kk);
     var ry=ladder.rotation.y,d=(LSP+0.45)*(1-y)*climbS;
     player.position.set(ladder.position.x+Math.sin(ry)*d,y*TOPY,ladder.position.z+Math.cos(ry)*d);
     player.rotation.y=y>0.8?lerpA(faceL,faceH,(y-0.8)/0.2):faceL;
@@ -1705,8 +1776,14 @@ function animate(){
   if(capA){
     capA.t+=dt;
     var qk=Math.min(1,capA.t/capA.dur);
+    var captureEase=smoothstep01(qk);
     armR.rotation.x=-1.1+Math.sin(capA.t*6)*0.12;
-    queenObj.g.position.set(Math.cos(qk*10)*(1-qk)*0.8,0.24+(1-qk)*0.9,0.18+(1-qk)*0.8);
+    scoop.updateWorldMatrix(true,false);
+    var captureTarget=scoop.localToWorld(capA.endLocal.clone());
+    var queenWorld=capA.from.clone().lerp(captureTarget,captureEase);
+    queenWorld.y+=Math.sin(Math.PI*captureEase)*0.85;
+    queenObj.g.position.copy(scoop.worldToLocal(queenWorld));
+    queenObj.g.lookAt(captureTarget);
     queenObj.wl.rotation.z=Math.sin(t*45)*0.7;queenObj.wr.rotation.z=-Math.sin(t*45)*0.7;
     progArc.style.strokeDashoffset=(100.5*(1-qk)).toFixed(1);
     var qp=projectToFrame(hp.clone().add(new THREE.Vector3(0,1.1,0)));
@@ -1726,14 +1803,14 @@ function animate(){
   }
 
   // Wild Bees Orbiting Tree Hive (or following the Queen into the newly captured box!)
-  beeK+=(beeTo-beeK)*Math.min(1,dt*3);
+  beeK+=(beeTo-beeK)*dampFactor(3,dt);
   wildBees.forEach(function(wb){
     wb.b.wl.rotation.z=Math.sin(t*45+wb.ph)*0.7;wb.b.wr.rotation.z=-Math.sin(t*45+wb.ph)*0.7;
     if(wb.follow){
       if(wb.delay>0){wb.delay-=dt;}
       else{
-        wb.b.g.position.lerp(wb.follow,Math.min(1,dt*3.2));
-        wb.b.g.lookAt(wb.follow);
+        wb.b.g.position.lerp(wb.follow,dampFactor(3.2,dt));
+        faceTargetY(wb.b.g,wb.follow,dt,8);
         if(wb.b.g.position.distanceTo(wb.follow)<0.35){wb.follow=null;wb.repop=18;wb.b.g.visible=false;}
       }
       return;
@@ -1771,10 +1848,10 @@ function animate(){
           fb.b.g.rotation.y=-oa;fb.b.polL.visible=fb.b.polR.visible=false;
           if(fb.ft<=0&&flowerPts.length){fb.mode='toFl';fb.fl=flowerPts[Math.floor(Math.random()*flowerPts.length)];fb.ft=rnd(4,7);}
         }else if(fb.mode==='toFl'){
-          fb.b.g.position.lerp(fb.fl,Math.min(1,dt*2.2));fb.b.g.lookAt(fb.fl);
+          fb.b.g.position.lerp(fb.fl,dampFactor(2.2,dt));faceTargetY(fb.b.g,fb.fl,dt,7);
           if(fb.b.g.position.distanceTo(fb.fl)<0.35){fb.mode='back';fb.b.polL.visible=fb.b.polR.visible=true;}
         }else{
-          fb.b.g.position.lerp(home,Math.min(1,dt*2.2));fb.b.g.lookAt(home);
+          fb.b.g.position.lerp(home,dampFactor(2.2,dt));faceTargetY(fb.b.g,home,dt,7);
           if(fb.b.g.position.distanceTo(home)<0.45){fb.mode='orbit';fb.ft=rnd(2.5,5.5);fb.b.polL.visible=fb.b.polR.visible=false;}
         }
       });
@@ -1982,20 +2059,19 @@ function animate(){
       targetCam=openingCamFrom.clone();
       targetLook=openingLookFrom.clone();camSpeed=8;
     }else if(cutPhase==='bee-flight'){
-      var flightCamK=Math.min(1,cutT/3.5),followK=Math.min(1,flightCamK/0.18);
-      followK=followK*followK*(3-2*followK);
+      var flightCamK=Math.min(1,cutT/3.5),flightCamEase=smoothstep01(flightCamK),followK=smoothstep01(flightCamK/0.18);
       var followPosition=openingBee.g.position.clone().add(openingCamFollowOffset);
       targetCam=openingCamFrom.clone().lerp(followPosition,followK);
-      targetLook=openingLookFrom.clone().lerp(openingBeePath.getPointAt(Math.min(1,flightCamK+0.12)),followK);camSpeed=8;
+      targetLook=openingLookFrom.clone().lerp(openingBeePath.getPointAt(Math.min(1,flightCamEase+0.12)),followK);camSpeed=8;
     }else if(cutPhase==='couple'){
-      var coupleK=Math.min(1,cutT/2.8);
+      var coupleK=smoothstep01(cutT/2.8);
       targetCam=openingCamPath.getPointAt(coupleK);
       targetLook=openingLookPath.getPointAt(coupleK);camSpeed=8;
     }else if(cutBeat===3){
       targetCam=new THREE.Vector3(hp.x+4.2,hp.y+2.2,hp.z+8.2);
       targetLook=new THREE.Vector3(hp.x,hp.y-0.1,hp.z);camSpeed=2.2;
     }else if(cutBeat===7){
-      var drift=Math.min(1,cutT/4.0);
+      var drift=smoothstep01(cutT/4.0);
       targetCam=new THREE.Vector3(BX-0.8+drift*1.4,5.4,BZ-7.6+drift*0.5);
       targetLook=new THREE.Vector3(BX-0.3,0.85,BZ-0.5);camSpeed=2.4;
     }else if(cutBeat===8){
@@ -2031,9 +2107,9 @@ function animate(){
     targetCam=new THREE.Vector3(player.position.x*0.72,camY,player.position.z+camZOff);
     targetLook=new THREE.Vector3(player.position.x*0.85,1.0,player.position.z-1.2+behindHouse*0.8);
   }
-  var camAlpha=Math.min(1,dt*camSpeed);
+  var camAlpha=dampFactor(camSpeed,dt);
   camPos.lerp(targetCam,camAlpha);
-  camLook.lerp(targetLook,cutsceneActive&&cutPhase!=='dialogue'?camAlpha:Math.min(1,dt*(camSpeed+1)));
+  camLook.lerp(targetLook,dampFactor(camSpeed+1,dt));
   camera.position.copy(camPos);camera.lookAt(camLook);
   updateBeeSpeech();
 
