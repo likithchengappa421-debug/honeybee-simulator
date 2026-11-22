@@ -68,9 +68,13 @@
   .x-cut-top{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));pointer-events:auto}
   .x-skip{font:inherit;font-weight:700;font-size:13px;color:#5a3500;background:rgba(255,248,230,.92);border:2px solid #F6B93B;border-radius:999px;padding:8px 16px;min-height:38px;cursor:pointer;touch-action:manipulation;box-shadow:0 3px 0 #d99a1e}
   .x-dlg{pointer-events:auto;background:rgba(255,248,230,.96);border:3px solid #F6B93B;border-radius:20px;padding:13px 16px;box-shadow:0 6px 0 #d99a1e,0 12px 24px rgba(25,15,5,.32);color:#5a3500;cursor:pointer;touch-action:manipulation;max-width:520px;width:100%;margin:0 auto}
+  .x-bee-speech{position:absolute;z-index:13;display:none;max-width:min(220px,calc(100% - 24px));padding:8px 12px;background:rgba(255,248,230,.97);border:2px solid #F6B93B;border-radius:15px;box-shadow:0 4px 0 #d99a1e,0 8px 18px rgba(25,15,5,.28);color:#5a3500;font-size:14px;line-height:1.2;font-weight:700;text-align:center;pointer-events:none}
+  .x-bee-speech::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);border:9px solid transparent;border-bottom:0;border-top-color:#F6B93B}
+  .x-bee-speech-who{display:block;margin-bottom:3px;color:#9a6720;font-size:10px}
   .x-dlg-who{display:inline-block;background:#F6B93B;color:#5a3500;font-weight:700;font-size:13px;padding:2px 10px;border-radius:999px;margin-bottom:6px}
   .x-dlg-txt{font-size:15px;line-height:1.35;font-weight:600;margin:0}
   .x-dlg-tap{text-align:right;font-size:11px;font-weight:700;color:#9a6720;margin-top:6px}
+  @media (max-width:400px){.x-bee-speech{max-width:min(190px,calc(100% - 20px));font-size:13px;padding:7px 10px}}
   @keyframes x-bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.04)}}
   @media (prefers-reduced-motion:reduce){.x-prompt>span{animation:none}}
   #joy{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;background:rgba(255,255,255,.25);border:4px solid rgba(255,255,255,.7);display:none;z-index:5;pointer-events:none}
@@ -146,6 +150,7 @@
   <!-- Opening Cutscene & Wife Dialogue Overlay -->
   <div id="cutscene">
     <div class="x-cut-top"><button class="x-skip" id="cutSkip" type="button">Skip ⏭</button></div>
+    <div class="x-bee-speech" id="beeSpeech"><span class="x-bee-speech-who">Bee</span>Let's go, Keeper!</div>
     <div class="x-dlg" id="cutBox">
       <div class="x-dlg-who" id="cutWho">Wife</div>
       <p class="x-dlg-txt" id="cutTxt"></p>
@@ -402,6 +407,7 @@ mesh(new THREE.SphereGeometry(0.56,16,12),0xd99a1e,0,-0.12,0,hive).scale.y=1.05;
 });
 mesh(new THREE.SphereGeometry(0.2,12,8),0xE0A22E,0,0.58,0,hive);
 mesh(new THREE.CylinderGeometry(0.17,0.17,0.1,16),0x3a2410,0,-0.55,0.72,hive).rotation.x=Math.PI/2;
+mesh(new THREE.CylinderGeometry(0.17,0.17,0.1,16),0x3a2410,0,-0.55,-0.72,hive).rotation.x=-Math.PI/2;
 var hiveGlow=new THREE.Mesh(new THREE.SphereGeometry(1.05,16,12),new THREE.MeshBasicMaterial({color:0xFFE680,transparent:true,opacity:0.22,depthWrite:false}));
 hiveGlow.position.set(0,-0.15,0);hive.add(hiveGlow);
 outline(house,0.05);outline(tree,0.05);
@@ -415,7 +421,8 @@ function makeBee(isQueen){
   var g=new THREE.Group();
   var bd=mesh(beeBodyG,isQueen?0xffb830:0xF6B93B,0,0,0,g);bd.scale.set(1,1,isQueen?1.45:1.2);
   [-0.06,0.06].forEach(function(z){mesh(stripeG,0x3a2410,0,0,z,g);});
-  [-0.06,0.06].forEach(function(ex){mesh(new THREE.SphereGeometry(0.024,8,6),0x1a1a1a,ex,0.05,0.18,g);});
+  var eyes=[];
+  [-0.06,0.06].forEach(function(ex){eyes.push(mesh(new THREE.SphereGeometry(0.024,8,6),0x1a1a1a,ex,0.05,0.18,g));});
   var wl=new THREE.Mesh(wingG,wingM),wr=new THREE.Mesh(wingG,wingM);wl.scale.x=wr.scale.x=0.7;
   wl.position.set(-0.11,0.13,0);wr.position.set(0.11,0.13,0);g.add(wl);g.add(wr);
   var polL=mesh(new THREE.SphereGeometry(0.055,8,6),0xffd23f,-0.11,-0.1,0,g);
@@ -425,7 +432,7 @@ function makeBee(isQueen){
     var cr=mesh(new THREE.ConeGeometry(0.09,0.14,5),0xffe066,0,0.2,0.05,g);
     cr.castShadow=false;g.scale.setScalar(1.25);
   }
-  return{g:g,wl:wl,wr:wr,polL:polL,polR:polR};
+  return{g:g,wl:wl,wr:wr,polL:polL,polR:polR,eyes:eyes};
 }
 // Wild tree bees
 var wildBees=[];
@@ -704,6 +711,7 @@ var prompt2El=document.getElementById('prompt2'),prompt2Txt=document.getElementB
 var smokePill=document.getElementById('smokePill'),smokeTEl=document.getElementById('smokeT'),downBtn=document.getElementById('downBtn');
 var craftModal=document.getElementById('craftModal'),menuModal=document.getElementById('menuModal'),saveStatus=document.getElementById('saveStatus');
 var cutEl=document.getElementById('cutscene'),cutWho=document.getElementById('cutWho'),cutTxt=document.getElementById('cutTxt'),cutHint=document.getElementById('cutHint');
+var beeSpeechEl=document.getElementById('beeSpeech');
 
 var bannerT=null;
 function showBanner(s){
@@ -715,6 +723,16 @@ function projectToFrame(v3){
   var v=v3.clone().project(camera);
   if(v.z>1)return null;
   return{x:(v.x*0.5+0.5)*frame.clientWidth,y:(-v.y*0.5+0.5)*frame.clientHeight};
+}
+function updateBeeSpeech(){
+  if(!cutsceneActive||cutPhase!=='bee-look'){beeSpeechEl.style.display='none';return;}
+  beeSpeechEl.style.display='block';
+  camera.updateMatrixWorld();
+  var p=projectToFrame(openingBee.g.position.clone().add(new THREE.Vector3(0,0.55,0)));
+  if(!p){beeSpeechEl.style.display='none';return;}
+  var w=beeSpeechEl.offsetWidth,h=beeSpeechEl.offsetHeight;
+  beeSpeechEl.style.left=Math.max(8,Math.min(frame.clientWidth-w-8,p.x-w/2))+'px';
+  beeSpeechEl.style.top=Math.max(48,Math.min(frame.clientHeight-h-12,p.y-h-18))+'px';
 }
 function popText(txt,wPos,cls){
   var p=projectToFrame(wPos);if(!p)return;
@@ -888,7 +906,11 @@ document.addEventListener('visibilitychange',function(){
 window.addEventListener('pagehide',saveGame);
 
 // ================= OPENING CUTSCENE & REACTIVE WIFE DIALOGUE =================
-var playing=false,cutsceneActive=false,wifeChatActive=false,cutBeat=0,cutT=0,cutZoomIn=0,cutWalkOut=0;
+var playing=false,cutsceneActive=false,wifeChatActive=false,cutBeat=0,cutT=0,cutZoomIn=0,cutWalkOut=0,cutPhase='dialogue';
+var openingBee=makeBee(false),openingBeePath=null,openingCamFrom=new THREE.Vector3(),openingLookFrom=new THREE.Vector3();
+var openingFlightCam=new THREE.Vector3(),openingLookOffset=new THREE.Vector3();
+var openingBeeStartQuaternion=new THREE.Quaternion();
+scene.add(openingBee.g);openingBee.g.visible=false;
 var cutBeats=[
   {who:'Wife',txt:"Honey, we're running out of time and supplies. If we don't figure something out soon, we won't make it through the winter."},
   {who:'Husband',txt:"I know, love. Trust me, I've been racking my brain all week trying to think of a way out."},
@@ -955,17 +977,33 @@ function showCutBeat(){
   if(b.sfx)playSfx(b.sfx);
 }
 function startCutscene(){
-  wifeChatActive=false;cutsceneActive=true;cutBeat=0;cutT=0;
+  wifeChatActive=false;cutsceneActive=true;cutPhase='bee-look';cutBeat=0;cutT=0;
   wifeWalk=null;wife.visible=true;
-  player.position.set(-0.95,0,9.85);player.rotation.y=Math.PI*0.85;
-  wife.position.set(1.05,0,9.85);wife.rotation.y=-Math.PI*0.85;
+  player.position.set(-0.95,0,9.85);
+  wife.position.set(1.05,0,9.85);
+  player.rotation.y=Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z);
+  wife.rotation.y=Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z);
+  var beeStart=hp.clone().add(new THREE.Vector3(0,9.5,-13));
+  var beeTarget=hp.clone().add(new THREE.Vector3(0,-0.55,-0.72));
+  openingBee.g.visible=true;openingBee.g.position.copy(beeStart);openingBee.g.scale.setScalar(1.5);
+  openingCamFrom.set(0.05,14.4,-32);
+  openingFlightCam.set(0.05,4.1,2.6);
+  openingLookOffset.set(0,-2.55,7.25);
+  openingLookFrom.copy(openingCamFrom).add(openingLookOffset);
+  openingBee.g.lookAt(openingCamFrom);
+  openingBeeStartQuaternion.copy(openingBee.g.quaternion);
+  camPos.copy(openingCamFrom);camLook.copy(openingLookFrom);
+  camera.position.copy(camPos);camera.lookAt(camLook);
+  openingBee.eyes.forEach(function(eye){eye.scale.y=1;});
+  openingBeePath=new THREE.LineCurve3(beeStart,beeTarget);
   document.getElementById('cutSkip').style.display='inline-block';
   cutEl.style.display='flex';
+  document.getElementById('cutBox').style.display='none';
+  beeSpeechEl.style.display='block';
   document.getElementById('hud').style.display='none';
   goalEl.style.display='none';
   document.getElementById('camTools').style.display='none';
   updatePlaceholderVisibility();
-  showCutBeat();
 }
 function openWifeDialogue(){
   if(cutsceneActive||wifeChatActive)return;
@@ -988,6 +1026,8 @@ function advanceWifeChat(){
 }
 function endCutscene(){
   cutsceneActive=false;gameState.cutsceneDone=true;
+  openingBee.g.visible=false;
+  beeSpeechEl.style.display='none';
   cutEl.style.display='none';
   document.getElementById('hud').style.display='flex';
   goalEl.style.display='block';
@@ -1002,7 +1042,7 @@ function endCutscene(){
 document.getElementById('cutBox').addEventListener('click',function(e){
   e.stopPropagation();
   if(wifeChatActive){advanceWifeChat();return;}
-  if(!cutsceneActive)return;
+  if(!cutsceneActive||cutPhase!=='dialogue')return;
   cutBeat++;if(cutBeat>=cutBeats.length)endCutscene();else showCutBeat();
 });
 document.getElementById('cutSkip').addEventListener('click',function(e){
@@ -1380,19 +1420,50 @@ function animate(){
   // Opening Cutscene update
   if(cutsceneActive){
     cutT+=dt;
-    var bObj=cutBeats[cutBeat];
-    if(cutBeat===2||cutBeat===3){
-      player.rotation.y=lerpA(player.rotation.y,Math.atan2(hp.x-player.position.x,hp.z-player.position.z),dt*5);
-      wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(hp.x-wife.position.x,hp.z-wife.position.z),dt*5);
-    }else if(cutBeat===7){
-      player.rotation.y=lerpA(player.rotation.y,Math.atan2(BX-player.position.x,BZ-player.position.z),dt*5);
+    if(cutPhase==='bee-look'){
+      openingBee.g.position.y=hp.y+9.5+Math.sin(t*2)*0.06;
+      openingBee.wl.rotation.z=Math.sin(t*38)*0.16;openingBee.wr.rotation.z=-Math.sin(t*38)*0.16;
+      var blink=Math.max(0,1-Math.abs(cutT-0.28)/0.08,1-Math.abs(cutT-0.72)/0.08);
+      openingBee.eyes.forEach(function(eye){eye.scale.y=1-0.94*blink;});
+      if(cutT>=1){
+        cutPhase='bee-flight';cutT=0;
+        beeSpeechEl.style.display='none';
+        openingCamFrom.copy(camPos);openingLookFrom.copy(camLook);playSfx('buzz');
+      }
+    }else if(cutPhase==='bee-flight'){
+      var flightK=Math.min(1,cutT/4.5),beePos=openingBeePath.getPointAt(flightK);
+      openingBee.g.position.copy(beePos);
+      openingBee.g.lookAt(openingBeePath.getPointAt(Math.min(1,flightK+0.01)));
+      var flightQuaternion=openingBee.g.quaternion.clone();
+      openingBee.g.quaternion.copy(openingBeeStartQuaternion).slerp(flightQuaternion,Math.min(1,flightK/0.14));
+      var beeScale=1.5+(1-1.5)*flightK;
+      openingBee.g.scale.setScalar(beeScale);
+      openingBee.wl.rotation.z=Math.sin(t*48)*0.72;openingBee.wr.rotation.z=-Math.sin(t*48)*0.72;
+      if(flightK>=1){
+        openingBee.g.visible=false;cutPhase='couple';cutT=0;
+        openingCamFrom.copy(camPos);openingLookFrom.copy(camLook);
+      }
+    }else if(cutPhase==='couple'){
+      if(cutT>=2){
+        cutPhase='dialogue';cutBeat=0;cutT=0;
+        document.getElementById('cutBox').style.display='block';
+        showCutBeat();
+      }
     }else{
-      player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dt*5);
-      wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z),dt*5);
+      var bObj=cutBeats[cutBeat];
+      if(cutBeat===2||cutBeat===3){
+        player.rotation.y=lerpA(player.rotation.y,Math.atan2(hp.x-player.position.x,hp.z-player.position.z),dt*5);
+        wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(hp.x-wife.position.x,hp.z-wife.position.z),dt*5);
+      }else if(cutBeat===7){
+        player.rotation.y=lerpA(player.rotation.y,Math.atan2(BX-player.position.x,BZ-player.position.z),dt*5);
+      }else{
+        player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dt*5);
+        wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z),dt*5);
+      }
+      var talkBob=Math.abs(Math.sin(t*7))*0.06;
+      if(bObj.who==='Husband'){body.position.y=talkBob;wBody.position.y=0;armR.rotation.x=-0.5+Math.sin(t*6)*0.2;}
+      else{wBody.position.y=talkBob;body.position.y=0;armR.rotation.x=0;wArmL.rotation.x=-0.4+Math.sin(t*5)*0.15;}
     }
-    var talkBob=Math.abs(Math.sin(t*7))*0.06;
-    if(bObj.who==='Husband'){body.position.y=talkBob;wBody.position.y=0;armR.rotation.x=-0.5+Math.sin(t*6)*0.2;}
-    else{wBody.position.y=talkBob;body.position.y=0;armR.rotation.x=0;wArmL.rotation.x=-0.4+Math.sin(t*5)*0.15;}
   }else if(wifeWalk){
     var walk=wifeWalk;
     walk.t=Math.min(walk.duration,walk.t+dt);
@@ -1892,7 +1963,17 @@ function animate(){
   // Smooth Camera Follow, Opening Cutscene & Unobstructed Action Shots
   var targetCam,targetLook,camSpeed=5;
   if(cutsceneActive){
-    if(cutBeat===3){
+    if(cutPhase==='bee-look'){
+      targetCam=openingCamFrom.clone();
+      targetLook=openingLookFrom.clone();camSpeed=8;
+    }else if(cutPhase==='bee-flight'){
+      targetCam=openingCamFrom.clone();
+      targetLook=openingLookFrom.clone();camSpeed=8;
+    }else if(cutPhase==='couple'){
+      var coupleK=Math.min(1,cutT/2);
+      targetCam=openingCamFrom.clone().lerp(openingFlightCam,coupleK);
+      targetLook=targetCam.clone().add(openingLookOffset);camSpeed=8;
+    }else if(cutBeat===3){
       targetCam=new THREE.Vector3(hp.x+4.2,hp.y+2.2,hp.z+8.2);
       targetLook=new THREE.Vector3(hp.x,hp.y-0.1,hp.z);camSpeed=2.2;
     }else if(cutBeat===7){
@@ -1932,9 +2013,11 @@ function animate(){
     targetCam=new THREE.Vector3(player.position.x*0.72,camY,player.position.z+camZOff);
     targetLook=new THREE.Vector3(player.position.x*0.85,1.0,player.position.z-1.2+behindHouse*0.8);
   }
-  camPos.lerp(targetCam,Math.min(1,dt*camSpeed));
-  camLook.lerp(targetLook,Math.min(1,dt*(camSpeed+1)));
+  var camAlpha=Math.min(1,dt*camSpeed);
+  camPos.lerp(targetCam,camAlpha);
+  camLook.lerp(targetLook,cutsceneActive&&cutPhase!=='dialogue'?camAlpha:Math.min(1,dt*(camSpeed+1)));
   camera.position.copy(camPos);camera.lookAt(camLook);
+  updateBeeSpeech();
 
   sun.position.set(player.position.x+11,14,player.position.z+9);
   sun.target.position.copy(player.position);sun.target.updateMatrixWorld();
