@@ -6,23 +6,23 @@ Items are sorted by impact on gameplay, progression, and player retention.
 
 ## Priority 0 — Fix first-session blockers
 
-- [ ] **Shorten time to first honey.** The first populated Bee Box currently has a 30-minute settling cooldown, while its 45-second tutorial harvest timer only starts after settling and mounting. Waive or sharply shorten settling for the first colony; retain the 30-minute cooldown for later colonies.
-- [ ] **Reduce the early resource grind.** Repairing the workbench spends the initial 6 wood and 4 scrap, then the tutorial asks for 8 wood and 4 scrap for a ladder, 10 wood for a box, and 6 scrap for a stand. Consider a small post-repair material reward or lower tutorial costs.
-- [ ] **Make the first market order fulfillable.** Susmitha's guaranteed first order is 2 jars, but a tier-1 hive yields 1 jar per harvest and the first jar is needed to unlock the shop. Set her first order to 1 jar or provide enough initial stock.
-- [ ] **Prevent an understocked customer from blocking the market.** Customers currently stay queued when the player lacks honey, and quick-sell is unavailable while a customer is at the counter. Let the player dismiss/skip an understocked order, keep quick-sell available, and prevent an unserved customer from blocking the queue indefinitely.
+- [x] **Shorten time to first honey.** The first populated Bee Box now skips the 30-minute settling cooldown so its 45-second tutorial harvest can start after mounting. Later colonies retain the 30-minute cooldown.
+- [x] **Reduce the early resource grind.** Repairing the workbench now gives a one-time 4 wood and 2 scrap toward the ladder, while preserving recipe costs and the need to gather more materials.
+- [x] **Make the first market order fulfillable.** Susmita's guaranteed first order is now 1 jar, so the first tier-1 harvest can fulfill it after the jar unlocks the shop.
+- [x] **Prevent an understocked customer from blocking the market.** Understocked orders can be skipped, quick-sell remains available at the counter, and a skipped customer leaves so the queue can advance.
 
 ## Priority 1 — Improve progression and return motivation
 
 - [ ] **Add post-tutorial objectives.** Replace the vague “Expand your apiary” goal with a short optional chain: harvest honey, store it, build the stall, serve the first customer, plant flowers or upgrade a hive, and prepare another box.
-- [ ] **Make the one-hour Queen recovery period productive.** Keep the cooldown if desired, but waive or shorten it during onboarding and offer useful activities while later colonies recover. Avoid making active play feel like waiting for a timer.
-- [ ] **Explain the controls and collection rules.** Show a first-play hint for WASD/arrow keys or the virtual joystick, tapping contextual actions, and automatic collection when walking near wood and scrap.
-- [ ] **Keep guidance, but allow some exploration.** Preserve the highlighted tutorial step while allowing harmless optional activities or offering a tutorial-skip/“explore” choice.
+- [x] **Make the one-hour Queen recovery period productive.** The wild-tree recovery is waived until the first managed-hive harvest, including active onboarding saves. Later captures retain the full hour, with the goal pointing to useful apiary or market activities during recovery.
+- [x] **Explain the controls and collection rules.** The first-play screen now explains WASD/arrow keys or the on-screen joystick, tapping/clicking contextual prompts, and automatic wood/scrap collection by proximity. The hint is hidden on later plays.
+- [x] **Keep guidance, but allow some exploration.** The current tutorial goal and required build/capture actions remain highlighted and gated, while players can harvest, use storage and the market, tend/upgrade existing hives, climb down, and craft an optional Box Rack.
 
 ## Priority 2 — UI and platform polish
 
-- [ ] **Prevent floating labels from covering the HUD.** Clamp or reposition the wild-hive status label below the resource/goal area, or move it into a fixed hive-status panel.
-- [ ] **Review desktop layout.** The game uses a portrait frame on desktop; consider an optional landscape layout if desktop play is a target.
-- [ ] **Review accessibility and mobile performance.** Avoid unnecessarily preventing zoom, and profile frame rate on real phones before adding more scenery; the scene uses many individual shadow-casting meshes.
+- [x] **Prevent floating labels from covering the HUD.** The goal is positioned below the actual resource HUD height, and hive tags are clipped below the goal; the wild-hive label is clamped into that area.
+- [x] **Review desktop layout.** The desktop portrait frame and arrow-key movement were checked at 1440×900. Retain the existing layout for now; a landscape option needs separate design and playtesting rather than changing the default.
+- [ ] **Review accessibility and mobile performance.** Pinch zoom is enabled and checked in mobile emulation. Frame-rate profiling on real phones is still needed before adding more scenery; the scene uses many individual shadow-casting meshes.
 
 ## Preserve these strengths
 
@@ -34,6 +34,6 @@ Items are sorted by impact on gameplay, progression, and player retention.
 ## Playtest checks
 
 - [ ] From a fresh save, measure time to first useful honey, shop unlock, and first successful customer order.
-- [ ] Confirm the first customer can be served with the stock available at shop unlock.
+- [x] Confirm the first customer can be served with the stock available at shop unlock. Browser fixtures carried one tier-1 harvest through storage, shop construction, and Susmita's order.
 - [ ] Check that no long stretch leaves the player without a useful action.
-- [ ] Test HUD/tag overlap and controls on a narrow phone screen and a desktop viewport.
+- [x] Test HUD/tag overlap and controls on a narrow phone screen and a desktop viewport. Checked 320×568 and 1440×900, including a wrapped resource HUD, keyboard movement, and an emulated touch joystick; real-device testing remains open above.

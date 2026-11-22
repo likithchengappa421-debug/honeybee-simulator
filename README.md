@@ -4,3 +4,5 @@ Created by a real-life beekeeper from Coorg (Kodagu), Honeybee Simulator is a co
 
 For a local preview, run `python3 -m http.server 8000` from this folder and open `http://localhost:8000/`. Some browsers block the soundtrack when the game is opened directly as a `file://` URL.
 
+Move with WASD or the arrow keys, or drag the on-screen joystick on a touch device. Tap or click action prompts; wood and scrap are collected automatically when you walk nearby. Browser pinch zoom is supported.
+
