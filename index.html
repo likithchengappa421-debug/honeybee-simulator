@@ -909,6 +909,7 @@ window.addEventListener('pagehide',saveGame);
 var playing=false,cutsceneActive=false,wifeChatActive=false,cutBeat=0,cutT=0,cutZoomIn=0,cutWalkOut=0,cutPhase='dialogue';
 var openingBee=makeBee(false),openingBeePath=null,openingCamFrom=new THREE.Vector3(),openingLookFrom=new THREE.Vector3();
 var openingFlightCam=new THREE.Vector3(),openingLookOffset=new THREE.Vector3();
+var openingCamPath=null,openingLookPath=null,openingCamFollowOffset=new THREE.Vector3();
 var openingBeeStartQuaternion=new THREE.Quaternion();
 scene.add(openingBee.g);openingBee.g.visible=false;
 var cutBeats=[
@@ -989,6 +990,8 @@ function startCutscene(){
   openingCamFrom.set(0.05,14.4,-32);
   openingFlightCam.set(0.05,4.1,2.6);
   openingLookOffset.set(0,-2.55,7.25);
+  openingCamFollowOffset.copy(openingCamFrom).sub(beeStart);
+  openingCamPath=openingLookPath=null;
   openingLookFrom.copy(openingCamFrom).add(openingLookOffset);
   openingBee.g.lookAt(openingCamFrom);
   openingBeeStartQuaternion.copy(openingBee.g.quaternion);
@@ -1431,7 +1434,7 @@ function animate(){
         openingCamFrom.copy(camPos);openingLookFrom.copy(camLook);playSfx('buzz');
       }
     }else if(cutPhase==='bee-flight'){
-      var flightK=Math.min(1,cutT/4.5),beePos=openingBeePath.getPointAt(flightK);
+      var flightK=Math.min(1,cutT/3.5),beePos=openingBeePath.getPointAt(flightK);
       openingBee.g.position.copy(beePos);
       openingBee.g.lookAt(openingBeePath.getPointAt(Math.min(1,flightK+0.01)));
       var flightQuaternion=openingBee.g.quaternion.clone();
@@ -1442,9 +1445,21 @@ function animate(){
       if(flightK>=1){
         openingBee.g.visible=false;cutPhase='couple';cutT=0;
         openingCamFrom.copy(camPos);openingLookFrom.copy(camLook);
+        openingCamPath=new THREE.CatmullRomCurve3([
+          camPos.clone(),
+          hp.clone().add(new THREE.Vector3(4.8,1.2,0.6)),
+          new THREE.Vector3(2.4,4.3,0.5),
+          openingFlightCam.clone()
+        ]);
+        openingLookPath=new THREE.CatmullRomCurve3([
+          camLook.clone(),
+          hp.clone().add(new THREE.Vector3(0,1.5,0)),
+          new THREE.Vector3(0.7,2.2,5.5),
+          openingFlightCam.clone().add(openingLookOffset)
+        ]);
       }
     }else if(cutPhase==='couple'){
-      if(cutT>=2){
+      if(cutT>=2.8){
         cutPhase='dialogue';cutBeat=0;cutT=0;
         document.getElementById('cutBox').style.display='block';
         showCutBeat();
@@ -1967,12 +1982,15 @@ function animate(){
       targetCam=openingCamFrom.clone();
       targetLook=openingLookFrom.clone();camSpeed=8;
     }else if(cutPhase==='bee-flight'){
-      targetCam=openingCamFrom.clone();
-      targetLook=openingLookFrom.clone();camSpeed=8;
+      var flightCamK=Math.min(1,cutT/3.5),followK=Math.min(1,flightCamK/0.18);
+      followK=followK*followK*(3-2*followK);
+      var followPosition=openingBee.g.position.clone().add(openingCamFollowOffset);
+      targetCam=openingCamFrom.clone().lerp(followPosition,followK);
+      targetLook=openingLookFrom.clone().lerp(openingBeePath.getPointAt(Math.min(1,flightCamK+0.12)),followK);camSpeed=8;
     }else if(cutPhase==='couple'){
-      var coupleK=Math.min(1,cutT/2);
-      targetCam=openingCamFrom.clone().lerp(openingFlightCam,coupleK);
-      targetLook=targetCam.clone().add(openingLookOffset);camSpeed=8;
+      var coupleK=Math.min(1,cutT/2.8);
+      targetCam=openingCamPath.getPointAt(coupleK);
+      targetLook=openingLookPath.getPointAt(coupleK);camSpeed=8;
     }else if(cutBeat===3){
       targetCam=new THREE.Vector3(hp.x+4.2,hp.y+2.2,hp.z+8.2);
       targetLook=new THREE.Vector3(hp.x,hp.y-0.1,hp.z);camSpeed=2.2;
