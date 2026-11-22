@@ -23,9 +23,9 @@
   .x-pill{display:flex;align-items:center;gap:5px;background:#F3E9D2 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='42' viewBox='0 0 24 42'%3E%3Cpath d='M12 0l12 7v14l-12 7L0 21V7zM12 28v14' fill='none' stroke='%23F6B93B' stroke-opacity='.22' stroke-width='1.5'/%3E%3C/svg%3E");border:3px solid #F6B93B;box-shadow:0 4px 0 #d99a1e,0 6px 14px rgba(40,25,5,.28);border-radius:999px;padding:4px 11px 4px 5px;font-weight:700;font-size:15px;color:#5a3500}
   .x-ico{width:24px;height:24px;display:grid;place-items:center;font-size:13px;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%)}
   @media (max-width:400px){
-    .x-hud{gap:4px}
-    .x-pill{padding:3px 8px 3px 4px;font-size:13px;border-width:2px;box-shadow:0 3px 0 #d99a1e,0 4px 10px rgba(40,25,5,.25)}
-    .x-ico{width:20px;height:20px;font-size:11px}
+    .x-hud{left:4px;right:4px;gap:3px}
+    .x-pill{gap:3px;padding:2px 6px 2px 3px;font-size:12px;border-width:2px;box-shadow:0 3px 0 #d99a1e,0 4px 10px rgba(40,25,5,.25)}
+    .x-ico{width:18px;height:18px;font-size:10px}
     .x-prompt>span{font-size:13px;padding:5px 9px;min-height:40px}
     .x-row{gap:6px;padding:8px}
     .x-row .x-btn{font-size:11px;padding:7px 8px}
@@ -37,8 +37,11 @@
   .x-prompt{position:absolute;left:0;top:0;z-index:6;display:none;transform:translate(-50%,-100%);cursor:pointer;touch-action:manipulation;padding:8px}
   .x-prompt>span{display:flex;align-items:center;justify-content:center;text-align:center;background:#F3E9D2;border:3px solid #F6B93B;border-radius:999px;padding:7px 13px;min-height:44px;max-width:min(calc(100vw - 32px),280px);font-weight:700;font-size:15px;line-height:1.15;color:#5a3500;white-space:normal;box-shadow:0 4px 0 #d99a1e,0 6px 14px rgba(40,25,5,.28);animation:x-bob 1.4s ease-in-out infinite}
   .x-prompt.x-short>span{color:#d6332a}
+  .x-prompt.tutorial-focus{z-index:11}
+  .x-prompt.tutorial-focus>span{border-color:#fff8e6;box-shadow:0 0 0 5px rgba(246,185,59,.55),0 0 24px 8px rgba(246,185,59,.75),0 4px 0 #d99a1e;animation:x-guide-pulse 1.1s ease-in-out infinite}
   .x-prompt:active>span,.x-prompt.pressed>span{animation-play-state:paused;transform:translateY(3px) scale(.97);box-shadow:0 1px 0 #d99a1e}
   .x-goal{position:absolute;top:calc(56px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:3;pointer-events:none;background:#fff8e6;border:2px solid #F6B93B;border-radius:999px;padding:4px 14px;font-weight:600;font-size:13px;color:#5a3500;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;box-shadow:0 3px 0 #d99a1e,0 5px 12px rgba(40,25,5,.22)}
+  .x-goal.tutorial-guide-active{z-index:10}
   .x-prog{position:absolute;left:0;top:0;z-index:7;display:none;width:54px;height:54px;pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 0 #d99a1e) drop-shadow(0 5px 8px rgba(40,25,5,.25))}
   .x-prog svg{position:absolute;inset:0;width:100%;height:100%}
   .x-prog span{position:absolute;inset:0;display:grid;place-items:center;font-size:20px}
@@ -47,9 +50,18 @@
   .x-tag{position:absolute;left:0;top:0;z-index:4;pointer-events:none;transform:translate(-50%,-100%);background:rgba(255,248,230,.94);border:2px solid #d99a1e;border-radius:999px;padding:2px 9px;font-weight:700;font-size:12px;color:#5a3500;white-space:nowrap;box-shadow:0 2px 6px rgba(40,25,5,.2)}
   .x-tag.ready{background:#F6B93B;border-color:#FFF6DF}
   .x-tag.warn{background:#ffe5df;border-color:#d6332a;color:#9b1c15}
+  #customerLayer{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+  .x-customer-order{position:absolute;left:0;top:0;transform:translate(-50%,-100%);min-width:132px;max-width:min(190px,calc(100vw - 24px));padding:6px 9px;background:rgba(255,248,230,.97);border:2px solid #d99a1e;border-radius:13px;box-shadow:0 3px 8px rgba(40,25,5,.26);color:#5a3500;text-align:center;line-height:1.15}
+  .x-customer-name{font-size:11px;font-weight:700;color:#9a6720}
+  .x-customer-line{font-size:13px;font-weight:700;white-space:nowrap}
+  .x-customer-tip{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:10px;font-weight:700;white-space:nowrap}
+  .x-customer-track{height:5px;flex:1;overflow:hidden;background:#e4d6b7;border-radius:999px}
+  .x-customer-fill{width:100%;height:100%;background:#76b84a;transform-origin:left center}
+  .x-customer-status{min-width:45px;text-align:right}
   #camTools{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:8;display:flex;flex-direction:column;gap:10px}
   .x-tool{width:46px;height:46px;border-radius:50%;border:3px solid #F6B93B;background:#F3E9D2;color:#5a3500;font:inherit;font-size:20px;font-weight:700;display:grid;place-items:center;cursor:pointer;touch-action:manipulation;box-shadow:0 4px 0 #d99a1e,0 6px 12px rgba(40,25,5,.25)}
   .x-tool:active{transform:translateY(2px);box-shadow:0 1px 0 #d99a1e}
+  #tutorialShade{position:absolute;inset:0;z-index:9;display:none;background:rgba(25,34,32,.18);pointer-events:none}
   .x-modal{position:absolute;inset:0;z-index:15;display:none;align-items:center;justify-content:center;background:rgba(29,43,58,.58);backdrop-filter:blur(3px);padding:calc(16px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) calc(16px + env(safe-area-inset-left,0px));touch-action:auto}
   .x-card{width:min(360px,100%);max-height:85%;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:#FFF8E6;border:4px solid #F6B93B;border-radius:24px;padding:18px;box-shadow:0 8px 0 #d99a1e,0 16px 32px rgba(0,0,0,.35);color:#5a3500}
   .x-card h2{margin:0 0 12px;font-size:22px;display:flex;align-items:center;justify-content:space-between}
@@ -64,18 +76,28 @@
   .x-btn.bad{background:#e5534b;color:#fff;box-shadow:0 3px 0 #a3261f}
   .x-btn.dis{opacity:.48;pointer-events:none}
   .x-btn.done{background:#92d96b;color:#274c12;box-shadow:0 3px 0 #5b9a38;pointer-events:none}
-  #cutscene{position:absolute;inset:0;z-index:12;display:none;flex-direction:column;justify-content:flex-end;pointer-events:none;padding:18px calc(14px + env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) calc(14px + env(safe-area-inset-left,0px))}
+  .x-btn.tutorial-focus{position:relative;z-index:1;outline:3px solid #fff8e6;box-shadow:0 0 0 6px rgba(246,185,59,.55),0 0 24px 8px rgba(246,185,59,.75),0 3px 0 #d99a1e}
+  .x-btn.tutorial-focus.dis{opacity:.82}
+  .x-row.tutorial-locked{opacity:.4;filter:grayscale(.8)}
+  .x-guide-hint{display:none;margin:0 0 10px;padding:9px 12px;border:2px solid #e7c97a;border-radius:12px;background:#fff0c8;color:#704718;font-size:13px;font-weight:600;line-height:1.3;text-align:center}
+  #cutscene{position:absolute;inset:0;z-index:12;display:none;flex-direction:column;justify-content:flex-end;pointer-events:none;padding:18px calc(10px + env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) calc(10px + env(safe-area-inset-left,0px))}
   .x-cut-top{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));pointer-events:auto}
   .x-skip{font:inherit;font-weight:700;font-size:13px;color:#5a3500;background:rgba(255,248,230,.92);border:2px solid #F6B93B;border-radius:999px;padding:8px 16px;min-height:38px;cursor:pointer;touch-action:manipulation;box-shadow:0 3px 0 #d99a1e}
-  .x-dlg{pointer-events:auto;background:rgba(255,248,230,.96);border:3px solid #F6B93B;border-radius:20px;padding:13px 16px;box-shadow:0 6px 0 #d99a1e,0 12px 24px rgba(25,15,5,.32);color:#5a3500;cursor:pointer;touch-action:manipulation;max-width:520px;width:100%;margin:0 auto}
+  .x-dlg{pointer-events:auto;background:rgba(255,248,230,.96);border:3px solid #F6B93B;border-radius:22px;padding:16px 20px;box-shadow:0 6px 0 #d99a1e,0 12px 24px rgba(25,15,5,.32);color:#5a3500;cursor:pointer;touch-action:manipulation;max-width:560px;width:100%;margin:0 auto}
   .x-bee-speech{position:absolute;z-index:13;display:none;max-width:min(220px,calc(100% - 24px));padding:8px 12px;background:rgba(255,248,230,.97);border:2px solid #F6B93B;border-radius:15px;box-shadow:0 4px 0 #d99a1e,0 8px 18px rgba(25,15,5,.28);color:#5a3500;font-size:14px;line-height:1.2;font-weight:700;text-align:center;pointer-events:none}
   .x-bee-speech::after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);border:9px solid transparent;border-bottom:0;border-top-color:#F6B93B}
   .x-bee-speech-who{display:block;margin-bottom:3px;color:#9a6720;font-size:10px}
-  .x-dlg-who{display:inline-block;background:#F6B93B;color:#5a3500;font-weight:700;font-size:13px;padding:2px 10px;border-radius:999px;margin-bottom:6px}
-  .x-dlg-txt{font-size:15px;line-height:1.35;font-weight:600;margin:0}
-  .x-dlg-tap{text-align:right;font-size:11px;font-weight:700;color:#9a6720;margin-top:6px}
-  @media (max-width:400px){.x-bee-speech{max-width:min(190px,calc(100% - 20px));font-size:13px;padding:7px 10px}}
+  .x-dlg-who{display:inline-block;background:#F6B93B;color:#5a3500;font-weight:700;font-size:14px;padding:3px 11px;border-radius:999px;margin-bottom:8px}
+  .x-dlg-txt{font-size:17px;line-height:1.4;font-weight:600;margin:0}
+  .x-dlg-tap{text-align:right;font-size:12px;font-weight:700;color:#9a6720;margin-top:8px}
+  @media (max-width:400px){
+    .x-bee-speech{max-width:min(190px,calc(100% - 20px));font-size:13px;padding:7px 10px}
+    .x-dlg{padding:14px 16px}
+    .x-dlg-who{font-size:13px}
+    .x-dlg-txt{font-size:16px;line-height:1.35}
+  }
   @keyframes x-bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.04)}}
+  @keyframes x-guide-pulse{0%,100%{filter:drop-shadow(0 0 4px rgba(255,244,198,.9))}50%{filter:drop-shadow(0 0 11px rgba(255,224,112,1))}}
   @media (prefers-reduced-motion:reduce){.x-prompt>span{animation:none}}
   #joy{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;background:rgba(255,255,255,.25);border:4px solid rgba(255,255,255,.7);display:none;z-index:5;pointer-events:none}
   #knob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:#fff;box-shadow:0 4px 0 rgba(0,0,0,.2)}
@@ -95,6 +117,8 @@
     <div class="x-pill"><span class="x-ico h">🍯</span><span id="honey">0</span></div>
     <div class="x-pill"><span class="x-ico c">🪙</span><span id="coins">0</span></div>
     <div class="x-pill" aria-label="Bee Boxes"><span class="x-ico b"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><g stroke="#4a2e16" stroke-width=".9"><rect x="2" y="2.5" width="16" height="3" rx="1" fill="#c98a4e"/><rect x="3" y="5.5" width="14" height="5" rx="1" fill="#E0A22E"/><rect x="3" y="10.5" width="14" height="6.5" rx="1" fill="#F3E3B5"/></g><rect x="7" y="14.6" width="6" height="1.3" fill="#3a2410"/></svg></span><span id="boxes">0</span></div>
+    <div class="x-pill" id="repPill" aria-label="Reputation"><span class="x-ico g">⭐</span><span id="rep">0</span></div>
+    <div class="x-pill" id="storedHoneyPill" aria-label="Stored honey"><span class="x-ico h">🫙</span><span id="storedHoney">0</span></div>
   </div>
   <div class="x-goal" id="goal">Repair the Broken Workbench</div>
   <div class="x-banner" id="banner" role="status"></div>
@@ -103,6 +127,8 @@
   <div class="x-prompt" id="prompt2" role="button" aria-label="Secondary Action"><span id="prompt2Txt">Action</span></div>
   <div class="x-pill x-smoke" id="smokePill" role="status"><span class="x-ico b">💨</span><span id="smokeT">Smoke 20s</span></div>
   <div class="x-prompt" id="downBtn" role="button" aria-label="Climb down"><span><span class="x-ico w">🪜</span><span>Climb Down</span></span></div>
+  <div id="customerLayer" aria-live="polite"></div>
+  <div id="tutorialShade" aria-hidden="true"></div>
   <div id="camTools">
     <button class="x-tool" id="sndBtn" type="button" aria-label="Toggle sound">🔊</button>
     <button class="x-tool" id="menuBtn" type="button" aria-label="Settings and save menu">⚙️</button>
@@ -111,6 +137,7 @@
   <div class="x-modal" id="craftModal" role="dialog" aria-modal="true" aria-labelledby="craftTitle">
     <div class="x-card">
       <h2><span id="craftTitle">🔨 Workbench</span><button class="x-close" id="craftClose" type="button" aria-label="Close">✕</button></h2>
+      <div class="x-guide-hint" id="craftGuideHint" role="status"></div>
       <div class="x-row">
         <div class="x-row-info"><span class="x-row-title">📦 Wooden Bee Box</span><span class="x-row-sub">10 🪵 Wood · House a wild colony</span></div>
         <button class="x-btn" id="cBoxBtn" type="button">Craft (-10 🪵)</button>
@@ -266,7 +293,74 @@ var mats={};
 var grad=new THREE.DataTexture(new Uint8Array([89,89,89,255,179,179,179,255,255,255,255,255]),3,1,THREE.RGBAFormat);
 grad.minFilter=grad.magFilter=THREE.NearestFilter;grad.generateMipmaps=false;grad.needsUpdate=true;
 function T(o){o.gradientMap=grad;if(o.color!==undefined)o.color=L(o.color);return new THREE.MeshToonMaterial(o);}
-function M(c){if(!mats[c])mats[c]=T({color:c});return mats[c];}
+function makeSurfaceTexture(paint,repeatX,repeatY){
+  var canvas=document.createElement('canvas');canvas.width=canvas.height=128;
+  var ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,128,128);paint(ctx,128);
+  var texture=new THREE.CanvasTexture(canvas);texture.encoding=THREE.sRGBEncoding;
+  texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(repeatX,repeatY);
+  return texture;
+}
+function wrappedSpeckle(ctx,size,x,y,rx,ry,color){
+  var xs=[0],ys=[0];
+  if(x-rx<0)xs.push(size);if(x+rx>size)xs.push(-size);
+  if(y-ry<0)ys.push(size);if(y+ry>size)ys.push(-size);
+  ctx.fillStyle=color;
+  xs.forEach(function(dx){ys.forEach(function(dy){
+    ctx.beginPath();ctx.ellipse(x+dx,y+dy,rx,ry,0,0,Math.PI*2);ctx.fill();
+  });});
+}
+var woodTexture=makeSurfaceTexture(function(ctx,size){
+  for(var line=0;line<26;line++){
+    var y=(line+0.5)*size/26,phase=Math.random()*Math.PI*2,frequency=1+Math.floor(Math.random()*3);
+    ctx.beginPath();
+    for(var x=0;x<=size;x+=4){
+      var waviness=Math.sin(x/size*Math.PI*2*frequency+phase)*1.2;
+      if(x===0)ctx.moveTo(x,y+waviness);else ctx.lineTo(x,y+waviness);
+    }
+    ctx.strokeStyle=line%4===0?'rgba(130,79,39,0.13)':'rgba(130,79,39,0.07)';
+    ctx.lineWidth=line%5===0?1.5:0.8;ctx.stroke();
+  }
+},2,2);
+var plasterTexture=makeSurfaceTexture(function(ctx,size){
+  for(var i=0;i<360;i++){
+    var radius=0.35+Math.random()*1.1;
+    wrappedSpeckle(ctx,size,Math.random()*size,Math.random()*size,radius,radius*0.7,
+      i%3===0?'rgba(154,119,78,0.07)':'rgba(190,157,113,0.06)');
+  }
+},2,2);
+function paintGrassTexture(ctx,size){
+  for(var i=0;i<420;i++){
+    var radius=0.35+Math.random()*1.35;
+    wrappedSpeckle(ctx,size,Math.random()*size,Math.random()*size,radius,radius*0.65,
+      i%3===0?'rgba(44,104,41,0.1)':'rgba(191,224,151,0.14)');
+  }
+  for(var blade=0;blade<55;blade++){
+    var bx=Math.random()*size,by=Math.random()*size;
+    ctx.strokeStyle='rgba(51,112,43,0.12)';ctx.lineWidth=0.7;
+    ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+1.5,by-3);ctx.stroke();
+  }
+}
+var groundTexture=makeSurfaceTexture(paintGrassTexture,56,56);
+var fieldTexture=makeSurfaceTexture(paintGrassTexture,8,13);
+var dirtTexture=makeSurfaceTexture(function(ctx,size){
+  for(var pebble=0;pebble<280;pebble++){
+    var radius=0.5+Math.random()*1.6;
+    wrappedSpeckle(ctx,size,Math.random()*size,Math.random()*size,radius,radius*0.65,
+      pebble%3===0?'rgba(119,87,53,0.12)':'rgba(255,244,215,0.2)');
+  }
+},2,7);
+var woodColors=[0xa8723c,0xc48a4e,0x9b6332,0xb87a3e,0x8b572e,0xc98a4e,0x9a6232];
+function M(c){
+  if(!mats[c]){
+    var map=woodColors.indexOf(c)>=0?woodTexture:
+      c===0xEADBBE?plasterTexture:
+      c===0x4C8F48?groundTexture:
+      c===0x6FAE5E?fieldTexture:
+      c===0xd9c08a?dirtTexture:null;
+    mats[c]=T({color:c,map:map});
+  }
+  return mats[c];
+}
 var outM=new THREE.MeshBasicMaterial({color:L(0x4a2e16),side:THREE.BackSide});
 function outline(root,th){
   scene.updateMatrixWorld(true);var list=[];
@@ -332,6 +426,7 @@ function makeSquareMarker(size,label,col,op){
 }
 
 var W=10,H=16;
+var SHOP_X=-4.1,SHOP_Z=14.1,STORAGE_X=-3.4,STORAGE_Z=9.2;
 // Ground & enclosed field
 function hgt(x,z){
   var d=Math.max(Math.abs(x)-(W+2),Math.abs(z)-(H+2),0),a=Math.min(1,d/6);
@@ -375,7 +470,7 @@ function addWildflowerPatch(idx){
 }
 
 // Rocks (with radial collision deflection)
-var rocks=[[-7,-3,1],[6.5,4,0.8],[-5,9,0.6],[8,-11,0.9]];
+var rocks=[[-7,-3,1],[6.5,4,0.8],[-6,8.5,0.6],[8,-11,0.9]];
 rocks.forEach(function(r){
   var m=mesh(new THREE.SphereGeometry(r[2],16,10),0x9aa1a8,r[0],r[2]*0.45,r[1]);
   m.scale.y=0.65;m.rotation.y=r[0];
@@ -386,8 +481,38 @@ var postG=new THREE.CylinderGeometry(0.14,0.15,0.9,12),postCap=new THREE.SphereG
 function post(px,pz){mesh(postG,0xa8723c,px,0.45,pz);mesh(postCap,0xa8723c,px,0.9,pz);}
 function rail(rx,ry,rz,alongX){var r=mesh(railG,0xc48a4e,rx,ry,rz);if(alongX)r.rotation.z=Math.PI/2;else r.rotation.x=Math.PI/2;}
 var FX=W+0.6,FZ=H+0.6;
-for(x=-FX;x<=FX+0.01;x+=2){[-FZ,FZ].forEach(function(z){post(x,z);if(x<FX-0.5){rail(x+1,0.7,z,true);rail(x+1,0.35,z,true);}});}
+var visitorGateX=-5.6;
+for(x=-FX;x<=FX+0.01;x+=2){[-FZ,FZ].forEach(function(z){
+  post(x,z);
+  if(x<FX-0.5&&!(z===FZ&&Math.abs(x+1-visitorGateX)<0.01)){rail(x+1,0.7,z,true);rail(x+1,0.35,z,true);}
+});}
 for(z=-FZ;z<=FZ+0.01;z+=2){[-FX,FX].forEach(function(x){post(x,z);if(z<FZ-0.5){rail(x,0.7,z+1,false);rail(x,0.35,z+1,false);}});}
+
+// Visitor entrance and worn dirt path to the market
+var gateLeft=new THREE.Group(),gateRight=new THREE.Group();
+gateLeft.position.set(visitorGateX-1,0,FZ);scene.add(gateLeft);
+gateRight.position.set(visitorGateX+1,0,FZ);scene.add(gateRight);
+function makeGateLeaf(parent,side){
+  mesh(new THREE.BoxGeometry(0.96,0.1,0.08),0x9b6332,side*0.48,0.66,0,parent);
+  mesh(new THREE.BoxGeometry(0.96,0.1,0.08),0xb87a3e,side*0.48,0.18,0,parent);
+  for(var gp=0;gp<4;gp++)mesh(new THREE.BoxGeometry(0.09,0.95,0.08),0xa8723c,side*(0.12+gp*0.24),0.42,0,parent);
+  parent.rotation.y=side>0?-Math.PI/2:Math.PI/2;
+}
+makeGateLeaf(gateLeft,1);makeGateLeaf(gateRight,-1);
+function makeDirtPath(a,b,width){
+  var dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz);
+  var segment=mesh(new THREE.BoxGeometry(width,0.025,len),0xd9c08a,(a.x+b.x)/2,0.025,(a.z+b.z)/2);
+  segment.rotation.y=Math.atan2(dx,dz);segment.receiveShadow=true;segment.castShadow=false;
+}
+var visitorPath=[
+  {x:visitorGateX,z:FZ},
+  {x:visitorGateX,z:15.8},
+  {x:-5.8,z:SHOP_Z}
+];
+for(var pathIndex=0;pathIndex<visitorPath.length-1;pathIndex++)makeDirtPath(visitorPath[pathIndex],visitorPath[pathIndex+1],1.45);
+var gateSign=mesh(new THREE.BoxGeometry(1.7,0.42,0.1),0x9b6332,visitorGateX,1.35,FZ-0.08);
+gateSign.rotation.y=-0.08;
+var gateSignText=makeLabelPlane('WELCOME',1.45,0.24,'#fff8e6');gateSignText.rotation.x=0;gateSignText.position.set(visitorGateX,1.35,FZ-0.02);scene.add(gateSignText);
 
 // Cottage
 var house=new THREE.Group();house.position.set(0,0,12.5);scene.add(house);
@@ -415,16 +540,57 @@ function makeLog(parent,len,r,lx,ly,lz){
 var pile=new THREE.Group();pile.position.set(3.6,0,12.2);scene.add(pile);
 [[0,0],[1,0],[2,0],[0.5,1],[1.5,1],[1,2]].forEach(function(p){makeLog(pile,1.6,0.28,0,0.3+p[1]*0.5,(p[0]-1)*0.58);});
 
-// Market Crate beside cottage porch (Sell Honey + Plant Flowers)
-var crate=new THREE.Group();crate.position.set(-2.9,0,10.2);scene.add(crate);
-mesh(rbox(1.2,0.75,0.9,0.05),0xb87a3e,0,0.38,0,crate);
-mesh(rbox(1.26,0.1,0.96,0.03),0x9b6332,0,0.78,0,crate);
-[-0.28,0.28].forEach(function(jx){
-  mesh(new THREE.CylinderGeometry(0.14,0.16,0.3,12),0xF6B93B,jx,0.96,0,crate);
-  mesh(new THREE.CylinderGeometry(0.12,0.12,0.07,12),0xd9822b,jx,1.14,0,crate);
+// Roadside honey shop, unlocked after the first honey deposit
+var crate=new THREE.Group();crate.position.set(SHOP_X,0,SHOP_Z);crate.rotation.y=Math.PI/2;crate.visible=false;scene.add(crate);
+mesh(rbox(2.35,1.02,0.88,0.05),0xb87a3e,0,0.52,0,crate);
+mesh(rbox(2.48,0.12,1.02,0.035),0x9b6332,0,1.08,0,crate);
+mesh(new THREE.BoxGeometry(2.52,0.12,0.08),0xd5a36b,0,0.78,-0.47,crate);
+[-1.05,1.05].forEach(function(sx){
+  mesh(new THREE.BoxGeometry(0.12,1.8,0.12),0x8b572e,sx,1.48,-0.1,crate);
+  mesh(new THREE.BoxGeometry(0.12,1.8,0.12),0x8b572e,sx,1.48,0.42,crate);
 });
-var marketLbl=makeLabelPlane('MARKET',1.4,0.42,'#fff8e6');marketLbl.position.set(0,0.09,0.85);crate.add(marketLbl);
+mesh(new THREE.BoxGeometry(2.55,0.12,1.7),0xf3e3b5,0,2.38,-0.08,crate);
+for(var stripe=0;stripe<7;stripe++){
+  var stripeWidth=2.55/7,stripeX=-1.275+(stripe+0.5)*stripeWidth;
+  mesh(new THREE.BoxGeometry(stripeWidth,0.14,1.72),stripe%2?0xf3e3b5:0xc95145,stripeX,2.46,-0.08,crate);
+  mesh(new THREE.BoxGeometry(stripeWidth,0.12,0.25),stripe%2?0xf3e3b5:0xc95145,stripeX,2.2,-0.93,crate);
+}
+mesh(rbox(1.2,0.34,0.08,0.05),0x8b572e,0,1.8,-0.52,crate);
+var marketLbl=makeLabelPlane('HONEY',1.08,0.27,'#fff8e6');marketLbl.rotation.x=0;marketLbl.rotation.y=Math.PI;marketLbl.position.set(0,1.8,-0.57);crate.add(marketLbl);
+[-0.28,0.28].forEach(function(jx){
+  mesh(new THREE.CylinderGeometry(0.14,0.16,0.3,12),0xF6B93B,jx,1.2,0.1,crate);
+  mesh(new THREE.CylinderGeometry(0.12,0.12,0.07,12),0xd9822b,jx,1.38,0.1,crate);
+});
 outline(crate,0.03);
+
+var shopPlot=new THREE.Group();shopPlot.position.set(SHOP_X,0,SHOP_Z);scene.add(shopPlot);
+mesh(new THREE.BoxGeometry(1.95,0.05,3.05),0x9b8058,0,0.025,0,shopPlot);
+var brokenPlankA=mesh(new THREE.BoxGeometry(1.25,0.1,0.16),0x8b572e,-0.28,0.11,-0.28,shopPlot);brokenPlankA.rotation.y=-0.42;
+var brokenPlankB=mesh(new THREE.BoxGeometry(1.05,0.1,0.16),0xb87a3e,0.34,0.11,0.48,shopPlot);brokenPlankB.rotation.y=0.38;
+var brokenPlankC=mesh(new THREE.BoxGeometry(0.82,0.1,0.15),0x9b6332,-0.38,0.11,0.88,shopPlot);brokenPlankC.rotation.y=-0.22;
+mesh(new THREE.SphereGeometry(0.18,8,6),0x77766b,0.56,0.13,-0.7,shopPlot).scale.set(1.35,0.65,0.85);
+mesh(new THREE.BoxGeometry(0.1,1.45,0.1),0x8b572e,-0.82,0.73,-1.05,shopPlot);
+mesh(new THREE.BoxGeometry(0.1,0.44,1.25),0x9b6332,-0.82,1.37,-1.05,shopPlot);
+var shopLockedText=makeLabelPlane('LOCKED',0.98,0.22,'#fff8e6');
+shopLockedText.rotation.x=0;shopLockedText.rotation.y=-Math.PI/2;shopLockedText.position.set(-0.88,1.37,-1.05);shopPlot.add(shopLockedText);
+var shopReadyText=makeLabelPlane('BUILD SHOP',1.12,0.22,'#fff8e6');
+shopReadyText.rotation.x=0;shopReadyText.rotation.y=-Math.PI/2;shopReadyText.position.set(-0.88,1.37,-1.05);shopPlot.add(shopReadyText);
+
+var honeyStorage=new THREE.Group();honeyStorage.position.set(STORAGE_X,0,STORAGE_Z);scene.add(honeyStorage);
+mesh(rbox(1.06,1.52,0.72,0.07),0x9b6332,0,0.79,0,honeyStorage);
+mesh(new THREE.BoxGeometry(1.16,0.12,0.82),0xb87a3e,0,1.58,0,honeyStorage);
+mesh(rbox(0.84,1.2,0.08,0.05),0xc98a4e,0,0.83,-0.4,honeyStorage);
+mesh(new THREE.BoxGeometry(0.06,0.46,0.055),0x6d4328,0.28,0.83,-0.45,honeyStorage);
+var storageLabel=makeLabelPlane('HONEY',0.68,0.2,'#fff8e6');
+storageLabel.rotation.x=0;storageLabel.rotation.y=Math.PI;storageLabel.position.set(0,1.3,-0.455);honeyStorage.add(storageLabel);
+var storageJars=[];
+for(var storageJar=0;storageJar<3;storageJar++){
+  var jar=new THREE.Group();jar.position.set((storageJar-1)*0.3,1.76,0);honeyStorage.add(jar);
+  mesh(new THREE.CylinderGeometry(0.1,0.12,0.22,10),0xF6B93B,0,0.12,0,jar);
+  mesh(new THREE.CylinderGeometry(0.11,0.11,0.05,10),0xd9822b,0,0.26,0,jar);
+  storageJars.push(jar);
+}
+outline(honeyStorage,0.025);
 
 // Tall Oak Tree + Glowing Wild Beehive
 var tree=new THREE.Group();tree.position.set(-1.5,0,-11);scene.add(tree);
@@ -644,7 +810,25 @@ var rackMark=makeSquareMarker(1.8,'RACK',0x80c8ff,0.45);rackMark.g.position.set(
 
 // 3 Tree Capture Spots (Square HIVE Markers)
 var treeSpots=[[2.4,-8.2],[-1.5,-7.0],[-5.3,-8.4]];
-var treeSpotMark=makeSquareMarker(1.35,'HIVE',0xF6B93B,0.9);treeSpotMark.g.visible=false;scene.add(treeSpotMark.g);
+var treeSpotMarks=treeSpots.map(function(pos){
+  var mark=makeSquareMarker(1.35,'HIVE',0xF6B93B,0.9);
+  mark.g.visible=false;mark.g.position.set(pos[0],0,pos[1]);scene.add(mark.g);return mark;
+});
+function getFirstFreeTreeSlot(){
+  for(var i=0;i<treeSpots.length;i++){
+    if(!gameState.hives.some(function(h){return h.slotType==='tree'&&h.slotIdx===i;}))return i;
+  }
+  return -1;
+}
+function getNearestFreeTreeSlot(x,z){
+  var best=-1,bestDistance=Infinity;
+  for(var i=0;i<treeSpots.length;i++){
+    if(gameState.hives.some(function(h){return h.slotType==='tree'&&h.slotIdx===i;}))continue;
+    var distance=Math.hypot(x-treeSpots[i][0],z-treeSpots[i][1]);
+    if(distance<bestDistance){best=i;bestDistance=distance;}
+  }
+  return best;
+}
 
 // 10 Designated Stand Spots across the enclosed meadow (Square STAND Markers)
 var standCoords=[
@@ -705,9 +889,10 @@ var FIRST_HARVEST_SECS=45; // Fast 45s first-batch tutorial harvest
 function defaultGameState(){
   return{
     version:1,
-    wood:0,scrap:0,honey:0,coins:0,box:0,
+    wood:0,scrap:0,honey:0,storedHoney:0,coins:0,box:0,rep:0,ordersServed:0,
+    shopUnlocked:false,shopBuilt:false,
     benchFixed:false,benchTutorialDone:false,hasLadder:false,hasRack:false,
-    cutsceneDone:false,firstHarvestDone:false,
+    cutsceneDone:false,firstHarvestDone:false,gatherMissionDone:false,
     player:{x:0,z:6.4,ry:Math.PI},
     carryType:null, // null | 'ladder' | 'stand' | 'queen' | 'hive'
     carryHive:null,
@@ -725,6 +910,12 @@ function syncGameState(){
   if(typeof gameState.firstHarvestDone!=='boolean'){
     gameState.firstHarvestDone=!!(gameState.coins>0||gameState.honey>0);
   }
+  gameState.rep=Math.max(0,Math.floor(Number(gameState.rep)||0));
+  gameState.ordersServed=Math.max(0,Math.floor(Number(gameState.ordersServed)||0));
+  gameState.storedHoney=Math.max(0,Math.floor(Number(gameState.storedHoney)||0));
+  gameState.shopUnlocked=gameState.shopUnlocked===true||gameState.storedHoney>0;
+  gameState.shopBuilt=gameState.shopBuilt===true&&gameState.shopUnlocked;
+  gameState.gatherMissionDone=gameState.gatherMissionDone===true;
 }
 function getHarvestSecs(){
   return gameState.firstHarvestDone?HARVEST_SECS:FIRST_HARVEST_SECS;
@@ -737,7 +928,8 @@ var squash=[],chips=[],puffs=[],drips=[];
 var chipG=new THREE.BoxGeometry(0.09,0.04,0.07),puffG=new THREE.SphereGeometry(1,10,8),dripG=new THREE.SphereGeometry(0.06,8,6);
 
 // DOM references
-var woodEl=document.getElementById('wood'),scrapEl=document.getElementById('scrap'),honeyEl=document.getElementById('honey'),coinsEl=document.getElementById('coins'),boxesEl=document.getElementById('boxes');
+var woodEl=document.getElementById('wood'),scrapEl=document.getElementById('scrap'),honeyEl=document.getElementById('honey'),coinsEl=document.getElementById('coins'),boxesEl=document.getElementById('boxes'),repEl=document.getElementById('rep'),repPill=document.getElementById('repPill'),storedHoneyEl=document.getElementById('storedHoney'),storedHoneyPill=document.getElementById('storedHoneyPill');
+var customerLayer=document.getElementById('customerLayer');
 var goalEl=document.getElementById('goal'),bannerEl=document.getElementById('banner');
 var progEl=document.getElementById('prog'),progArc=document.getElementById('progArc');
 var promptEl=document.getElementById('prompt'),promptTxt=document.getElementById('promptTxt');
@@ -746,6 +938,7 @@ var smokePill=document.getElementById('smokePill'),smokeTEl=document.getElementB
 var craftModal=document.getElementById('craftModal'),menuModal=document.getElementById('menuModal'),saveStatus=document.getElementById('saveStatus');
 var cutEl=document.getElementById('cutscene'),cutWho=document.getElementById('cutWho'),cutTxt=document.getElementById('cutTxt'),cutHint=document.getElementById('cutHint');
 var beeSpeechEl=document.getElementById('beeSpeech');
+var tutorialShadeEl=document.getElementById('tutorialShade');
 
 var bannerT=null;
 function showBanner(s){
@@ -775,12 +968,211 @@ function popText(txt,wPos,cls){
   el.animate([{transform:'translate(-50%,-50%) scale(.7)',opacity:1},{transform:'translate(-50%,-150%) scale(1.05)',opacity:0}],{duration:950,easing:'ease-out'}).onfinish=function(){el.remove();};
 }
 
+var customers=[],customerSpawnAt=0,customerSequence=0,customerTipSeconds=18;
+var customerNames=['Meera','Arun','Nisha','Ravi','Kavya'];
+
+function activeCustomers(){
+  return customers.filter(function(customer){return customer.state!=='leaving';});
+}
+
+function customerQueueTarget(index){
+  return index===0?new THREE.Vector3(-5.8,0,SHOP_Z):new THREE.Vector3(-7.35,0,SHOP_Z);
+}
+
+function totalHoneyStock(){
+  return gameState.honey+gameState.storedHoney;
+}
+
+function consumeHoneyStock(quantity){
+  var fromStorage=Math.min(gameState.storedHoney,quantity);
+  gameState.storedHoney-=fromStorage;
+  gameState.honey-=quantity-fromStorage;
+}
+
+function customerPricePerJar(){
+  return 7+Math.floor(gameState.rep/5);
+}
+
+function customerSpawnDelay(){
+  return Math.max(7,16-Math.min(gameState.rep,9));
+}
+
+function makeVillager(shirtColor,hairColor){
+  var g=new THREE.Group(),bodyG=new THREE.Group();g.add(bodyG);
+  mesh(new THREE.CylinderGeometry(0.27,0.35,0.78,10),shirtColor,0,1.02,0,bodyG);
+  mesh(new THREE.SphereGeometry(0.27,12,10),0xf0c49c,0,1.67,0.03,bodyG);
+  mesh(new THREE.SphereGeometry(0.28,12,8),hairColor,0,1.79,-0.05,bodyG).scale.set(1,0.62,0.98);
+  [-0.09,0.09].forEach(function(ex){mesh(new THREE.SphereGeometry(0.025,8,6),0x2a1a0a,ex,1.68,0.285,bodyG);});
+  var armL=new THREE.Group(),armR=new THREE.Group(),legL=new THREE.Group(),legR=new THREE.Group();
+  armL.position.set(-0.31,1.31,0);armR.position.set(0.31,1.31,0);
+  legL.position.set(-0.14,0.61,0);legR.position.set(0.14,0.61,0);
+  bodyG.add(armL,armR,legL,legR);
+  [armL,armR].forEach(function(arm){
+    mesh(new THREE.CylinderGeometry(0.1,0.12,0.58,8),shirtColor,0,-0.27,0,arm);
+    mesh(new THREE.SphereGeometry(0.1,8,6),0xf0c49c,0,-0.59,0.02,arm);
+  });
+  [legL,legR].forEach(function(leg){
+    mesh(new THREE.CylinderGeometry(0.13,0.14,0.58,8),0x5b4636,0,-0.26,0,leg);
+    mesh(new THREE.BoxGeometry(0.23,0.12,0.32),0x4a382c,0,-0.54,0.08,leg);
+  });
+  var shadow=new THREE.Mesh(new THREE.CircleGeometry(0.48,12),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:0.14}));
+  shadow.rotation.x=-Math.PI/2;shadow.position.y=0.045;g.add(shadow);
+  return{g:g,body:bodyG,armL:armL,armR:armR,legL:legL,legR:legR};
+}
+
+function makeCustomerBubble(){
+  var bubble=document.createElement('div');bubble.className='x-customer-order';
+  var name=document.createElement('div');name.className='x-customer-name';
+  var order=document.createElement('div');order.className='x-customer-line';
+  var tip=document.createElement('div');tip.className='x-customer-tip';
+  var track=document.createElement('div');track.className='x-customer-track';
+  var fill=document.createElement('div');fill.className='x-customer-fill';track.appendChild(fill);
+  var status=document.createElement('span');status.className='x-customer-status';
+  tip.append(track,status);bubble.append(name,order,tip);customerLayer.appendChild(bubble);
+  return{bubble:bubble,name:name,order:order,fill:fill,status:status};
+}
+
+function makeCustomer(){
+  var first=customerSequence===0;
+  var name=first?'Susmitha':customerNames[(customerSequence-1)%customerNames.length];
+  var quantity=first?2:1+Math.floor(Math.random()*3);
+  var styles=[
+    {shirt:0x659c68,hair:0x3c2b21},
+    {shirt:0xc97457,hair:0x4a3424},
+    {shirt:0x6087a7,hair:0x34251c},
+    {shirt:0xb38a4f,hair:0x4b3023}
+  ];
+  var style=styles[customers.length%styles.length],actor=makeVillager(style.shirt,style.hair);
+  actor.g.position.set(visitorGateX,0,FZ+1.1);scene.add(actor.g);
+  var price=customerPricePerJar(),order=quantity*price;
+  var path=[
+    new THREE.Vector3(visitorGateX,0,FZ-0.8),
+    new THREE.Vector3(-5.8,0,SHOP_Z)
+  ];
+  var customer={
+    name:name,order:quantity,baseCoins:order,actor:actor,state:'arriving',
+    path:path,pathIndex:0,tipRemaining:null,atCounter:false,walkPhase:Math.random()*6.28,
+    ui:makeCustomerBubble()
+  };
+  customer.ui.name.textContent=name;
+  customer.ui.order.textContent='🍯 ×'+quantity+' → '+order+' 🪙';
+  return customer;
+}
+
+function moveCustomerTo(customer,target,dt){
+  var actor=customer.actor,dX=target.x-actor.g.position.x,dZ=target.z-actor.g.position.z;
+  var distance=Math.hypot(dX,dZ);
+  if(distance<0.08){
+    actor.g.position.x=target.x;actor.g.position.z=target.z;
+    actor.body.position.y=0;actor.armL.rotation.x=actor.armR.rotation.x=0;
+    actor.legL.rotation.x=actor.legR.rotation.x=0;
+    return true;
+  }
+  var step=Math.min(distance,2.25*dt);
+  actor.g.position.x+=dX/distance*step;actor.g.position.z+=dZ/distance*step;
+  faceTargetY(actor.g,target,dt,9);
+  customer.walkPhase+=step*7;
+  var stride=Math.sin(customer.walkPhase),weight=Math.min(1,step/Math.max(dt,0.0001)/2.25);
+  actor.body.position.y=Math.abs(stride)*0.045*weight;
+  actor.armL.rotation.x=-stride*0.42*weight;actor.armR.rotation.x=stride*0.42*weight;
+  actor.legL.rotation.x=stride*0.48*weight;actor.legR.rotation.x=-stride*0.48*weight;
+  return false;
+}
+
+function serveMarketCustomer(customer){
+  if(!customer||customer.state!=='queued')return;
+  if(totalHoneyStock()<customer.order){
+    playSfx('bad');popText('Need '+customer.order+' 🍯',crate.position.clone().setY(1.7),'x-bad');return;
+  }
+  var earnedTip=customer.tipRemaining!==null&&customer.tipRemaining>0;
+  var tipCoins=earnedTip?Math.round(customer.baseCoins*0.2):0;
+  var earned=customer.baseCoins+tipCoins;
+  consumeHoneyStock(customer.order);gameState.coins+=earned;gameState.ordersServed++;
+  if(earnedTip)gameState.rep++;
+  customer.state='leaving';customer.atCounter=false;customer.path=[
+    new THREE.Vector3(-5.8,0,SHOP_Z),
+    new THREE.Vector3(visitorGateX,0,FZ-0.8),
+    new THREE.Vector3(visitorGateX,0,FZ+1.2)
+  ];customer.pathIndex=0;
+  customer.ui.bubble.style.display='none';
+  playSfx('coin');updHud();
+  popText('+'+earned+' 🪙'+(earnedTip?' · +1 ⭐':''),crate.position.clone().setY(2.4));
+  showBanner(earnedTip?'Quick order! +20% tip and +1 reputation':'Order served · +'+earned+' coins');
+  goal();saveGame();
+}
+
+function updateCustomers(dt,t){
+  if(!playing||cutsceneActive||wifeChatActive||missionDialogueActive||!gameState.shopBuilt)return;
+  var queue=activeCustomers();
+  if(customers.length<2&&t>=customerSpawnAt){
+    var customer=makeCustomer();
+    customers.push(customer);customerSequence++;customerSpawnAt=t+customerSpawnDelay();
+    queue=activeCustomers();
+  }
+  for(var ci=customers.length-1;ci>=0;ci--){
+    var c=customers[ci];
+    if(c.state==='leaving'){
+      if(c.pathIndex>=c.path.length){
+        scene.remove(c.actor.g);c.ui.bubble.remove();customers.splice(ci,1);continue;
+      }
+      if(moveCustomerTo(c,c.path[c.pathIndex],dt))c.pathIndex++;
+      continue;
+    }
+    if(c.state==='arriving'){
+      if(c.pathIndex>=c.path.length)c.state='queued';
+      else if(moveCustomerTo(c,c.path[c.pathIndex],dt)){
+        c.pathIndex++;
+        if(c.pathIndex>=c.path.length)c.state='queued';
+      }
+    }
+    if(c.state==='queued'){
+      var queueIndex=queue.indexOf(c),target=customerQueueTarget(Math.max(0,queueIndex));
+      c.atCounter=queueIndex===0&&Math.hypot(c.actor.g.position.x-target.x,c.actor.g.position.z-target.z)<0.2;
+      if(!c.atCounter)moveCustomerTo(c,target,dt);
+    }
+  }
+  queue=activeCustomers();
+  var front=queue[0];
+  if(front&&front.state==='queued'&&front.atCounter&&totalHoneyStock()>=front.order){
+    if(front.tipRemaining===null)front.tipRemaining=customerTipSeconds;
+    else if(front.tipRemaining>0)front.tipRemaining=Math.max(0,front.tipRemaining-dt);
+  }
+}
+
+function clearCustomers(){
+  customers.forEach(function(customer){scene.remove(customer.actor.g);customer.ui.bubble.remove();});
+  customers=[];customerSequence=0;customerSpawnAt=0;
+}
+
+function updateCustomerBubbles(){
+  var visible=playing&&!cutsceneActive&&!wifeChatActive&&!missionDialogueActive;
+  camera.updateMatrixWorld();
+  customers.forEach(function(customer){
+    if(!visible||customer.state==='leaving'){customer.ui.bubble.style.display='none';return;}
+    var p=projectToFrame(customer.actor.g.position.clone().add(new THREE.Vector3(0,2.28,0)));
+    if(!p){customer.ui.bubble.style.display='none';return;}
+    var ui=customer.ui,remaining=customer.tipRemaining;
+    ui.bubble.style.display='block';
+    var halfWidth=ui.bubble.offsetWidth/2+8;
+    ui.bubble.style.left=Math.max(halfWidth,Math.min(frame.clientWidth-halfWidth,p.x))+'px';
+    ui.bubble.style.top=Math.max(82,Math.min(frame.clientHeight-20,p.y))+'px';
+    ui.fill.style.transform='scaleX('+(remaining===null?1:Math.max(0,remaining/customerTipSeconds))+')';
+    ui.fill.style.background=remaining===0?'#d9534f':'#76b84a';
+    ui.status.textContent=remaining===0?'Tip expired':'Tip Bonus +20%';
+  });
+}
+
 function updHud(){
   woodEl.textContent=gameState.wood;
   scrapEl.textContent=gameState.scrap;
   honeyEl.textContent=gameState.honey;
+  storedHoneyEl.textContent=gameState.storedHoney;
   coinsEl.textContent=gameState.coins;
   boxesEl.textContent=gameState.box;
+  repEl.textContent=gameState.rep;
+  repPill.title='Reputation: '+gameState.rep+' · Orders served: '+gameState.ordersServed;
+  storedHoneyPill.title='Honey in storage: '+gameState.storedHoney+' jars';
+  rebuildStorageVisual();
 }
 
 function rebuildCarryVisual(){
@@ -820,6 +1212,17 @@ function rebuildWorkbenchVisual(){
   repairMark.g.visible=!gameState.benchFixed;
   benchLbl.visible=gameState.benchFixed;
   updatePlaceholderVisibility();
+}
+
+function rebuildShopVisual(){
+  crate.visible=gameState.shopBuilt;
+  shopPlot.visible=!gameState.shopBuilt;
+  shopLockedText.visible=!gameState.shopUnlocked;
+  shopReadyText.visible=gameState.shopUnlocked&&!gameState.shopBuilt;
+}
+
+function rebuildStorageVisual(){
+  storageJars.forEach(function(jar,index){jar.visible=index<Math.min(3,gameState.storedHoney);});
 }
 
 function hasPopulatedHive(){
@@ -871,6 +1274,8 @@ function rebuildAllWorldFromState(){
   syncGameState();
   rebuildWorkbenchVisual();
   rebuildRackVisual();
+  rebuildShopVisual();
+  rebuildStorageVisual();
   // Stands
   Object.keys(standMeshes).forEach(function(k){scene.remove(standMeshes[k]);});
   standMeshes={};
@@ -929,6 +1334,7 @@ function loadGame(){
       for(var fi=0;fi<Math.min(5,gameState.flowerLevel||0);fi++)addWildflowerPatch(fi);
     }
   }catch(e){gameState=defaultGameState();}
+  customerSequence=gameState.ordersServed;
   rebuildAllWorldFromState();
 }
 
@@ -940,7 +1346,7 @@ document.addEventListener('visibilitychange',function(){
 window.addEventListener('pagehide',saveGame);
 
 // ================= OPENING CUTSCENE & REACTIVE WIFE DIALOGUE =================
-var playing=false,cutsceneActive=false,wifeChatActive=false,cutBeat=0,cutT=0,cutZoomIn=0,cutWalkOut=0,cutPhase='dialogue';
+var playing=false,cutsceneActive=false,wifeChatActive=false,missionDialogueActive=false,cutBeat=0,cutT=0,cutZoomIn=0,cutWalkOut=0,cutPhase='dialogue';
 var openingBee=makeBee(false),openingBeePath=null,openingCamFrom=new THREE.Vector3(),openingLookFrom=new THREE.Vector3();
 var openingFlightCam=new THREE.Vector3(),openingLookOffset=new THREE.Vector3();
 var openingCamPath=null,openingLookPath=null,openingCamFollowOffset=new THREE.Vector3();
@@ -967,8 +1373,14 @@ function getWifeMilestoneLine(){
   if(!hasPopulatedHive()){
     return "Now craft an empty bee box and place it near the tree. Once we reach the hive, we can guide the queen into it.";
   }
+  if(gameState.honey>0&&!gameState.shopUnlocked){
+    return "Let's put that first honey harvest in the cupboard. It will unlock our little roadside shop.";
+  }
+  if(gameState.shopUnlocked&&!gameState.shopBuilt){
+    return "The first honey is tucked away. Build our little shop by the fence when you're ready.";
+  }
   if(gameState.coins<=0&&gameState.flowerLevel<=0){
-    return "Look at those bees settling into your box! Once they've filled it with honey, take it to the market crate.";
+    return "Look at those bees settling into your box! Once we collect our first honey, store it in the cupboard to unlock the shop.";
   }
   return "Who would've guessed your 'crazy idea' would turn our empty yard into a real little honey farm?";
 }
@@ -979,7 +1391,7 @@ function showWifeChatBeat(){
   cutHint.textContent=wifeChatBeat===wifeChatBeats.length-1?'Tap to close ✕':'Tap to continue ▸';
 }
 function startWifeChat(beats,isBenchTutorial){
-  if(cutsceneActive||wifeChatActive)return;
+  if(cutsceneActive||wifeChatActive||missionDialogueActive)return;
   wifeChatActive=true;wifeChatBeats=beats;wifeChatBeat=0;benchTutorialChat=!!isBenchTutorial;
   document.getElementById('cutSkip').style.display='none';
   cutEl.style.display='flex';
@@ -1005,6 +1417,27 @@ function startBenchTutorial(){
     {who:'Husband',txt:"I'll build one here, then carry it over and set it against the tree."},
     {who:'Wife',txt:"We'll also need an empty bee box nearby. Then we can climb up, calm the bees, and bring the queen back down."}
   ],true);
+}
+function hasBenchMaterials(){
+  return gameState.wood>=6&&gameState.scrap>=4;
+}
+function maybeStartGatherMissionDialogue(){
+  if(!playing||cutsceneActive||wifeChatActive||missionDialogueActive||wifeWalk||craft||cutWalkOut>0||
+    gameState.benchFixed||gameState.gatherMissionDone||!hasBenchMaterials())return;
+  missionDialogueActive=true;
+  document.getElementById('cutSkip').style.display='none';
+  document.getElementById('cutBox').style.display='block';
+  beeSpeechEl.style.display='none';cutEl.style.display='flex';
+  cutWho.textContent='Husband';
+  cutTxt.textContent='I have everything I need. Now I can repair the workbench.';
+  cutHint.textContent='Tap to continue ▸';
+  player.rotation.y=Math.atan2(BX-player.position.x,BZ-player.position.z);
+  clearNear();playSfx('pick');
+}
+function closeGatherMissionDialogue(){
+  if(!missionDialogueActive)return;
+  missionDialogueActive=false;gameState.gatherMissionDone=true;cutEl.style.display='none';
+  goal();saveGame();
 }
 function showCutBeat(){
   var b=cutBeats[cutBeat];
@@ -1045,7 +1478,7 @@ function startCutscene(){
   updatePlaceholderVisibility();
 }
 function openWifeDialogue(){
-  if(cutsceneActive||wifeChatActive)return;
+  if(cutsceneActive||wifeChatActive||missionDialogueActive)return;
   startWifeChat([{who:'Wife',txt:getWifeMilestoneLine()}],false);
 }
 function closeWifeDialogue(){
@@ -1055,7 +1488,7 @@ function closeWifeDialogue(){
   benchTutorialChat=false;wifeChatBeats=[];
   wifeChatActive=false;
   cutEl.style.display='none';
-  goal();saveGame();
+  goal();saveGame();maybeStartGatherMissionDialogue();
   if(sendWifeHome)walkWifeTo(wifeHomePosition,'return',null,false,[new THREE.Vector3(0,0,10.35),new THREE.Vector3(0,0,11.25)]);
 }
 function advanceWifeChat(){
@@ -1081,6 +1514,7 @@ function endCutscene(){
 }
 document.getElementById('cutBox').addEventListener('click',function(e){
   e.stopPropagation();
+  if(missionDialogueActive){closeGatherMissionDialogue();return;}
   if(wifeChatActive){advanceWifeChat();return;}
   if(!cutsceneActive||cutPhase!=='dialogue')return;
   cutBeat++;if(cutBeat>=cutBeats.length)endCutscene();else showCutBeat();
@@ -1093,10 +1527,74 @@ document.getElementById('cutSkip').addEventListener('click',function(e){
 function hasEmptyTreeBox(){return gameState.hives.some(function(h){return h.slotType==='tree'&&!h.populated;});}
 function hasPopulatedTreeBox(){return gameState.hives.some(function(h){return h.slotType==='tree'&&h.populated;});}
 function hasEmptyStand(){return gameState.stands.some(function(st){return !gameState.hives.some(function(h){return h.slotType==='stand'&&h.slotIdx===st.slot;});});}
+function getProgressionStep(){
+  if(!gameState.benchFixed||!gameState.benchTutorialDone||
+    gameState.hives.some(function(h){return h.slotType==='stand'&&h.populated;}))return null;
+  if(!gameState.hasLadder)return{id:'ladder',craftKind:'ladder',label:'A-Frame Ladder',wood:8,scrap:4};
+  if(gameState.carryType==='queen'){
+    return onTop
+      ?{id:'queen-down',promptKind:'climbDown',target:'down',goal:'Climb down with the Queen'}
+      :{id:'queen-place',promptKind:'placeQueen',target:'primary',goal:'Place the Queen in the empty Bee Box'};
+  }
+  if(gameState.carryType==='ladder'){
+    return litHive
+      ?{id:'ladder-place',promptKind:'placeLadder',target:'primary',goal:'Set the ladder against the wild hive'}
+      :{id:'ladder-carry',goal:'Carry the ladder to the wild hive'};
+  }
+  if(gameState.carryType==='stand')return{id:'stand-place',promptKind:'placeStand',target:'primary',goal:'Place the Hive Stand on a STAND marker'};
+  if(gameState.carryType==='hive'){
+    return hasEmptyStand()
+      ?{id:'hive-mount',promptKind:'mountHive',target:'primary',goal:'Mount the populated hive on the stand'}
+      :{id:'hive-return',promptKind:'placeHiveAtTree',target:'primary',goal:'Place the hive back at a tree marker before building a stand'};
+  }
+  if(onTop){
+    if(smokedT<=0)return{id:'smoke',promptKind:'smoke',target:'primary',goal:'Smoke the wild bees'};
+    if(hasEmptyTreeBox())return{id:'capture-queen',promptKind:'captureQueen',target:'secondary',goal:'Capture the Queen'};
+  }
+  if(hasEmptyTreeBox()){
+    if(!gameState.ladder.atHive)return{id:'ladder-pickup',promptKind:'pickLadder',target:'primary',goal:'Pick up the ladder at the workbench'};
+    return{id:'climb',promptKind:'climb',target:'primary',goal:'Climb up to the wild hive'};
+  }
+  if(hasPopulatedTreeBox()){
+    if(!hasEmptyStand())return{id:'stand',craftKind:'stand',label:'Hive Stand',wood:0,scrap:6};
+    return{id:'hive-pickup',promptKind:'pickHive',target:'secondary',goal:'Pick up the populated hive'};
+  }
+  if(gameState.box>0)return{id:'box-place',promptKind:'placeBox',target:'primary',goal:'Place the Bee Box at an empty HIVE marker'};
+  if(!gameState.ladder.atHive)return{id:'ladder-pickup',promptKind:'pickLadder',target:'primary',goal:'Pick up the ladder at the workbench'};
+  if(gameState.hives.length===0)return{id:'box',craftKind:'box',label:'Wooden Bee Box',wood:10,scrap:0};
+  return null;
+}
+
+function canClimbLadder(){
+  if(!gameState.ladder.atHive||!hasEmptyTreeBox())return false;
+  var step=getProgressionStep();
+  return !step||step.id==='climb';
+}
+
+function isProgressionActionAllowed(kind,target){
+  var step=getProgressionStep();
+  if(!step)return true;
+  if(step.craftKind)return kind==='bench';
+  return step.promptKind===kind&&step.target===(target||'primary');
+}
 
 function goal(){
-  var g='';
-  if(!gameState.benchFixed)g='Gather 6 Wood & 4 Scrap -> Repair Workbench';
+  var g='',step=getProgressionStep();
+  if(!gameState.benchFixed){
+    if(hasBenchMaterials())g='Repair the Workbench';
+    else g='Collect Wood '+Math.min(gameState.wood,6)+'/6 · Scrap '+Math.min(gameState.scrap,4)+'/4';
+  }
+  else if(step){
+    if(step.craftKind){
+      if(craft&&craft.kind===step.craftKind)g='Crafting the '+step.label;
+      else if(craftModal.style.display==='flex')g='Choose the '+step.label;
+      else if(gameState.wood<step.wood||gameState.scrap<step.scrap){
+        g=(step.wood?'Wood '+Math.min(gameState.wood,step.wood)+'/'+step.wood:'')+
+          (step.wood&&step.scrap?' · ':'')+
+          (step.scrap?'Scrap '+Math.min(gameState.scrap,step.scrap)+'/'+step.scrap:'')+' for '+step.label;
+      }else g='Open the Workbench to craft a '+step.label;
+    }else g=step.goal;
+  }
   else if(gameState.carryType==='queen')g='Bring the Queen to an empty Bee Box';
   else if(gameState.carryType==='stand')g='Place Hive Stand on a STAND marker';
   else if(gameState.carryType==='hive')g=hasEmptyStand()?'Mount Captured Hive on a Stand':'Craft & place a Hive Stand first';
@@ -1108,9 +1606,39 @@ function goal(){
   else if(hasEmptyTreeBox()&&!gameState.ladder.atHive)g='Carry Ladder to the wild tree hive';
   else if(hasEmptyTreeBox()&&gameState.ladder.atHive)g='Climb Ladder, Smoke & Capture the Queen';
   else if(hasPopulatedTreeBox())g='Craft a Stand & mount your captured Hive';
-  else if(gameState.honey>0)g='Sell Honey at the Cottage Market Crate';
+  else if(gameState.honey>0&&!gameState.shopUnlocked)g='Store your first honey harvest to unlock the shop';
+  else if(gameState.shopUnlocked&&!gameState.shopBuilt)g='Build your roadside honey shop';
+  else if(gameState.shopBuilt&&totalHoneyStock()>0)g='Serve a villager or sell honey at the shop';
   else g='Expand your apiary (10 Stand spots)';
   goalEl.textContent=g;
+}
+
+var progressionFlashStep=null,progressionFlashRemaining=0;
+function updateProgressionGuideVisuals(dt){
+  var step=getProgressionStep();
+  var active=playing&&!cutsceneActive&&!wifeChatActive&&!missionDialogueActive&&!!step;
+  var focusPrimary=active&&craftModal.style.display!=='flex'&&
+    (step.craftKind?near&&near.kind==='bench':step.target==='primary'&&near&&near.kind===step.promptKind);
+  var focusSecondary=active&&craftModal.style.display!=='flex'&&step.target==='secondary'&&near2&&near2.kind===step.promptKind;
+  var focusDown=active&&craftModal.style.display!=='flex'&&step.promptKind==='climbDown';
+  if(active){
+    if(step.id!==progressionFlashStep){
+      progressionFlashStep=step.id;progressionFlashRemaining=0.45;
+    }else progressionFlashRemaining=Math.max(0,progressionFlashRemaining-dt);
+  }else{
+    progressionFlashStep=null;progressionFlashRemaining=0;
+  }
+  tutorialShadeEl.style.display=progressionFlashRemaining>0?'block':'none';
+  tutorialShadeEl.style.opacity=String(Math.min(1,progressionFlashRemaining/0.45));
+  goalEl.classList.toggle('tutorial-guide-active',active);
+  promptEl.classList.toggle('tutorial-focus',!!focusPrimary);
+  prompt2El.classList.toggle('tutorial-focus',!!focusSecondary);
+  downBtn.classList.toggle('tutorial-focus',!!focusDown);
+  if(active){
+    if(!focusPrimary)promptEl.style.display='none';
+    if(!focusSecondary)prompt2El.style.display='none';
+    if(!focusDown)downBtn.style.display='none';
+  }
 }
 
 function updCraftButtons(){
@@ -1124,14 +1652,48 @@ function updCraftButtons(){
   else{cLad.textContent='Craft (-8 🪵, -4 🔩)';cLad.className='x-btn'+(gameState.wood>=8&&gameState.scrap>=4?'':' dis');}
   if(gameState.hasRack){cRack.textContent='Built ✓';cRack.className='x-btn done';}
   else{cRack.textContent='Craft (-10 🪵, -4 🔩)';cRack.className='x-btn'+(gameState.wood>=10&&gameState.scrap>=4?'':' dis');}
+  var guideHint=document.getElementById('craftGuideHint'),step=getProgressionStep();
+  var guideButton=step&&step.craftKind?document.getElementById({box:'cBoxBtn',stand:'cStandBtn',ladder:'cLadBtn'}[step.craftKind]):null;
+  var guidedRecipe=!!guideButton&&craftModal.style.display==='flex';
+  [cBox,cStand,cLad,cRack].forEach(function(button){
+    button.disabled=false;
+    button.classList.remove('tutorial-focus');
+    button.closest('.x-row').classList.remove('tutorial-locked');
+  });
+  guideHint.style.display='none';
+  if(guidedRecipe){
+    [cBox,cStand,cLad,cRack].forEach(function(button){
+      if(button===guideButton)return;
+      button.classList.add('dis');
+      button.disabled=true;
+      button.closest('.x-row').classList.add('tutorial-locked');
+    });
+    guideButton.classList.add('tutorial-focus');
+    guideButton.disabled=guideButton.classList.contains('dis');
+    if(guideButton.disabled){
+      var missing=[];
+      if(step.wood>gameState.wood)missing.push((step.wood-gameState.wood)+' more Wood');
+      if(step.scrap>gameState.scrap)missing.push((step.scrap-gameState.scrap)+' more Scrap');
+      guideHint.textContent=missing.length
+        ?'Gather '+missing.join(' and ')+'. Close this window to collect materials.'
+        :'Set down what you are carrying before crafting this item.';
+      guideHint.style.display='block';
+    }
+  }
 }
-function openCraft(){updCraftButtons();craftModal.style.display='flex';}
-function closeCraft(){craftModal.style.display='none';}
+function openCraft(){
+  var step=getProgressionStep();
+  if(step&&!step.craftKind)return;
+  craftModal.style.display='flex';updCraftButtons();goal();
+}
+function closeCraft(){craftModal.style.display='none';goal();}
 document.getElementById('craftClose').addEventListener('click',closeCraft);
 craftModal.addEventListener('click',function(e){if(e.target===craftModal)closeCraft();});
 
 var craft=null;
 function startCraft(kind){
+  var step=getProgressionStep();
+  if(step&&(!step.craftKind||kind!==step.craftKind))return;
   closeCraft();
   if(kind==='repair'){
     if(gameState.wood<6||gameState.scrap<4){playSfx('bad');popText('Need 6 🪵 & 4 🔩',new THREE.Vector3(BX,2.2,BZ),'x-bad');return;}
@@ -1152,7 +1714,7 @@ function startCraft(kind){
   pHam.visible=true;benchHam.visible=false;
   progEl.querySelector('span').textContent='🔨';progArc.style.strokeDashoffset='100.5';progEl.style.display='block';
   player.rotation.y=Math.atan2(BX-player.position.x,BZ-player.position.z);
-  clearNear();
+  clearNear();goal();
 }
 document.getElementById('cBoxBtn').addEventListener('click',function(){startCraft('box');});
 document.getElementById('cStandBtn').addEventListener('click',function(){startCraft('stand');});
@@ -1176,7 +1738,7 @@ document.getElementById('replayCutBtn').addEventListener('click',function(){menu
 document.getElementById('resetBtn').addEventListener('click',function(){
   if(!resetConfirm){resetConfirm=true;this.textContent='Tap to Confirm';return;}
   try{localStorage.removeItem(SAVE_KEY);}catch(e){}
-  gameState=defaultGameState();rebuildAllWorldFromState();
+  clearCustomers();gameState=defaultGameState();rebuildAllWorldFromState();
   menuModal.style.display='none';startCutscene();
 });
 
@@ -1185,7 +1747,7 @@ var climb=null,onTop=false,climbS=1,faceL=0,faceH=0,TOPY=HT+0.09;
 var smokeA=null,smokedT=0,harv=null,capA=null,hiveHoney=3,refillT=0,beeK=0,beeTo=0,ladderSolid=true;
 
 function climbUp(){
-  if(!gameState.ladder.atHive||climb||onTop||gameState.carryType)return;
+  if(!canClimbLadder()||climb||onTop||gameState.carryType)return;
   var p=player.position,ry=ladder.rotation.y;
   var lz=(p.x-ladder.position.x)*Math.sin(ry)+(p.z-ladder.position.z)*Math.cos(ry);
   climbS=lz>=0?1:-1;faceL=ry+(climbS>0?Math.PI:0);
@@ -1228,6 +1790,38 @@ function bindPromptBtn(el,fn){
   el.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();flashBtn(el);fn();});
 }
 
+function storeHoneyAtStorage(){
+  if(gameState.honey<=0){
+    playSfx('bad');popText('Gather honey before storing it',honeyStorage.position.clone().setY(2.2),'x-bad');return;
+  }
+  var amount=gameState.honey,firstUnlock=!gameState.shopUnlocked;
+  gameState.honey=0;gameState.storedHoney+=amount;
+  if(firstUnlock)gameState.shopUnlocked=true;
+  rebuildShopVisual();updHud();playSfx('ok');
+  popText('+'+amount+' 🍯 Stored',honeyStorage.position.clone().setY(2.2));
+  showBanner(firstUnlock?'First honey stored! The roadside shop is unlocked.':'Honey stored safely.');
+  goal();saveGame();
+}
+
+function takeStoredHoney(){
+  if(gameState.storedHoney<=0){
+    playSfx('bad');popText('Storage is empty',honeyStorage.position.clone().setY(2.2),'x-bad');return;
+  }
+  var amount=gameState.storedHoney;
+  gameState.storedHoney=0;gameState.honey+=amount;
+  updHud();playSfx('pick');
+  popText('+'+amount+' 🍯',honeyStorage.position.clone().setY(2.2));
+  goal();saveGame();
+}
+
+function buildHoneyShop(){
+  if(!gameState.shopUnlocked||gameState.shopBuilt)return;
+  gameState.shopBuilt=true;rebuildShopVisual();
+  crate.scale.setScalar(0.01);squash.push({g:crate,t:0});
+  playSfx('ok');showBanner('Roadside honey shop built! Villagers can now visit.');
+  goal();saveGame();
+}
+
 function setPromptUI(el,txtEl,cfg){
   if(txtEl.textContent!==cfg.txt){
     txtEl.textContent=cfg.txt;
@@ -1238,21 +1832,33 @@ function setPromptUI(el,txtEl,cfg){
 }
 
 function doPrimary(){
-  if(!near)return;
+  if(!near||!isProgressionActionAllowed(near.kind,'primary'))return;
   var k=near.kind;
   if(k==='talkWife')openWifeDialogue();
+  else if(k==='storeHoney')storeHoneyAtStorage();
+  else if(k==='takeHoney')takeStoredHoney();
+  else if(k==='storageInfo')showBanner('Store your first honey harvest here to unlock the roadside shop.');
+  else if(k==='shopLocked')showBanner('Store your first honey harvest in the cupboard to unlock the shop.');
+  else if(k==='buildShop')buildHoneyShop();
   else if(k==='repair')startCraft('repair');
   else if(k==='bench')openCraft();
   else if(k==='placeBox'){
     if(gameState.box<=0)return;
-    var freeTree=-1;
-    for(var ti=0;ti<3;ti++)if(!gameState.hives.some(function(h){return h.slotType==='tree'&&h.slotIdx===ti;})){freeTree=ti;break;}
+    var freeTree=getFirstFreeTreeSlot();
     if(freeTree<0)return;
     gameState.box--;
     var hd={id:Date.now()+Math.random(),slotType:'tree',slotIdx:freeTree,populated:false,tier:1,timer:getHarvestSecs(),ready:false,ants:false};
     gameState.hives.push(hd);
     var act=spawnHiveActor(hd);act.g.scale.setScalar(0.01);squash.push({g:act.g,t:0});
     rebuildCarryVisual();updHud();playSfx('ok');popText('Box placed!',act.g.position.clone().setY(1.3));goal();saveGame();
+  }else if(k==='placeHiveAtTree'){
+    var returnSlot=near.slot,returnHive=gameState.carryHive;
+    if(gameState.carryType!=='hive'||!returnHive||!Number.isInteger(returnSlot)||returnSlot<0||returnSlot>=treeSpots.length||gameState.hives.some(function(h){return h.slotType==='tree'&&h.slotIdx===returnSlot;}))return;
+    returnHive.slotType='tree';returnHive.slotIdx=returnSlot;
+    gameState.hives.push(returnHive);gameState.carryType=null;gameState.carryHive=null;
+    var returnedActor=spawnHiveActor(returnHive);returnedActor.g.scale.setScalar(0.01);squash.push({g:returnedActor.g,t:0});
+    rebuildCarryVisual();playSfx('ok');popText('Hive placed by tree!',returnedActor.g.position.clone().setY(1.3));
+    clearNear();goal();saveGame();
   }else if(k==='stackRack'){
     if(gameState.box<=0||gameState.rackCount>=12)return;
     gameState.box--;gameState.rackCount++;rebuildCarryVisual();rebuildRackVisual();updHud();playSfx('ok');
@@ -1331,17 +1937,21 @@ function doPrimary(){
     popText('+'+yieldH+' 🍯'+(waxBonus?' +'+waxBonus+' 🪙 Wax':''),ha.g.position.clone().setY(1.8));
     if(wasFirst)showBanner('First batch harvested! Future batches take 15 minutes.');
     goal();saveGame();
+  }else if(k==='serveCustomer'){
+    serveMarketCustomer(near.customer);
   }else if(k==='sellHoney'){
-    if(gameState.honey<=0){playSfx('bad');popText('No honey to sell',crate.position.clone().setY(1.6),'x-bad');return;}
-    var earned=gameState.honey*5;gameState.coins+=earned;gameState.honey=0;
+    var honeyForSale=totalHoneyStock();
+    if(honeyForSale<=0){playSfx('bad');popText('No honey to sell',crate.position.clone().setY(1.6),'x-bad');return;}
+    var earned=honeyForSale*5;gameState.coins+=earned;gameState.honey=0;gameState.storedHoney=0;
     updHud();playSfx('coin');popText('+'+earned+' 🪙',crate.position.clone().setY(1.7));goal();saveGame();
   }
 }
 
 function doSecondary(){
-  if(!near2)return;
+  if(!near2||!isProgressionActionAllowed(near2.kind,'secondary'))return;
   var k=near2.kind;
   if(k==='captureQueen')tryCapture();
+  else if(k==='takeHoney')takeStoredHoney();
   else if(k==='pickLadder'){
     if(gameState.carryType||gameState.box>0){playSfx('bad');popText('Hands full!',player.position.clone().setY(2.4),'x-bad');return;}
     gameState.carryType='ladder';gameState.ladder.atHive=false;rebuildCarryVisual();playSfx('pick');clearNear();goal();saveGame();
@@ -1369,7 +1979,7 @@ function doSecondary(){
 
 bindPromptBtn(promptEl,doPrimary);
 bindPromptBtn(prompt2El,doSecondary);
-bindPromptBtn(downBtn,function(){climbDown();});
+bindPromptBtn(downBtn,function(){if(isProgressionActionAllowed('climbDown','down'))climbDown();});
 
 // Start button
 document.getElementById('play').addEventListener('click',function(e){
@@ -1377,6 +1987,7 @@ document.getElementById('play').addEventListener('click',function(e){
   document.getElementById('start').style.display='none';
   if(!gameState.cutsceneDone)startCutscene();
   else if(gameState.benchFixed&&!gameState.benchTutorialDone)startBenchTutorial();
+  else maybeStartGatherMissionDialogue();
 });
 
 // Movement controls (WASD / Arrows + Virtual Joystick)
@@ -1386,7 +1997,7 @@ window.addEventListener('keydown',function(e){keys[e.code]=true;});
 window.addEventListener('keyup',function(e){keys[e.code]=false;});
 
 frame.addEventListener('pointerdown',function(e){
-  if(!playing||cutsceneActive||wifeChatActive||(wifeWalk&&wifeWalk.phase==='approach'))return;
+  if(!playing||cutsceneActive||wifeChatActive||missionDialogueActive||(wifeWalk&&wifeWalk.phase==='approach'))return;
   if(e.target.closest&&e.target.closest('.x-prompt,#camTools,#start,.x-modal,#cutscene'))return;
   var r=frame.getBoundingClientRect();
   joy.on=true;joy.id=e.pointerId;joy.x=e.clientX-r.left;joy.y=e.clientY-r.top;joy.vx=0;joy.vy=0;
@@ -1581,11 +2192,12 @@ function animate(){
     var wc=Math.sin(t*14);body.position.y=Math.abs(wc)*0.1;body.rotation.z=-wc*0.015;
     footL.position.z=0.05+wc*0.17;footR.position.z=0.05-wc*0.17;
     armL.rotation.x=-wc*0.4;armR.rotation.x=wc*0.4;
+    if(cutWalkOut===0)maybeStartGatherMissionDialogue();
   }
 
   // Player Movement
   var vx=0,vz=0;
-  var canMove=playing&&!cutsceneActive&&!wifeChatActive&&!(wifeWalk&&wifeWalk.phase==='approach')&&!climb&&!onTop&&!craft&&cutWalkOut<=0;
+  var canMove=playing&&!cutsceneActive&&!wifeChatActive&&!missionDialogueActive&&!(wifeWalk&&wifeWalk.phase==='approach')&&!climb&&!onTop&&!craft&&cutWalkOut<=0;
   if(canMove){
     if(keys.KeyW||keys.ArrowUp)vz-=1;if(keys.KeyS||keys.ArrowDown)vz+=1;
     if(keys.KeyA||keys.ArrowLeft)vx-=1;if(keys.KeyD||keys.ArrowRight)vx+=1;
@@ -1621,15 +2233,19 @@ function animate(){
     armR.rotation.x=hold*(1-playerWalkWeight)+idleGait*0.48*playerWalkWeight;
   }
 
+  updateCustomers(dt,t);
+
   // Collisions inside enclosed yard
   if(!onTop&&!climb&&!cutsceneActive){
     player.position.x=Math.max(-W+0.6,Math.min(W-0.6,player.position.x));
     player.position.z=Math.max(-H+0.6,Math.min(H-0.6,player.position.z));
     pushBox(player.position,0,12.5,3.1,2.35);      // Cottage
     if(wife.visible)pushOut(player.position,wife.position.x,wife.position.z,0.85); // Wife NPC
+    activeCustomers().forEach(function(customer){pushOut(player.position,customer.actor.g.position.x,customer.actor.g.position.z,0.72);});
     pushBox(player.position,3.6,12.2,1.2,1.3);     // Log pile
     pushBox(player.position,BX,BZ,1.65,1.05);      // Workbench
-    pushBox(player.position,-2.9,10.2,1.05,0.95);  // Market crate
+    pushBox(player.position,STORAGE_X,STORAGE_Z,0.72,0.5); // Honey cupboard
+    pushBox(player.position,SHOP_X,SHOP_Z,1.0,1.5); // Shop plot / counter
     if(gameState.hasRack)pushBox(player.position,RX,RZ,1.05,2.2); // Vertical Box Rack
     pushOut(player.position,-1.5,-11,1.35);        // Oak tree
     rocks.forEach(function(r){pushOut(player.position,r[0],r[1],r[2]+0.52);}); // Rocks deflect character
@@ -1673,7 +2289,7 @@ function animate(){
       scene.remove(fi.m);flyItems.splice(i,1);
       if(fi.kind==='wood'){gameState.wood+=2;popText('+2 🪵',player.position.clone().setY(2.2));}
       else{gameState.scrap+=2;popText('+2 🔩',player.position.clone().setY(2.2));}
-      playSfx('pick');updHud();goal();saveGame();
+      playSfx('pick');updHud();goal();saveGame();maybeStartGatherMissionDialogue();
     }
   }
 
@@ -1882,13 +2498,14 @@ function animate(){
 
   // Update visual markers (Square STAND, Square HIVE, Ladder Ring)
   updatePlaceholderVisibility();
-  var showTreeSpot=gameState.box>0&&!gameState.carryType;
-  var firstFreeTree=-1;
-  for(i=0;i<3;i++)if(!gameState.hives.some(function(h){return h.slotType==='tree'&&h.slotIdx===i;})){firstFreeTree=i;break;}
-  if(showTreeSpot&&firstFreeTree>=0){
-    treeSpotMark.g.visible=true;treeSpotMark.g.position.set(treeSpots[firstFreeTree][0],0,treeSpots[firstFreeTree][1]);
-    treeSpotMark.dm.opacity=0.65+0.25*Math.sin(t*4);
-  }else treeSpotMark.g.visible=false;
+  var showTreeSpot=(gameState.box>0&&!gameState.carryType)||(gameState.carryType==='hive'&&!!gameState.carryHive);
+  var firstFreeTree=getFirstFreeTreeSlot();
+  var showAllFreeTreeSpots=gameState.carryType==='hive'&&!!gameState.carryHive;
+  treeSpotMarks.forEach(function(mark,idx){
+    var isFree=!gameState.hives.some(function(h){return h.slotType==='tree'&&h.slotIdx===idx;});
+    mark.g.visible=showTreeSpot&&isFree&&(showAllFreeTreeSpots||idx===firstFreeTree);
+    if(mark.g.visible)mark.dm.opacity=0.65+0.25*Math.sin(t*4);
+  });
 
   standMarkers.forEach(function(sm,idx){
     var hasSt=gameState.stands.some(function(st){return st.slot===idx;});
@@ -1935,7 +2552,7 @@ function animate(){
 
   // Context Prompt Selection (Touch / Click only)
   near=null;near2=null;
-  if(playing&&!cutsceneActive&&!wifeChatActive&&!(wifeWalk&&wifeWalk.phase==='approach')&&!climb&&!craft&&!smokeA&&!harv&&!capA){
+  if(playing&&!cutsceneActive&&!wifeChatActive&&!missionDialogueActive&&!(wifeWalk&&wifeWalk.phase==='approach')&&!climb&&!craft&&!smokeA&&!harv&&!capA){
     if(onTop){
       if(smokedT<=0)near={kind:'smoke',pos:hp.clone().setY(hp.y+1.1),txt:'Smoke Bees'};
       else{
@@ -1958,13 +2575,22 @@ function animate(){
         });
         if(bestS>=0)near={kind:'placeStand',slot:bestS,pos:new THREE.Vector3(standCoords[bestS][0],1.2,standCoords[bestS][1]),txt:'Place Stand'};
       }else if(gameState.carryType==='hive'){
+        var freeTreeSlot=getNearestFreeTreeSlot(px,pz),freeTreeDistance=Infinity;
+        if(freeTreeSlot>=0){
+          freeTreeDistance=Math.hypot(px-treeSpots[freeTreeSlot][0],pz-treeSpots[freeTreeSlot][1]);
+          if(freeTreeDistance<2.2){
+            near={kind:'placeHiveAtTree',slot:freeTreeSlot,pos:new THREE.Vector3(treeSpots[freeTreeSlot][0],1.4,treeSpots[freeTreeSlot][1]),txt:'Place Hive at Tree'};
+          }
+        }
         var bestM=-1,bdM=2.4;
         gameState.stands.forEach(function(st){
           if(gameState.hives.some(function(h){return h.slotType==='stand'&&h.slotIdx===st.slot;}))return;
           var d=Math.hypot(px-standCoords[st.slot][0],pz-standCoords[st.slot][1]);
           if(d<bdM){bdM=d;bestM=st.slot;}
         });
-        if(bestM>=0)near={kind:'mountHive',slot:bestM,pos:new THREE.Vector3(standCoords[bestM][0],1.6,standCoords[bestM][1]),txt:'Place Hive on Stand'};
+        if(bestM>=0&&bdM<freeTreeDistance){
+          near={kind:'mountHive',slot:bestM,pos:new THREE.Vector3(standCoords[bestM][0],1.6,standCoords[bestM][1]),txt:'Place Hive on Stand'};
+        }
       }else if(gameState.carryType==='queen'){
         hiveActors.forEach(function(a){
           if(!a.data.populated&&Math.hypot(px-a.g.position.x,pz-a.g.position.z)<2.3){
@@ -1972,8 +2598,13 @@ function animate(){
           }
         });
       }else{
+        var progressionStep=getProgressionStep();
+        if(progressionStep&&progressionStep.id==='ladder-pickup'&&
+          Math.hypot(px-ladder.position.x,pz-ladder.position.z)<3.2){
+          near={kind:'pickLadder',pos:ladder.position.clone().setY(2.3),txt:'Pick Up Ladder (+1 🪜)'};
+        }
         // Check Workbench
-        if(Math.hypot(px-BX,pz-BZ)<2.7){
+        if(!near&&Math.hypot(px-BX,pz-BZ)<2.7){
           if(!gameState.benchFixed)near={kind:'repair',pos:new THREE.Vector3(BX,2.0,BZ),txt:'Repair Bench (-6 🪵, -4 🔩)',short:gameState.wood<6||gameState.scrap<4};
           else near={kind:'bench',pos:new THREE.Vector3(BX,2.1,BZ),txt:'Open Workbench'};
         }
@@ -1986,17 +2617,43 @@ function animate(){
           if(gameState.box>0&&gameState.rackCount<12)near={kind:'stackRack',pos:new THREE.Vector3(RX,2.2,RZ),txt:'Stack Box (-1 📦)'};
           else if(gameState.box===0&&gameState.rackCount>0)near={kind:'takeRack',pos:new THREE.Vector3(RX,2.2,RZ),txt:'Take Box (+1 📦)'};
         }
+        // Check Honey Storage
+        if(!near&&Math.hypot(px-STORAGE_X,pz-STORAGE_Z)<2.2){
+          var storagePos=new THREE.Vector3(STORAGE_X,1.95,STORAGE_Z);
+          if(gameState.honey>0){
+            near={kind:'storeHoney',pos:storagePos,txt:'Store Honey (-'+gameState.honey+' 🍯)'};
+            if(gameState.storedHoney>0)near2={kind:'takeHoney',pos:storagePos.clone().setY(1.45),txt:'Take Honey (+'+gameState.storedHoney+' 🍯)'};
+          }else if(gameState.storedHoney>0){
+            near={kind:'takeHoney',pos:storagePos,txt:'Take Honey (+'+gameState.storedHoney+' 🍯)'};
+          }else near={kind:'storageInfo',pos:storagePos,txt:'Honey Storage (Empty)'};
+        }
+        // Check Locked Shop Plot
+        if(!near&&!gameState.shopBuilt&&Math.hypot(px-SHOP_X,pz-SHOP_Z)<2.8){
+          near=gameState.shopUnlocked
+            ?{kind:'buildShop',pos:new THREE.Vector3(SHOP_X,2.1,SHOP_Z),txt:'Build Honey Shop'}
+            :{kind:'shopLocked',pos:new THREE.Vector3(SHOP_X,1.7,SHOP_Z),txt:'Shop Locked · Store Honey'};
+        }
         // Check Ladder
         if(!near&&gameState.hasLadder&&Math.hypot(px-ladder.position.x,pz-ladder.position.z)<2.2){
           if(gameState.ladder.atHive){
-            near={kind:'climb',pos:ladder.position.clone().setY(2.2),txt:'Climb Ladder'};
+            if(canClimbLadder())near={kind:'climb',pos:ladder.position.clone().setY(2.2),txt:'Climb Ladder'};
             near2={kind:'pickLadder',pos:ladder.position.clone().setY(1.3),txt:'Pick Up Ladder (+1 🪜)'};
           }else near={kind:'pickLadder',pos:ladder.position.clone().setY(2.3),txt:'Pick Up Ladder (+1 🪜)'};
         }
-        // Check Market Crate
-        if(!near&&Math.hypot(px-crate.position.x,pz-crate.position.z)<2.4){
-          var honeyCoins=gameState.honey*5;
-          near={kind:'sellHoney',pos:crate.position.clone().setY(1.7),txt:honeyCoins?'Sell Honey (+'+honeyCoins+' 🪙)':'Sell Honey (No honey)'};
+        // Check Honey Shop
+        if(gameState.shopBuilt&&!near&&Math.hypot(px-crate.position.x,pz-crate.position.z)<2.4){
+          var counterCustomer=activeCustomers()[0];
+          if(counterCustomer&&counterCustomer.state==='queued'&&counterCustomer.atCounter){
+            var possibleTip=counterCustomer.tipRemaining!==null&&counterCustomer.tipRemaining>0?Math.round(counterCustomer.baseCoins*0.2):0;
+            near={
+              kind:'serveCustomer',customer:counterCustomer,pos:crate.position.clone().setY(2.1),
+              txt:'Serve '+counterCustomer.name+' (-'+counterCustomer.order+' 🍯, +'+(counterCustomer.baseCoins+possibleTip)+' 🪙)',
+              short:totalHoneyStock()<counterCustomer.order
+            };
+          }else{
+            var honeyCoins=totalHoneyStock()*5;
+            near={kind:'sellHoney',pos:crate.position.clone().setY(1.7),txt:honeyCoins?'Sell Honey (+'+honeyCoins+' 🪙)':'Sell Honey (No honey)'};
+          }
           if(gameState.flowerLevel<5)near2={kind:'plantFlowers',pos:crate.position.clone().setY(0.9),txt:'Plant Flowers (-10 🪙)',short:gameState.coins<10};
         }
         // Check Wife NPC (free hands)
@@ -2055,6 +2712,8 @@ function animate(){
       prompt2El.style.left=Math.max(p2Half,Math.min(frame.clientWidth-p2Half,p2.x))+'px';prompt2El.style.top=y2+'px';
     }
   }else prompt2El.style.display='none';
+
+  updateProgressionGuideVisuals(dt);
 
   // Smooth Camera Follow, Opening Cutscene & Unobstructed Action Shots
   var targetCam,targetLook,camSpeed=5;
@@ -2116,6 +2775,7 @@ function animate(){
   camLook.lerp(targetLook,dampFactor(camSpeed+1,dt));
   camera.position.copy(camPos);camera.lookAt(camLook);
   updateBeeSpeech();
+  updateCustomerBubbles();
 
   sun.position.set(player.position.x+11,14,player.position.z+9);
   sun.target.position.copy(player.position);sun.target.updateMatrixWorld();
