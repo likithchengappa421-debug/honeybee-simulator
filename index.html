@@ -212,7 +212,10 @@ function startOpeningMusic(){
   if(!soundOn)return;
   initAudio();openingMusic.pause();openingMusic.currentTime=0;openingMusic.volume=0;
   var playRequest=openingMusic.play();
-  if(playRequest&&typeof playRequest.catch==='function')playRequest.catch(function(error){console.warn('Opening music playback failed:',error);});
+  if(playRequest&&typeof playRequest.catch==='function')playRequest.catch(function(error){
+    console.warn('Opening music playback failed:',error);
+    if(location.protocol==='file:')showBanner('Serve the game over HTTP to play the prologue music.');
+  });
   fadeOpeningMusicTo(0.62,0.65,false);
 }
 function updateOpeningMusic(dt){
