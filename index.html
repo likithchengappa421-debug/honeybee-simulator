@@ -883,8 +883,16 @@ var hTarget=new THREE.Object3D();
 
 // ================= UNIFIED GAME STATE & MOBILE LOCALSTORAGE =================
 var SAVE_KEY='honeybee_sim_save_v1';
-var HARVEST_SECS=900; // 15 minutes once mounted on a stand
-var FIRST_HARVEST_SECS=45; // Fast 45s first-batch tutorial harvest
+var TREE_HONEY_SECS=1800,BOX_HARVEST_SECS=900,FIRST_HARVEST_SECS=45;
+var TREE_QUEEN_COOLDOWN_MS=60*60*1000,BOX_ACTIVATION_COOLDOWN_MS=30*60*1000;
+var NECTAR_PHASES=[
+  {id:'bloom',label:'Bloom',duration:2*60*60,rate:1.5},
+  {id:'normal',label:'Normal',duration:4*60*60,rate:1},
+  {id:'dearth',label:'Dearth',duration:2*60*60,rate:0.5},
+  {id:'dormant',label:'Dormant',duration:60*60,rate:0}
+];
+var NECTAR_CYCLE_SECS=NECTAR_PHASES.reduce(function(sum,phase){return sum+phase.duration;},0);
+var NECTAR_WORK_PER_CYCLE=NECTAR_PHASES.reduce(function(sum,phase){return sum+phase.duration*phase.rate;},0);
 
 function defaultGameState(){
   return{
@@ -893,6 +901,7 @@ function defaultGameState(){
     shopUnlocked:false,shopBuilt:false,
     benchFixed:false,benchTutorialDone:false,hasLadder:false,hasRack:false,
     cutsceneDone:false,firstHarvestDone:false,gatherMissionDone:false,
+    treeQueenReadyAt:0,wildHoney:3,wildHoneyProgress:0,seasonStartedAt:Date.now(),
     player:{x:0,z:6.4,ry:Math.PI},
     carryType:null, // null | 'ladder' | 'stand' | 'queen' | 'hive'
     carryHive:null,
@@ -905,6 +914,7 @@ function defaultGameState(){
   };
 }
 var gameState=defaultGameState();
+var gameLoaded=false;
 
 function syncGameState(){
   if(typeof gameState.firstHarvestDone!=='boolean'){
@@ -913,12 +923,77 @@ function syncGameState(){
   gameState.rep=Math.max(0,Math.floor(Number(gameState.rep)||0));
   gameState.ordersServed=Math.max(0,Math.floor(Number(gameState.ordersServed)||0));
   gameState.storedHoney=Math.max(0,Math.floor(Number(gameState.storedHoney)||0));
+  gameState.treeQueenReadyAt=Math.max(0,Number(gameState.treeQueenReadyAt)||0);
+  gameState.wildHoney=Math.min(3,Math.max(0,Math.floor(Number(gameState.wildHoney)||0)));
+  gameState.wildHoneyProgress=Math.max(0,Number(gameState.wildHoneyProgress)||0);
+  if(!isFinite(Number(gameState.seasonStartedAt))||Number(gameState.seasonStartedAt)<=0){
+    gameState.seasonStartedAt=gameState.savedAt||Date.now();
+  }
+  if(gameState.wildHoney>=3)gameState.wildHoneyProgress=0;
   gameState.shopUnlocked=gameState.shopUnlocked===true||gameState.storedHoney>0;
   gameState.shopBuilt=gameState.shopBuilt===true&&gameState.shopUnlocked;
   gameState.gatherMissionDone=gameState.gatherMissionDone===true;
 }
-function getHarvestSecs(){
-  return gameState.firstHarvestDone?HARVEST_SECS:FIRST_HARVEST_SECS;
+function getBoxHarvestSecs(){
+  return gameState.firstHarvestDone?BOX_HARVEST_SECS:FIRST_HARVEST_SECS;
+}
+function getNectarPhase(timestamp){
+  var elapsed=Math.max(0,(timestamp-gameState.seasonStartedAt)/1000),cycleTime=elapsed%NECTAR_CYCLE_SECS;
+  for(var i=0;i<NECTAR_PHASES.length;i++){
+    var phase=NECTAR_PHASES[i];
+    if(cycleTime<phase.duration)return{id:phase.id,label:phase.label,rate:phase.rate,remaining:phase.duration-cycleTime};
+    cycleTime-=phase.duration;
+  }
+  return{id:'bloom',label:'Bloom',rate:1.5,remaining:NECTAR_PHASES[0].duration};
+}
+function nectarWorkUntil(elapsed){
+  if(elapsed<=0)return 0;
+  var fullCycles=Math.floor(elapsed/NECTAR_CYCLE_SECS),remaining=elapsed-fullCycles*NECTAR_CYCLE_SECS;
+  var work=fullCycles*NECTAR_WORK_PER_CYCLE;
+  for(var i=0;i<NECTAR_PHASES.length&&remaining>0;i++){
+    var phase=NECTAR_PHASES[i],used=Math.min(remaining,phase.duration);
+    work+=used*phase.rate;remaining-=used;
+  }
+  return work;
+}
+function getNectarWorkSeconds(fromTimestamp,toTimestamp){
+  var cycleStart=Number(gameState.seasonStartedAt)||fromTimestamp;
+  var from=Math.max(0,(fromTimestamp-cycleStart)/1000),to=Math.max(0,(toTimestamp-cycleStart)/1000);
+  return Math.max(0,nectarWorkUntil(to)-nectarWorkUntil(from));
+}
+function getRealSecondsForNectarWork(workSeconds,fromTimestamp){
+  var remaining=Math.max(0,workSeconds),elapsed=0,cursor=fromTimestamp;
+  while(remaining>0.001){
+    var phase=getNectarPhase(cursor);
+    if(phase.rate<=0){
+      elapsed+=phase.remaining;cursor+=phase.remaining*1000;continue;
+    }
+    var workInPhase=phase.remaining*phase.rate;
+    if(remaining<=workInPhase)return elapsed+remaining/phase.rate;
+    remaining-=workInPhase;elapsed+=phase.remaining;cursor+=phase.remaining*1000;
+  }
+  return elapsed;
+}
+function applyOfflineProgress(now){
+  var from=gameState.savedAt||now;
+  if(now<=from)return;
+  var flowerMult=1+gameState.flowerLevel*0.12;
+  var treeStart=Math.max(from,gameState.treeQueenReadyAt||from);
+  var wildWork=getNectarWorkSeconds(treeStart,now)*flowerMult;
+  var wildProgress=gameState.wildHoneyProgress+wildWork;
+  var wildProduced=Math.floor(wildProgress/TREE_HONEY_SECS);
+  gameState.wildHoney=Math.min(3,gameState.wildHoney+wildProduced);
+  gameState.wildHoneyProgress=gameState.wildHoney>=3?0:wildProgress%TREE_HONEY_SECS;
+  gameState.hives.forEach(function(h){
+    if(!h.populated||h.slotType!=='stand'||h.ready)return;
+    var tierMult=h.tier===3?1.45:h.tier===2?1.2:1.0;
+    var timer=typeof h.timer==='number'?h.timer:getBoxHarvestSecs();
+    var productionStart=Math.max(from,Number(h.activationReadyAt)||from,Number(h.productionStartedAt)||from);
+    var work=getNectarWorkSeconds(productionStart,now)*flowerMult*tierMult;
+    h.timer=Math.max(0,timer-work);
+    if(h.timer<=0)h.ready=true;
+  });
+  gameState.savedAt=now;
 }
 
 // Runtime scene collections synchronized with gameState
@@ -929,6 +1004,7 @@ var chipG=new THREE.BoxGeometry(0.09,0.04,0.07),puffG=new THREE.SphereGeometry(1
 
 // DOM references
 var woodEl=document.getElementById('wood'),scrapEl=document.getElementById('scrap'),honeyEl=document.getElementById('honey'),coinsEl=document.getElementById('coins'),boxesEl=document.getElementById('boxes'),repEl=document.getElementById('rep'),repPill=document.getElementById('repPill'),storedHoneyEl=document.getElementById('storedHoney'),storedHoneyPill=document.getElementById('storedHoneyPill');
+var wildHiveTag=document.createElement('div');wildHiveTag.className='x-tag';wildHiveTag.style.display='none';frame.appendChild(wildHiveTag);
 var customerLayer=document.getElementById('customerLayer');
 var goalEl=document.getElementById('goal'),bannerEl=document.getElementById('banner');
 var progEl=document.getElementById('prog'),progArc=document.getElementById('progArc');
@@ -1272,6 +1348,8 @@ function populateActorBees(actor){
 
 function rebuildAllWorldFromState(){
   syncGameState();
+  hiveHoney=gameState.wildHoney;
+  refillT=gameState.wildHoneyProgress;
   rebuildWorkbenchVisual();
   rebuildRackVisual();
   rebuildShopVisual();
@@ -1304,7 +1382,10 @@ function saveGame(){
     gameState.savedAt=Date.now();
     localStorage.setItem(SAVE_KEY,JSON.stringify(gameState));
     if(saveStatus)saveStatus.textContent='Saved just now';
-  }catch(e){}
+  }catch(e){
+    if(saveStatus)saveStatus.textContent='Save failed';
+    console.error('Unable to save game progress:',e);
+  }
 }
 
 function loadGame(){
@@ -1314,36 +1395,34 @@ function loadGame(){
       var parsed=JSON.parse(raw);
       var def=defaultGameState();
       gameState=Object.assign({},def,parsed);
-      syncGameState();
       gameState.player=Object.assign({},def.player,parsed.player||{});
       gameState.ladder=Object.assign({},def.ladder,parsed.ladder||{});
       if(!Array.isArray(gameState.stands))gameState.stands=[];
       if(!Array.isArray(gameState.hives))gameState.hives=[];
-      // Apply offline elapsed time to mounted hive timers (45s first batch, 15m after)
-      var elapsed=Math.max(0,(Date.now()-(gameState.savedAt||Date.now()))/1000);
-      var flowMult=1+gameState.flowerLevel*0.12;
-      var defSecs=getHarvestSecs();
-      gameState.hives.forEach(function(h){
-        if(h.populated&&h.slotType==='stand'&&!h.ready){
-          var tierMult=h.tier===3?1.45:h.tier===2?1.2:1.0;
-          var curT=(typeof h.timer==='number')?h.timer:defSecs;
-          h.timer=Math.max(0,curT-elapsed*flowMult*tierMult);
-          if(h.timer<=0)h.ready=true;
-        }
-      });
+      syncGameState();
+      applyOfflineProgress(Date.now());
       for(var fi=0;fi<Math.min(5,gameState.flowerLevel||0);fi++)addWildflowerPatch(fi);
     }
-  }catch(e){gameState=defaultGameState();}
+  }catch(e){
+    console.error('Unable to load saved game progress:',e);
+    gameState=defaultGameState();
+  }
   customerSequence=gameState.ordersServed;
   rebuildAllWorldFromState();
+  gameLoaded=true;
 }
 
-setInterval(function(){if(playing&&!cutsceneActive)saveGame();},5000);
+setInterval(function(){if(playing&&!cutsceneActive&&document.visibilityState==='visible')saveGame();},5000);
 document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='hidden')saveGame();
-  else if(typeof clock!=='undefined'&&clock)clock.getDelta();
+  if(document.visibilityState==='hidden'){if(gameLoaded)saveGame();}
+  else if(gameLoaded){
+    applyOfflineProgress(Date.now());
+    hiveHoney=gameState.wildHoney;refillT=gameState.wildHoneyProgress;
+    if(typeof clock!=='undefined'&&clock)clock.getDelta();
+    updHud();goal();saveGame();
+  }
 });
-window.addEventListener('pagehide',saveGame);
+window.addEventListener('pagehide',function(){if(gameLoaded)saveGame();});
 
 // ================= OPENING CUTSCENE & REACTIVE WIFE DIALOGUE =================
 var playing=false,cutsceneActive=false,wifeChatActive=false,missionDialogueActive=false,cutBeat=0,cutT=0,cutZoomIn=0,cutWalkOut=0,cutPhase='dialogue';
@@ -1548,10 +1627,12 @@ function getProgressionStep(){
       :{id:'hive-return',promptKind:'placeHiveAtTree',target:'primary',goal:'Place the hive back at a tree marker before building a stand'};
   }
   if(onTop){
+    if(Date.now()<gameState.treeQueenReadyAt)return null;
     if(smokedT<=0)return{id:'smoke',promptKind:'smoke',target:'primary',goal:'Smoke the wild bees'};
     if(hasEmptyTreeBox())return{id:'capture-queen',promptKind:'captureQueen',target:'secondary',goal:'Capture the Queen'};
   }
   if(hasEmptyTreeBox()){
+    if(Date.now()<gameState.treeQueenReadyAt)return null;
     if(!gameState.ladder.atHive)return{id:'ladder-pickup',promptKind:'pickLadder',target:'primary',goal:'Pick up the ladder at the workbench'};
     return{id:'climb',promptKind:'climb',target:'primary',goal:'Climb up to the wild hive'};
   }
@@ -1566,7 +1647,7 @@ function getProgressionStep(){
 }
 
 function canClimbLadder(){
-  if(!gameState.ladder.atHive||!hasEmptyTreeBox())return false;
+  if(!gameState.ladder.atHive||!hasEmptyTreeBox()||Date.now()<gameState.treeQueenReadyAt)return false;
   var step=getProgressionStep();
   return !step||step.id==='climb';
 }
@@ -1599,7 +1680,9 @@ function goal(){
   else if(gameState.carryType==='stand')g='Place Hive Stand on a STAND marker';
   else if(gameState.carryType==='hive')g=hasEmptyStand()?'Mount Captured Hive on a Stand':'Craft & place a Hive Stand first';
   else if(gameState.carryType==='ladder')g='Place Ladder by the wild tree hive';
-  else if(onTop)g=smokedT>0?(hasEmptyTreeBox()?'Capture Queen or Harvest Honey':'Harvest Wild Honey'):'Use Smoker to calm the wild bees';
+  else if(onTop)g=Date.now()<gameState.treeQueenReadyAt
+    ?'Wild Queen recovering · '+fmtTime((gameState.treeQueenReadyAt-Date.now())/1000)
+    :smokedT>0?(hasEmptyTreeBox()?'Capture Queen or Harvest Honey':'Harvest Wild Honey'):'Use Smoker to calm the wild bees';
   else if(gameState.box>0)g='Place Bee Box near tree'+(gameState.hasRack?' or Box Rack':'');
   else if(!gameState.hasLadder)g='Craft an A-Frame Ladder at Workbench';
   else if(!hasEmptyTreeBox()&&gameState.hives.length===0)g='Craft a Bee Box & place it near the tree';
@@ -1760,10 +1843,12 @@ function climbDown(){
 }
 function startSmoke(){
   if(!onTop||climb||smokeA||harv||capA||smokedT>0)return;
+  if(Date.now()<gameState.treeQueenReadyAt){playSfx('bad');popText('The wild hive is resting.',hp.clone().setY(hp.y+1.2),'x-bad');return;}
   smokeA={t:0,dur:2.55,n:0};smoker.visible=true;clearNear();playSfx('buzz');
 }
 function tryHarvest(){
   if(!onTop||climb||smokeA||harv||capA)return;
+  if(Date.now()<gameState.treeQueenReadyAt){playSfx('bad');popText('The wild hive is resting.',hp.clone().setY(hp.y+1.2),'x-bad');return;}
   if(smokedT<=0){playSfx('bad');popText('Smoke the bees first!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
   if(hiveHoney<=0){playSfx('bad');popText('Wild hive refilling...',hp.clone().setY(hp.y+1.2),'x-bad');return;}
   harv={t:0,dur:2.5,dt:0};hKnife.visible=hJar.visible=true;
@@ -1771,6 +1856,7 @@ function tryHarvest(){
 }
 function tryCapture(){
   if(!onTop||climb||smokeA||harv||capA)return;
+  if(Date.now()<gameState.treeQueenReadyAt){playSfx('bad');popText('The Queen is recovering.',hp.clone().setY(hp.y+1.2),'x-bad');return;}
   if(smokedT<=0){playSfx('bad');popText('Smoke the bees first!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
   if(gameState.carryType==='queen'){playSfx('bad');popText('Already carrying Queen!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
   if(!hasEmptyTreeBox()){playSfx('bad');popText('Place an empty Bee Box first!',hp.clone().setY(hp.y+1.2),'x-bad');return;}
@@ -1847,7 +1933,7 @@ function doPrimary(){
     var freeTree=getFirstFreeTreeSlot();
     if(freeTree<0)return;
     gameState.box--;
-    var hd={id:Date.now()+Math.random(),slotType:'tree',slotIdx:freeTree,populated:false,tier:1,timer:getHarvestSecs(),ready:false,ants:false};
+    var hd={id:Date.now()+Math.random(),slotType:'tree',slotIdx:freeTree,populated:false,tier:1,timer:getBoxHarvestSecs(),ready:false,ants:false};
     gameState.hives.push(hd);
     var act=spawnHiveActor(hd);act.g.scale.setScalar(0.01);squash.push({g:act.g,t:0});
     rebuildCarryVisual();updHud();playSfx('ok');popText('Box placed!',act.g.position.clone().setY(1.3));goal();saveGame();
@@ -1886,7 +1972,11 @@ function doPrimary(){
   else if(k==='harvestWild')tryHarvest();
   else if(k==='placeQueen'){
     var a=near.actor;
-    a.data.populated=true;gameState.carryType=null;rebuildCarryVisual();
+    a.data.populated=true;
+    a.data.activationReadyAt=Date.now()+BOX_ACTIVATION_COOLDOWN_MS;
+    a.data.productionStartedAt=0;
+    a.data.timer=getBoxHarvestSecs();a.data.ready=false;
+    gameState.carryType=null;rebuildCarryVisual();
     populateActorBees(a);playSfx('ok');
     popText('👑 Colony Captured!',a.g.position.clone().setY(1.6));
     showBanner('Wild bees are following the Queen into your box!');
@@ -1908,7 +1998,8 @@ function doPrimary(){
   }else if(k==='mountHive'){
     var mSlot=near.slot,hd2=gameState.carryHive;
     hd2.slotType='stand';hd2.slotIdx=mSlot;hd2.ants=false;
-    var batchSecs=getHarvestSecs();
+    hd2.productionStartedAt=Date.now();
+    var batchSecs=getBoxHarvestSecs();
     if(hd2.timer===undefined||hd2.timer<=0||hd2.timer>batchSecs)hd2.timer=batchSecs;
     gameState.hives.push(hd2);gameState.carryType=null;gameState.carryHive=null;
     var na=spawnHiveActor(hd2);na.g.scale.setScalar(0.01);squash.push({g:na.g,t:0});
@@ -1922,7 +2013,7 @@ function doPrimary(){
     var ha=near.actor,wasFirst=!gameState.firstHarvestDone;
     ha.data.ready=false;
     if(wasFirst)gameState.firstHarvestDone=true;
-    ha.data.timer=getHarvestSecs();
+    ha.data.timer=getBoxHarvestSecs();
     var yieldH=ha.data.tier===3?3:ha.data.tier===2?2:1;
     gameState.honey+=yieldH;
     var waxBonus=ha.data.tier>=2?ha.data.tier*3:0;
@@ -2388,10 +2479,19 @@ function animate(){
     if(hk>=1){
       harv=null;hKnife.visible=hJar.visible=false;progEl.style.display='none';
       hiveHoney=Math.max(0,hiveHoney-1);gameState.honey+=1;
+      gameState.wildHoney=hiveHoney;gameState.wildHoneyProgress=refillT;
       updHud();playSfx('ok');popText('+1 🍯 Wild Honey',hp.clone().setY(hp.y+1.2));goal();saveGame();
     }
   }
-  if(hiveHoney<3){refillT+=dt;if(refillT>18){refillT=0;hiveHoney++;}}
+  var nowMs=Date.now(),nectarPhase=getNectarPhase(nowMs),flowerMult=1+gameState.flowerLevel*0.12;
+  if(hiveHoney<3&&nowMs>=gameState.treeQueenReadyAt&&nectarPhase.rate>0){
+    refillT+=dt*nectarPhase.rate*flowerMult;
+    if(refillT>=TREE_HONEY_SECS){
+      hiveHoney=Math.min(3,hiveHoney+Math.floor(refillT/TREE_HONEY_SECS));
+      refillT=hiveHoney>=3?0:refillT%TREE_HONEY_SECS;
+    }
+  }
+  gameState.wildHoney=hiveHoney;gameState.wildHoneyProgress=refillT;
 
   if(capA){
     capA.t+=dt;
@@ -2411,8 +2511,9 @@ function animate(){
     if(qk>=1){
       capA=null;progEl.style.display='none';
       gameState.carryType='queen';queenObj.g.position.set(0,0.24,0.18);
+      gameState.treeQueenReadyAt=Date.now()+TREE_QUEEN_COOLDOWN_MS;
       rebuildCarryVisual();playSfx('ok');
-      popText('👑 Queen Caught! Climb down!',hp.clone().setY(hp.y+1.3));
+      popText('👑 Queen Caught! Hive resting for 1 hour.',hp.clone().setY(hp.y+1.3));
       showBanner('Climb down & place the Queen in your empty Bee Box');
       goal();saveGame();
     }
@@ -2441,13 +2542,13 @@ function animate(){
     wb.b.g.position.set(bx,by,bz);wb.b.g.rotation.y=-a;
   });
 
-  // Apiary Hives: Stand Timer (45s first batch, 15m after), Ground Ant Risk, Pollen Foraging Bees & Floating Tags
-  var flowMult=1+gameState.flowerLevel*0.12;
+  // Apiary Hives: Seasonal Stand Timers, Ground Ant Risk, Pollen Foraging Bees & Floating Tags
+  var flowMult=nectarPhase.rate*flowerMult;
   hiveActors.forEach(function(a){
     var d=a.data;
     if(d.populated){
       if(d.slotType==='stand'){
-        if(!d.ready){
+        if(!d.ready&&nowMs>=(Number(d.activationReadyAt)||0)){
           var tMult=d.tier===3?1.45:d.tier===2?1.2:1.0;
           d.timer=Math.max(0,d.timer-dt*flowMult*tMult);
           if(d.timer<=0){d.ready=true;playSfx('ok');}
@@ -2487,14 +2588,35 @@ function animate(){
       }else if(d.ants){
         a.tagEl.className='x-tag warn';a.tagEl.textContent='🐜 Ants! Brush Off';
       }else if(d.slotType==='tree'){
-        a.tagEl.className='x-tag';a.tagEl.textContent='📦 Place on Stand';
+        var treeActivationWait=Math.max(0,((Number(d.activationReadyAt)||0)-nowMs)/1000);
+        a.tagEl.className='x-tag';
+        a.tagEl.textContent=treeActivationWait>0?'⏳ Settling '+fmtTime(treeActivationWait):'📦 Place on Stand';
       }else if(d.ready){
         a.tagEl.className='x-tag ready';a.tagEl.textContent='🍯 Ready! (T'+d.tier+')';
       }else{
-        a.tagEl.className='x-tag';a.tagEl.textContent='⏳ '+fmtTime(d.timer)+' (T'+d.tier+')';
+        var activationWait=Math.max(0,((Number(d.activationReadyAt)||0)-nowMs)/1000);
+        var tierMult=d.tier===3?1.45:d.tier===2?1.2:1.0;
+        var countdown=activationWait>0?activationWait:getRealSecondsForNectarWork(d.timer/(flowerMult*tierMult),nowMs);
+        var waiting=activationWait>0;
+        a.tagEl.className='x-tag';
+        a.tagEl.textContent=waiting?'⏳ Settling '+fmtTime(countdown):'⏳ '+fmtTime(countdown)+' · '+nectarPhase.label;
       }
     }
   });
+  var wildTagPos=projectToFrame(hp.clone().add(new THREE.Vector3(0,1.9,0)));
+  if(!wildTagPos||cutsceneActive||!playing)wildHiveTag.style.display='none';
+  else{
+    wildHiveTag.style.display='block';wildHiveTag.style.left=wildTagPos.x+'px';wildHiveTag.style.top=wildTagPos.y+'px';
+    if(nowMs<gameState.treeQueenReadyAt){
+      wildHiveTag.className='x-tag';
+      wildHiveTag.textContent='👑 Recovering · '+fmtTime((gameState.treeQueenReadyAt-nowMs)/1000);
+    }else if(hiveHoney>0){
+      wildHiveTag.className='x-tag ready';wildHiveTag.textContent='🍯 Wild Hive '+hiveHoney+'/3 · '+nectarPhase.label;
+    }else{
+      var wildCountdown=getRealSecondsForNectarWork((TREE_HONEY_SECS-refillT)/flowerMult,Math.max(nowMs,gameState.treeQueenReadyAt));
+      wildHiveTag.className='x-tag';wildHiveTag.textContent='⏳ Honey '+fmtTime(wildCountdown)+' · '+nectarPhase.label;
+    }
+  }
 
   // Update visual markers (Square STAND, Square HIVE, Ladder Ring)
   updatePlaceholderVisibility();
@@ -2554,10 +2676,12 @@ function animate(){
   near=null;near2=null;
   if(playing&&!cutsceneActive&&!wifeChatActive&&!missionDialogueActive&&!(wifeWalk&&wifeWalk.phase==='approach')&&!climb&&!craft&&!smokeA&&!harv&&!capA){
     if(onTop){
-      if(smokedT<=0)near={kind:'smoke',pos:hp.clone().setY(hp.y+1.1),txt:'Smoke Bees'};
-      else{
-        near={kind:'harvestWild',pos:hp.clone().setY(hp.y+1.1),txt:hiveHoney>0?'Harvest Honey (+1 🍯)':'Harvest Honey (Refilling)'};
-        if(hasEmptyTreeBox()&&gameState.carryType!=='queen')near2={kind:'captureQueen',pos:hp.clone().setY(hp.y+0.3),txt:'Capture Queen'};
+      if(Date.now()>=gameState.treeQueenReadyAt){
+        if(smokedT<=0)near={kind:'smoke',pos:hp.clone().setY(hp.y+1.1),txt:'Smoke Bees'};
+        else{
+          near={kind:'harvestWild',pos:hp.clone().setY(hp.y+1.1),txt:hiveHoney>0?'Harvest Honey (+1 🍯)':'Harvest Honey (Refilling)'};
+          if(hasEmptyTreeBox()&&gameState.carryType!=='queen')near2={kind:'captureQueen',pos:hp.clone().setY(hp.y+0.3),txt:'Capture Queen'};
+        }
       }
       downBtn.style.display='block';
       var dp=projectToFrame(player.position.clone().add(new THREE.Vector3(0,-0.2,0)));

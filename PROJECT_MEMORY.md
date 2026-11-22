@@ -54,6 +54,16 @@ This file records the game's major requests, implementation decisions, and valid
    - The guide is derived from existing progression fields and clears after the first populated hive is mounted on a stand; no save migration is needed.
    - Full-scene dimming is now only a subtle 450 ms flash when a tutorial step changes. After the flash, the goal and focused action remain clear without dimming the world or settings controls.
 
+9. **Seasonal honey and Queen cooldowns**
+   - The repeating cycle is nine real-time hours: Bloom (2h at 1.5×), Normal (4h at 1×), Dearth (2h at 0.5×), and Dormant (1h at 0×). That is eight hours of base production work per full cycle. The cycle anchor is saved per game rather than tied to the calendar; a new game or a legacy save without an anchor starts at Bloom.
+   - Seasonal flow multiplies the existing flower bonus (`1 + 0.12 × flowerLevel`) and, for managed hives, the existing tier bonus (T1 1×, T2 1.2×, T3 1.45×). Dormant pauses honey production, but Queen/settling cooldowns still elapse in real wall-clock time.
+   - Wild-tree stock starts at 3 jars and is capped at 3. Each jar needs 1,800 productive seconds; managed Bee Box hives need 900 productive seconds per batch. The first managed-hive batch remains 45 productive seconds as the tutorial exception; subsequent batches use 900 seconds.
+   - Capturing the tree Queen starts a 60-minute recovery cooldown on the wild source. While recovering, the source cannot be climbed to, smoked, harvested, or used to capture another Queen, and its honey refill pauses. The timestamp is set when capture completes, not when the Queen is later placed.
+   - Placing the captured Queen in a Bee Box starts a separate 30-minute settling cooldown. Managed production begins only after the populated hive is mounted on a stand; settling can elapse before mounting, but honey production cannot. A single recovered tree colony can supply later boxes when the player has an empty box available.
+   - Offline progression integrates productive time across season boundaries and respects the tree recovery, box activation, and stand-mount timestamps. Hidden-tab time is also applied when the page becomes visible; periodic saves are skipped while hidden so they do not erase that elapsed interval.
+   - Added backward-compatible fields to the existing `honeybee_sim_save_v1` save object without replacing old state or changing its version: `seasonStartedAt`, `treeQueenReadyAt`, `wildHoney` (0–3), and `wildHoneyProgress` (productive seconds toward the next tree jar). Hive records carry `activationReadyAt` and `productionStartedAt`. Existing saves receive defaults; no explicit migration is needed.
+   - Floating labels show the current nectar phase and wild stock, tree recovery time, box settling time, and real-time estimated harvest countdown. Save/load failures are logged; save failures also update the save-status label.
+
 ## Validation notes
 
 - Browser-tested the storage unlock/build flow, Susmitha's order using stored honey, and narrow-screen HUD fit.
@@ -64,6 +74,10 @@ This file records the game's major requests, implementation decisions, and valid
 - Browser-tested the ladder and Bee Box craft gates, the Hive Stand recipe gate, and the focused Bee Box placement action.
 - Checked the updated game page in the browser and `git diff --check`; the browser’s local-file audio request remains an unrelated aborted request.
 - `git diff --check` passed after the recent changes.
+- Browser-tested a two-hour offline fixture spanning Bloom into Normal: 20 productive Bloom minutes yielded one tree jar, and a stand hive with an elapsed activation cooldown became ready.
+- Browser-tested future offline cooldowns: the tree displayed about 60 minutes of Queen recovery and the hive displayed about 30 minutes of settling without producing early.
+- Browser-tested a 45-second first batch after 20 seconds offline in Bloom: 30 productive seconds were applied and the remaining countdown stayed near 10 seconds.
+- Reloaded and ran the game in the browser with no JavaScript runtime errors. The local-file prologue audio request can show an unrelated aborted-request event.
 
 ## Continuation guidance
 
