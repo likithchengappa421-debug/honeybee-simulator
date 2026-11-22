@@ -201,6 +201,7 @@ document.addEventListener('gesturestart',function(e){e.preventDefault();},{passi
 // Synthesized Web Audio SFX (no external URLs) + iOS first-touch unlock
 var audioCtx=null,soundOn=true;
 var openingMusic=document.getElementById('openingMusic'),openingMusicFade=null,openingMusicLevel=0;
+var openingMusicPeak=0.62*0.6,openingMusicDialogueLevel=openingMusicPeak*0.25*0.5;
 openingMusic.volume=0;
 function initAudio(){if(!audioCtx){var AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
 window.addEventListener('touchstart',function unlock(){initAudio();window.removeEventListener('touchstart',unlock);},{passive:true});
@@ -216,7 +217,7 @@ function startOpeningMusic(){
     console.warn('Opening music playback failed:',error);
     if(location.protocol==='file:')showBanner('Serve the game over HTTP to play the prologue music.');
   });
-  fadeOpeningMusicTo(0.62,0.65,false);
+  fadeOpeningMusicTo(openingMusicPeak,0.65,false);
 }
 function updateOpeningMusic(dt){
   if(!openingMusicFade)return;
@@ -1008,7 +1009,7 @@ function startBenchTutorial(){
 function showCutBeat(){
   var b=cutBeats[cutBeat];
   cutWho.textContent=b.who;cutTxt.textContent=b.txt;cutHint.textContent='Tap to continue ▸';cutT=0;
-  if(cutBeat===0)fadeOpeningMusicTo(0.16,1.2,false);
+  if(cutBeat===0)fadeOpeningMusicTo(openingMusicDialogueLevel,1.2,false);
   if(b.sfx)playSfx(b.sfx);
 }
 function startCutscene(){
