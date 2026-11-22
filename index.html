@@ -26,18 +26,18 @@
     .x-hud{gap:4px}
     .x-pill{padding:3px 8px 3px 4px;font-size:13px;border-width:2px;box-shadow:0 3px 0 #d99a1e,0 4px 10px rgba(40,25,5,.25)}
     .x-ico{width:20px;height:20px;font-size:11px}
+    .x-prompt>span{font-size:13px;padding:5px 9px;min-height:40px}
+    .x-row{gap:6px;padding:8px}
+    .x-row .x-btn{font-size:11px;padding:7px 8px}
   }
   .x-ico.w{background:#c98a4e}.x-ico.s{background:#9aa4b0}.x-ico.h{background:#F6B93B}.x-ico.c{background:#ffd76a}.x-ico.b{background:#fff3c4}.x-ico.g{background:#92d96b}
   .x-bee{display:inline-block;width:.8em;height:.8em;vertical-align:-.02em;margin-right:.1em}
   .x-pop{position:absolute;pointer-events:none;font-weight:700;font-size:19px;color:#fff;text-shadow:0 2px 0 #7a4a17,0 0 6px rgba(0,0,0,.35);transform:translate(-50%,-50%);z-index:8;white-space:nowrap}
   .x-pop.x-bad{font-size:15px;color:#ffe9e5;text-shadow:0 2px 0 #b3261e,0 0 6px rgba(0,0,0,.35)}
   .x-prompt{position:absolute;left:0;top:0;z-index:6;display:none;transform:translate(-50%,-100%);cursor:pointer;touch-action:manipulation;padding:8px}
-  .x-prompt>span{display:flex;align-items:center;gap:6px;background:#F3E9D2;border:3px solid #F6B93B;border-radius:999px;padding:7px 15px 7px 7px;min-height:44px;font-weight:700;font-size:15px;color:#5a3500;white-space:nowrap;box-shadow:0 4px 0 #d99a1e,0 6px 14px rgba(40,25,5,.28);animation:x-bob 1.4s ease-in-out infinite}
-  .x-prompt .x-ico{width:24px;height:24px;font-size:13px}
+  .x-prompt>span{display:flex;align-items:center;justify-content:center;text-align:center;background:#F3E9D2;border:3px solid #F6B93B;border-radius:999px;padding:7px 13px;min-height:44px;max-width:min(calc(100vw - 32px),280px);font-weight:700;font-size:15px;line-height:1.15;color:#5a3500;white-space:normal;box-shadow:0 4px 0 #d99a1e,0 6px 14px rgba(40,25,5,.28);animation:x-bob 1.4s ease-in-out infinite}
+  .x-prompt.x-short>span{color:#d6332a}
   .x-prompt:active>span,.x-prompt.pressed>span{animation-play-state:paused;transform:translateY(3px) scale(.97);box-shadow:0 1px 0 #d99a1e}
-  .x-cost{display:flex;align-items:center;gap:2px;font-size:13px}.x-cost[hidden]{display:none}
-  .x-prompt .x-cost .x-ico{width:19px;height:19px;font-size:10px}
-  .x-cost.x-short b{color:#d6332a}
   .x-goal{position:absolute;top:calc(56px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:3;pointer-events:none;background:#fff8e6;border:2px solid #F6B93B;border-radius:999px;padding:4px 14px;font-weight:600;font-size:13px;color:#5a3500;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;box-shadow:0 3px 0 #d99a1e,0 5px 12px rgba(40,25,5,.22)}
   .x-prog{position:absolute;left:0;top:0;z-index:7;display:none;width:54px;height:54px;pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 0 #d99a1e) drop-shadow(0 5px 8px rgba(40,25,5,.25))}
   .x-prog svg{position:absolute;inset:0;width:100%;height:100%}
@@ -55,6 +55,7 @@
   .x-card h2{margin:0 0 12px;font-size:22px;display:flex;align-items:center;justify-content:space-between}
   .x-close{width:38px;height:38px;border-radius:50%;border:2px solid #d99a1e;background:#F3E9D2;color:#5a3500;font:inherit;font-weight:700;cursor:pointer;touch-action:manipulation}
   .x-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#F3E9D2;border:2px solid #e7c97a;border-radius:16px;padding:10px 12px;margin-bottom:9px}
+  .x-row .x-btn{font-size:13px;padding:8px 10px}
   .x-row-info{display:flex;flex-direction:column;gap:2px}
   .x-row-title{font-weight:700;font-size:15px}
   .x-row-sub{font-size:12px;color:#7a4e16;font-weight:600}
@@ -94,8 +95,8 @@
   <div class="x-goal" id="goal">Repair the Broken Workbench</div>
   <div class="x-banner" id="banner" role="status"></div>
   <div class="x-prog" id="prog"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20.5" fill="#F3E9D2" stroke="#d99a1e" stroke-width="1.5"/><circle cx="22" cy="22" r="16" fill="none" stroke="#ead9b0" stroke-width="5"/><circle id="progArc" cx="22" cy="22" r="16" fill="none" stroke="#F6B93B" stroke-width="5" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="100.5" transform="rotate(-90 22 22)"/></svg><span>🔨</span></div>
-  <div class="x-prompt" id="prompt" role="button" aria-label="Action"><span><span class="x-ico w" id="promptIco">🪵</span><span id="promptTxt">Action</span><span class="x-cost" id="promptCost" hidden><span class="x-ico w" id="promptCostIco">🪵</span><b id="promptCostVal">10</b></span></span></div>
-  <div class="x-prompt" id="prompt2" role="button" aria-label="Secondary Action"><span><span class="x-ico w" id="prompt2Ico">🪜</span><span id="prompt2Txt">Action</span><span class="x-cost" id="prompt2Cost" hidden><span class="x-ico c" id="prompt2CostIco">🪙</span><b id="prompt2CostVal">10</b></span></span></div>
+  <div class="x-prompt" id="prompt" role="button" aria-label="Action"><span id="promptTxt">Action</span></div>
+  <div class="x-prompt" id="prompt2" role="button" aria-label="Secondary Action"><span id="prompt2Txt">Action</span></div>
   <div class="x-pill x-smoke" id="smokePill" role="status"><span class="x-ico b">💨</span><span id="smokeT">Smoke 20s</span></div>
   <div class="x-prompt" id="downBtn" role="button" aria-label="Climb down"><span><span class="x-ico w">🪜</span><span>Climb Down</span></span></div>
   <div id="camTools">
@@ -108,19 +109,19 @@
       <h2><span id="craftTitle">🔨 Workbench</span><button class="x-close" id="craftClose" type="button" aria-label="Close">✕</button></h2>
       <div class="x-row">
         <div class="x-row-info"><span class="x-row-title">📦 Wooden Bee Box</span><span class="x-row-sub">10 🪵 Wood · House a wild colony</span></div>
-        <button class="x-btn" id="cBoxBtn" type="button">Craft</button>
+        <button class="x-btn" id="cBoxBtn" type="button">Craft (-10 🪵)</button>
       </div>
       <div class="x-row">
         <div class="x-row-info"><span class="x-row-title">🪵 Hive Stand</span><span class="x-row-sub">6 🔩 Scrap · Protects hives & starts honey</span></div>
-        <button class="x-btn" id="cStandBtn" type="button">Craft</button>
+        <button class="x-btn" id="cStandBtn" type="button">Craft (-6 🔩)</button>
       </div>
       <div class="x-row">
         <div class="x-row-info"><span class="x-row-title">🪜 A-Frame Ladder</span><span class="x-row-sub">8 🪵 Wood, 4 🔩 Scrap · Reach the tree hive</span></div>
-        <button class="x-btn" id="cLadBtn" type="button">Craft</button>
+        <button class="x-btn" id="cLadBtn" type="button">Craft (-8 🪵, -4 🔩)</button>
       </div>
       <div class="x-row">
         <div class="x-row-info"><span class="x-row-title">📚 Vertical Box Rack</span><span class="x-row-sub">10 🪵 Wood, 4 🔩 Scrap · Store 12 bee boxes</span></div>
-        <button class="x-btn" id="cRackBtn" type="button">Craft</button>
+        <button class="x-btn" id="cRackBtn" type="button">Craft (-10 🪵, -4 🔩)</button>
       </div>
     </div>
   </div>
@@ -466,7 +467,8 @@ shadowBlob.rotation.x=-Math.PI/2;shadowBlob.position.y=0.07;player.add(shadowBlo
 outline(player,0.035);
 
 // Wife NPC (stands outside the cottage door)
-var wife=new THREE.Group();scene.add(wife);wife.position.set(1.15,0,9.85);wife.rotation.y=Math.PI;
+var wifeHomePosition=new THREE.Vector3(1.15,0,9.85);
+var wife=new THREE.Group();scene.add(wife);wife.position.copy(wifeHomePosition);wife.rotation.y=Math.PI;
 var wBody=new THREE.Group();wife.add(wBody);
 mesh(new THREE.ConeGeometry(0.52,1.15,18),0xd9735b,0,0.62,0,wBody);
 mesh(new THREE.CylinderGeometry(0.3,0.36,0.52,18),0xf5ebd6,0,1.18,0,wBody);
@@ -663,7 +665,7 @@ function defaultGameState(){
   return{
     version:1,
     wood:0,scrap:0,honey:0,coins:0,box:0,
-    benchFixed:false,hasLadder:false,hasRack:false,
+    benchFixed:false,benchTutorialDone:false,hasLadder:false,hasRack:false,
     cutsceneDone:false,firstHarvestDone:false,
     player:{x:0,z:6.4,ry:Math.PI},
     carryType:null, // null | 'ladder' | 'stand' | 'queen' | 'hive'
@@ -697,8 +699,8 @@ var chipG=new THREE.BoxGeometry(0.09,0.04,0.07),puffG=new THREE.SphereGeometry(1
 var woodEl=document.getElementById('wood'),scrapEl=document.getElementById('scrap'),honeyEl=document.getElementById('honey'),coinsEl=document.getElementById('coins'),boxesEl=document.getElementById('boxes');
 var goalEl=document.getElementById('goal'),bannerEl=document.getElementById('banner');
 var progEl=document.getElementById('prog'),progArc=document.getElementById('progArc');
-var promptEl=document.getElementById('prompt'),promptIco=document.getElementById('promptIco'),promptTxt=document.getElementById('promptTxt'),promptCost=document.getElementById('promptCost'),promptCostIco=document.getElementById('promptCostIco'),promptCostVal=document.getElementById('promptCostVal');
-var prompt2El=document.getElementById('prompt2'),prompt2Ico=document.getElementById('prompt2Ico'),prompt2Txt=document.getElementById('prompt2Txt'),prompt2Cost=document.getElementById('prompt2Cost'),prompt2CostIco=document.getElementById('prompt2CostIco'),prompt2CostVal=document.getElementById('prompt2CostVal');
+var promptEl=document.getElementById('prompt'),promptTxt=document.getElementById('promptTxt');
+var prompt2El=document.getElementById('prompt2'),prompt2Txt=document.getElementById('prompt2Txt');
 var smokePill=document.getElementById('smokePill'),smokeTEl=document.getElementById('smokeT'),downBtn=document.getElementById('downBtn');
 var craftModal=document.getElementById('craftModal'),menuModal=document.getElementById('menuModal'),saveStatus=document.getElementById('saveStatus');
 var cutEl=document.getElementById('cutscene'),cutWho=document.getElementById('cutWho'),cutTxt=document.getElementById('cutTxt'),cutHint=document.getElementById('cutHint');
@@ -888,27 +890,64 @@ window.addEventListener('pagehide',saveGame);
 // ================= OPENING CUTSCENE & REACTIVE WIFE DIALOGUE =================
 var playing=false,cutsceneActive=false,wifeChatActive=false,cutBeat=0,cutT=0,cutZoomIn=0,cutWalkOut=0;
 var cutBeats=[
-  {who:'Wife',txt:"Honey, look around... the barn's nearly bare. If we don't come up with something soon, it's going to be a rough winter.",dur:4.6},
-  {who:'Husband',txt:"I know, love. Trust me, I've been racking my brain all week trying to think of a way out.",dur:4.2},
-  {who:'Husband',txt:"Hold on... do you hear that? Look up by the big oak!",dur:3.4,sfx:'buzz'},
-  {who:'Husband',txt:"A whole wild honeybee colony, right on our own land!",dur:3.8},
-  {who:'Husband',txt:"Okay, hear me out—crazy idea. What if we start a honey farm? Right here in the yard.",dur:4.6},
-  {who:'Wife',txt:"A honey farm? With what, darling? We don't even have a single box to put them in.",dur:4.4},
-  {who:'Husband',txt:"I'll build them! All I need is a solid place to work.",dur:3.6},
-  {who:'Husband',txt:"There's plenty of loose wood and scrap out here. If I patch up that old workbench, I can build boxes, a ladder, stands—the whole setup.",dur:5.4},
-  {who:'Wife',txt:"Alright, beekeeper. Fix that bench first, and I'll believe it!",dur:3.8}
+  {who:'Wife',txt:"Honey, we're running out of time and supplies. If we don't figure something out soon, we won't make it through the winter."},
+  {who:'Husband',txt:"I know, love. Trust me, I've been racking my brain all week trying to think of a way out."},
+  {who:'Husband',txt:"Hold on... do you hear that? Look up by the big oak!",sfx:'buzz'},
+  {who:'Husband',txt:"A whole wild honeybee colony, right on our own land!"},
+  {who:'Husband',txt:"Okay, hear me out! What if we start a honey farm? Right here in the yard."},
+  {who:'Wife',txt:"A honey farm? With what, darling? We don't even have a single box to put them in."},
+  {who:'Husband',txt:"I'll build them! All I need is a solid place to work."},
+  {who:'Husband',txt:"There's plenty of loose wood and scrap out here. If I patch up that old workbench, I can build boxes, a ladder, stands—the whole setup."},
+  {who:'Wife',txt:"Alright, beekeeper. Fix that bench first, and I'll believe it!"}
 ];
 function getWifeMilestoneLine(){
   if(!gameState.benchFixed){
     return "There's loose wood and scrap scattered around the yard—gather some to patch up that broken workbench.";
   }
+  if(!gameState.hasLadder){
+    return "The wild hive is high in the oak. Let's build an A-frame ladder at the workbench, then set it beside the tree.";
+  }
   if(!hasPopulatedHive()){
-    return "You actually fixed the workbench! Now build a bee box and a ladder so you can coax a queen from the oak tree.";
+    return "Now craft an empty bee box and place it near the tree. Once we reach the hive, we can guide the queen into it.";
   }
   if(gameState.coins<=0&&gameState.flowerLevel<=0){
     return "Look at those bees settling into your box! Once they've filled it with honey, take it to the market crate.";
   }
   return "Who would've guessed your 'crazy idea' would turn our empty yard into a real little honey farm?";
+}
+var wifeChatBeats=[],wifeChatBeat=0,benchTutorialChat=false,wifeWalk=null;
+function showWifeChatBeat(){
+  var b=wifeChatBeats[wifeChatBeat];
+  cutWho.textContent=b.who;cutTxt.textContent=b.txt;
+  cutHint.textContent=wifeChatBeat===wifeChatBeats.length-1?'Tap to close ✕':'Tap to continue ▸';
+}
+function startWifeChat(beats,isBenchTutorial){
+  if(cutsceneActive||wifeChatActive)return;
+  wifeChatActive=true;wifeChatBeats=beats;wifeChatBeat=0;benchTutorialChat=!!isBenchTutorial;
+  document.getElementById('cutSkip').style.display='none';
+  cutEl.style.display='flex';
+  clearNear();playSfx('pick');showWifeChatBeat();
+}
+function walkWifeTo(target,phase,beats,isBenchTutorial,waypoints){
+  wife.visible=true;
+  var from=wife.position.clone(),to=target.clone();
+  wifeWalk={
+    phase:phase,from:from,to:to,t:0,duration:Math.max(0.7,from.distanceTo(to)/2.5),
+    waypoints:waypoints?waypoints.slice():[],beats:beats||[],isBenchTutorial:!!isBenchTutorial
+  };
+}
+function startBenchTutorial(){
+  if(gameState.benchTutorialDone||wifeWalk||wifeChatActive)return;
+  var side=wife.position.clone().sub(player.position);side.y=0;
+  if(side.lengthSq()<0.01)side.set(1,0,0);else side.normalize();
+  var approach=player.position.clone().addScaledVector(side,1.45);approach.y=0;
+  walkWifeTo(approach,'approach',[
+    {who:'Wife',txt:"Look at that, you fixed the bench! Nice work, honey."},
+    {who:'Husband',txt:"Thanks. What should we build first?"},
+    {who:'Wife',txt:"The wild hive is way up in the oak. Let's make an A-frame ladder so we can reach it safely."},
+    {who:'Husband',txt:"I'll build one here, then carry it over and set it against the tree."},
+    {who:'Wife',txt:"We'll also need an empty bee box nearby. Then we can climb up, calm the bees, and bring the queen back down."}
+  ],true);
 }
 function showCutBeat(){
   var b=cutBeats[cutBeat];
@@ -917,6 +956,7 @@ function showCutBeat(){
 }
 function startCutscene(){
   wifeChatActive=false;cutsceneActive=true;cutBeat=0;cutT=0;
+  wifeWalk=null;wife.visible=true;
   player.position.set(-0.95,0,9.85);player.rotation.y=Math.PI*0.85;
   wife.position.set(1.05,0,9.85);wife.rotation.y=-Math.PI*0.85;
   document.getElementById('cutSkip').style.display='inline-block';
@@ -929,19 +969,22 @@ function startCutscene(){
 }
 function openWifeDialogue(){
   if(cutsceneActive||wifeChatActive)return;
-  wifeChatActive=true;
-  cutWho.textContent='Wife';
-  cutTxt.textContent=getWifeMilestoneLine();
-  cutHint.textContent='Tap to close ✕';
-  document.getElementById('cutSkip').style.display='none';
-  cutEl.style.display='flex';
-  clearNear();playSfx('pick');
+  startWifeChat([{who:'Wife',txt:getWifeMilestoneLine()}],false);
 }
 function closeWifeDialogue(){
   if(!wifeChatActive)return;
+  var sendWifeHome=benchTutorialChat;
+  if(sendWifeHome)gameState.benchTutorialDone=true;
+  benchTutorialChat=false;wifeChatBeats=[];
   wifeChatActive=false;
   cutEl.style.display='none';
-  goal();
+  goal();saveGame();
+  if(sendWifeHome)walkWifeTo(wifeHomePosition,'return',null,false,[new THREE.Vector3(0,0,10.35),new THREE.Vector3(0,0,11.25)]);
+}
+function advanceWifeChat(){
+  if(!wifeChatActive)return;
+  if(wifeChatBeat>=wifeChatBeats.length-1){closeWifeDialogue();return;}
+  wifeChatBeat++;showWifeChatBeat();
 }
 function endCutscene(){
   cutsceneActive=false;gameState.cutsceneDone=true;
@@ -954,10 +997,11 @@ function endCutscene(){
   updatePlaceholderVisibility();
   showBanner('Gather 6 Wood & 4 Scrap to repair the Workbench');
   goal();saveGame();
+  if(gameState.benchFixed&&!gameState.benchTutorialDone)startBenchTutorial();
 }
 document.getElementById('cutBox').addEventListener('click',function(e){
   e.stopPropagation();
-  if(wifeChatActive){closeWifeDialogue();return;}
+  if(wifeChatActive){advanceWifeChat();return;}
   if(!cutsceneActive)return;
   cutBeat++;if(cutBeat>=cutBeats.length)endCutscene();else showCutBeat();
 });
@@ -992,12 +1036,14 @@ function goal(){
 function updCraftButtons(){
   var cBox=document.getElementById('cBoxBtn'),cStand=document.getElementById('cStandBtn'),cLad=document.getElementById('cLadBtn'),cRack=document.getElementById('cRackBtn');
   var handsBusy=!!gameState.carryType||gameState.box>0;
+  cBox.textContent='Craft (-10 🪵)';
+  cStand.textContent='Craft (-6 🔩)';
   cBox.className='x-btn'+(gameState.wood>=10&&!handsBusy?'':' dis');
   cStand.className='x-btn'+(gameState.scrap>=6&&!handsBusy&&gameState.stands.length<10?'':' dis');
   if(gameState.hasLadder){cLad.textContent='Built ✓';cLad.className='x-btn done';}
-  else{cLad.textContent='Craft';cLad.className='x-btn'+(gameState.wood>=8&&gameState.scrap>=4?'':' dis');}
+  else{cLad.textContent='Craft (-8 🪵, -4 🔩)';cLad.className='x-btn'+(gameState.wood>=8&&gameState.scrap>=4?'':' dis');}
   if(gameState.hasRack){cRack.textContent='Built ✓';cRack.className='x-btn done';}
-  else{cRack.textContent='Craft';cRack.className='x-btn'+(gameState.wood>=10&&gameState.scrap>=4?'':' dis');}
+  else{cRack.textContent='Craft (-10 🪵, -4 🔩)';cRack.className='x-btn'+(gameState.wood>=10&&gameState.scrap>=4?'':' dis');}
 }
 function openCraft(){updCraftButtons();craftModal.style.display='flex';}
 function closeCraft(){craftModal.style.display='none';}
@@ -1097,13 +1143,12 @@ function bindPromptBtn(el,fn){
   el.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();flashBtn(el);fn();});
 }
 
-function setPromptUI(el,icoEl,txtEl,costEl,costIcoEl,costValEl,cfg){
-  icoEl.textContent=cfg.ico;icoEl.className='x-ico '+(cfg.cls||'w');
-  txtEl.textContent=cfg.txt;
-  if(cfg.cost){
-    costEl.hidden=false;costIcoEl.textContent=cfg.costIco;costIcoEl.className='x-ico '+(cfg.costCls||'w');
-    costValEl.textContent=cfg.cost;costEl.classList.toggle('x-short',!!cfg.short);
-  }else costEl.hidden=true;
+function setPromptUI(el,txtEl,cfg){
+  if(txtEl.textContent!==cfg.txt){
+    txtEl.textContent=cfg.txt;
+    el.setAttribute('aria-label',cfg.txt);
+  }
+  el.classList.toggle('x-short',!!cfg.short);
   el.style.display='block';
 }
 
@@ -1246,6 +1291,7 @@ document.getElementById('play').addEventListener('click',function(e){
   e.stopPropagation();initAudio();playing=true;
   document.getElementById('start').style.display='none';
   if(!gameState.cutsceneDone)startCutscene();
+  else if(gameState.benchFixed&&!gameState.benchTutorialDone)startBenchTutorial();
 });
 
 // Movement controls (WASD / Arrows + Virtual Joystick)
@@ -1255,7 +1301,7 @@ window.addEventListener('keydown',function(e){keys[e.code]=true;});
 window.addEventListener('keyup',function(e){keys[e.code]=false;});
 
 frame.addEventListener('pointerdown',function(e){
-  if(!playing||cutsceneActive||wifeChatActive)return;
+  if(!playing||cutsceneActive||wifeChatActive||(wifeWalk&&wifeWalk.phase==='approach'))return;
   if(e.target.closest&&e.target.closest('.x-prompt,#camTools,#start,.x-modal,#cutscene'))return;
   var r=frame.getBoundingClientRect();
   joy.on=true;joy.id=e.pointerId;joy.x=e.clientX-r.left;joy.y=e.clientY-r.top;joy.vx=0;joy.vy=0;
@@ -1347,7 +1393,30 @@ function animate(){
     var talkBob=Math.abs(Math.sin(t*7))*0.06;
     if(bObj.who==='Husband'){body.position.y=talkBob;wBody.position.y=0;armR.rotation.x=-0.5+Math.sin(t*6)*0.2;}
     else{wBody.position.y=talkBob;body.position.y=0;armR.rotation.x=0;wArmL.rotation.x=-0.4+Math.sin(t*5)*0.15;}
-    if(cutT>bObj.dur){cutBeat++;if(cutBeat>=cutBeats.length)endCutscene();else showCutBeat();}
+  }else if(wifeWalk){
+    var walk=wifeWalk;
+    walk.t=Math.min(walk.duration,walk.t+dt);
+    var walkK=walk.t/walk.duration,walkEase=walkK*walkK*(3-2*walkK);
+    wife.position.lerpVectors(walk.from,walk.to,walkEase);
+    wife.rotation.y=Math.atan2(walk.to.x-walk.from.x,walk.to.z-walk.from.z);
+    var wifeStride=Math.sin(t*12);
+    wBody.position.y=Math.abs(wifeStride)*0.1;
+    wArmL.rotation.x=-wifeStride*0.45;wArmR.rotation.x=wifeStride*0.45;
+    if(walk.phase==='approach'){
+      player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dt*7);
+    }
+    if(walkK>=1){
+      wife.position.copy(walk.to);
+      if(walk.waypoints.length){
+        walk.from.copy(walk.to);walk.to=walk.waypoints.shift();walk.t=0;
+        walk.duration=Math.max(0.7,walk.from.distanceTo(walk.to)/2.5);
+      }else if(walk.phase==='approach'){
+        var beats=walk.beats,isTutorial=walk.isBenchTutorial;wifeWalk=null;
+        startWifeChat(beats,isTutorial);
+      }else{
+        wifeWalk=null;wife.visible=false;wife.rotation.y=Math.PI;
+      }
+    }
   }else if(wifeChatActive){
     player.rotation.y=lerpA(player.rotation.y,Math.atan2(wife.position.x-player.position.x,wife.position.z-player.position.z),dt*7);
     wife.rotation.y=lerpA(wife.rotation.y,Math.atan2(player.position.x-wife.position.x,player.position.z-wife.position.z),dt*7);
@@ -1368,7 +1437,7 @@ function animate(){
 
   // Player Movement
   var vx=0,vz=0;
-  if(playing&&!cutsceneActive&&!wifeChatActive&&!climb&&!onTop&&!craft&&cutWalkOut<=0){
+  if(playing&&!cutsceneActive&&!wifeChatActive&&!(wifeWalk&&wifeWalk.phase==='approach')&&!climb&&!onTop&&!craft&&cutWalkOut<=0){
     if(keys.KeyW||keys.ArrowUp)vz-=1;if(keys.KeyS||keys.ArrowDown)vz+=1;
     if(keys.KeyA||keys.ArrowLeft)vx-=1;if(keys.KeyD||keys.ArrowRight)vx+=1;
     if(joy.on){vx+=joy.vx;vz+=joy.vy;}
@@ -1396,7 +1465,7 @@ function animate(){
     player.position.x=Math.max(-W+0.6,Math.min(W-0.6,player.position.x));
     player.position.z=Math.max(-H+0.6,Math.min(H-0.6,player.position.z));
     pushBox(player.position,0,12.5,3.1,2.35);      // Cottage
-    pushOut(player.position,wife.position.x,wife.position.z,0.85); // Wife NPC
+    if(wife.visible)pushOut(player.position,wife.position.x,wife.position.z,0.85); // Wife NPC
     pushBox(player.position,3.6,12.2,1.2,1.3);     // Log pile
     pushBox(player.position,BX,BZ,1.65,1.05);      // Workbench
     pushBox(player.position,-2.9,10.2,1.05,0.95);  // Market crate
@@ -1471,6 +1540,7 @@ function animate(){
         gameState.benchFixed=true;rebuildWorkbenchVisual();
         benchFixed.scale.setScalar(0.01);squash.push({g:benchFixed,t:0});
         showBanner('Workbench repaired! Tap it to craft.');popText('Workbench Fixed!',new THREE.Vector3(BX,2.3,BZ));
+        startBenchTutorial();
       }else if(doneKind==='box'){
         gameState.box++;rebuildCarryVisual();popText('+1 Bee Box!',new THREE.Vector3(BX,2.3,BZ));
       }else if(doneKind==='stand'){
@@ -1698,12 +1768,12 @@ function animate(){
 
   // Context Prompt Selection (Touch / Click only)
   near=null;near2=null;
-  if(playing&&!cutsceneActive&&!wifeChatActive&&!climb&&!craft&&!smokeA&&!harv&&!capA){
+  if(playing&&!cutsceneActive&&!wifeChatActive&&!(wifeWalk&&wifeWalk.phase==='approach')&&!climb&&!craft&&!smokeA&&!harv&&!capA){
     if(onTop){
-      if(smokedT<=0)near={kind:'smoke',pos:hp.clone().setY(hp.y+1.1),ico:'💨',cls:'b',txt:'Smoke Bees'};
+      if(smokedT<=0)near={kind:'smoke',pos:hp.clone().setY(hp.y+1.1),txt:'Smoke Bees'};
       else{
-        near={kind:'harvestWild',pos:hp.clone().setY(hp.y+1.1),ico:'🍯',cls:'h',txt:'Harvest Honey ('+hiveHoney+')'};
-        if(hasEmptyTreeBox()&&gameState.carryType!=='queen')near2={kind:'captureQueen',pos:hp.clone().setY(hp.y+0.3),ico:'👑',cls:'c',txt:'Capture Queen'};
+        near={kind:'harvestWild',pos:hp.clone().setY(hp.y+1.1),txt:hiveHoney>0?'Harvest Honey (+1 🍯)':'Harvest Honey (Refilling)'};
+        if(hasEmptyTreeBox()&&gameState.carryType!=='queen')near2={kind:'captureQueen',pos:hp.clone().setY(hp.y+0.3),txt:'Capture Queen'};
       }
       downBtn.style.display='block';
       var dp=projectToFrame(player.position.clone().add(new THREE.Vector3(0,-0.2,0)));
@@ -1712,14 +1782,14 @@ function animate(){
       downBtn.style.display='none';
       var px=player.position.x,pz=player.position.z;
       if(gameState.carryType==='ladder'){
-        near={kind:'placeLadder',pos:(litHive?hTarget.position:ghost.g.position).clone().setY(1.4),ico:'🪜',cls:'w',txt:litHive?'Set Ladder at Hive':'Drop Ladder'};
+        near={kind:'placeLadder',pos:(litHive?hTarget.position:ghost.g.position).clone().setY(1.4),txt:litHive?'Set Ladder at Hive':'Drop Ladder'};
       }else if(gameState.carryType==='stand'){
         var bestS=-1,bdS=2.4;
         standMarkers.forEach(function(sm,idx){
           if(gameState.stands.some(function(st){return st.slot===idx;}))return;
           var d=Math.hypot(px-sm.x,pz-sm.z);if(d<bdS){bdS=d;bestS=idx;}
         });
-        if(bestS>=0)near={kind:'placeStand',slot:bestS,pos:new THREE.Vector3(standCoords[bestS][0],1.2,standCoords[bestS][1]),ico:'🪵',cls:'w',txt:'Place Stand'};
+        if(bestS>=0)near={kind:'placeStand',slot:bestS,pos:new THREE.Vector3(standCoords[bestS][0],1.2,standCoords[bestS][1]),txt:'Place Stand'};
       }else if(gameState.carryType==='hive'){
         var bestM=-1,bdM=2.4;
         gameState.stands.forEach(function(st){
@@ -1727,55 +1797,59 @@ function animate(){
           var d=Math.hypot(px-standCoords[st.slot][0],pz-standCoords[st.slot][1]);
           if(d<bdM){bdM=d;bestM=st.slot;}
         });
-        if(bestM>=0)near={kind:'mountHive',slot:bestM,pos:new THREE.Vector3(standCoords[bestM][0],1.6,standCoords[bestM][1]),ico:'📦',cls:'g',txt:'Place Hive on Stand'};
+        if(bestM>=0)near={kind:'mountHive',slot:bestM,pos:new THREE.Vector3(standCoords[bestM][0],1.6,standCoords[bestM][1]),txt:'Place Hive on Stand'};
       }else if(gameState.carryType==='queen'){
         hiveActors.forEach(function(a){
           if(!a.data.populated&&Math.hypot(px-a.g.position.x,pz-a.g.position.z)<2.3){
-            near={kind:'placeQueen',actor:a,pos:a.g.position.clone().setY(1.6),ico:'👑',cls:'c',txt:'Place Queen in Hive'};
+            near={kind:'placeQueen',actor:a,pos:a.g.position.clone().setY(1.6),txt:'Place Queen in Hive'};
           }
         });
       }else{
         // Check Workbench
         if(Math.hypot(px-BX,pz-BZ)<2.7){
-          if(!gameState.benchFixed)near={kind:'repair',pos:new THREE.Vector3(BX,2.0,BZ),ico:'🔨',cls:'h',txt:'Repair Bench',cost:'6🪵 4🔩',costIco:'🛠️',costCls:'w',short:gameState.wood<6||gameState.scrap<4};
-          else near={kind:'bench',pos:new THREE.Vector3(BX,2.1,BZ),ico:'🔨',cls:'h',txt:'Open Workbench'};
+          if(!gameState.benchFixed)near={kind:'repair',pos:new THREE.Vector3(BX,2.0,BZ),txt:'Repair Bench (-6 🪵, -4 🔩)',short:gameState.wood<6||gameState.scrap<4};
+          else near={kind:'bench',pos:new THREE.Vector3(BX,2.1,BZ),txt:'Open Workbench'};
         }
         // Check Box Placement near Tree
         if(!near&&showTreeSpot&&firstFreeTree>=0&&Math.hypot(px-treeSpots[firstFreeTree][0],pz-treeSpots[firstFreeTree][1])<2.2){
-          near={kind:'placeBox',pos:new THREE.Vector3(treeSpots[firstFreeTree][0],1.4,treeSpots[firstFreeTree][1]),ico:'📦',cls:'b',txt:'Place Bee Box'};
+          near={kind:'placeBox',pos:new THREE.Vector3(treeSpots[firstFreeTree][0],1.4,treeSpots[firstFreeTree][1]),txt:'Place Bee Box (-1 📦)'};
         }
         // Check Vertical Box Rack
         if(!near&&gameState.hasRack&&Math.hypot(px-RX,pz-RZ)<2.6){
-          if(gameState.box>0&&gameState.rackCount<12)near={kind:'stackRack',pos:new THREE.Vector3(RX,2.2,RZ),ico:'📚',cls:'w',txt:'Stack Box ('+gameState.rackCount+'/12)'};
-          else if(gameState.box===0&&gameState.rackCount>0)near={kind:'takeRack',pos:new THREE.Vector3(RX,2.2,RZ),ico:'📦',cls:'b',txt:'Take Box ('+gameState.rackCount+')'};
+          if(gameState.box>0&&gameState.rackCount<12)near={kind:'stackRack',pos:new THREE.Vector3(RX,2.2,RZ),txt:'Stack Box (-1 📦)'};
+          else if(gameState.box===0&&gameState.rackCount>0)near={kind:'takeRack',pos:new THREE.Vector3(RX,2.2,RZ),txt:'Take Box (+1 📦)'};
         }
         // Check Ladder
         if(!near&&gameState.hasLadder&&Math.hypot(px-ladder.position.x,pz-ladder.position.z)<2.2){
           if(gameState.ladder.atHive){
-            near={kind:'climb',pos:ladder.position.clone().setY(2.2),ico:'🪜',cls:'w',txt:'Climb Ladder'};
-            near2={kind:'pickLadder',pos:ladder.position.clone().setY(1.3),ico:'🪜',cls:'b',txt:'Pick Up Ladder'};
-          }else near={kind:'pickLadder',pos:ladder.position.clone().setY(2.3),ico:'🪜',cls:'w',txt:'Pick Up Ladder'};
+            near={kind:'climb',pos:ladder.position.clone().setY(2.2),txt:'Climb Ladder'};
+            near2={kind:'pickLadder',pos:ladder.position.clone().setY(1.3),txt:'Pick Up Ladder (+1 🪜)'};
+          }else near={kind:'pickLadder',pos:ladder.position.clone().setY(2.3),txt:'Pick Up Ladder (+1 🪜)'};
         }
         // Check Market Crate
         if(!near&&Math.hypot(px-crate.position.x,pz-crate.position.z)<2.4){
-          near={kind:'sellHoney',pos:crate.position.clone().setY(1.7),ico:'🪙',cls:'c',txt:'Sell Honey ('+gameState.honey+')'};
-          if(gameState.flowerLevel<5)near2={kind:'plantFlowers',pos:crate.position.clone().setY(0.9),ico:'🌸',cls:'g',txt:'Plant Flowers',cost:'10',costIco:'🪙',costCls:'c',short:gameState.coins<10};
+          var honeyCoins=gameState.honey*5;
+          near={kind:'sellHoney',pos:crate.position.clone().setY(1.7),txt:honeyCoins?'Sell Honey (+'+honeyCoins+' 🪙)':'Sell Honey (No honey)'};
+          if(gameState.flowerLevel<5)near2={kind:'plantFlowers',pos:crate.position.clone().setY(0.9),txt:'Plant Flowers (-10 🪙)',short:gameState.coins<10};
         }
         // Check Wife NPC (free hands)
-        if(!near&&gameState.box===0&&Math.hypot(px-wife.position.x,pz-wife.position.z)<2.4){
-          near={kind:'talkWife',pos:wife.position.clone().setY(2.25),ico:'💬',cls:'b',txt:'Talk'};
+        if(!near&&!wifeWalk&&wife.visible&&gameState.box===0&&Math.hypot(px-wife.position.x,pz-wife.position.z)<2.4){
+          near={kind:'talkWife',pos:wife.position.clone().setY(2.25),txt:'Talk'};
         }
         // Check Apiary Hives
         if(!near){
           hiveActors.forEach(function(a){
             if(near||Math.hypot(px-a.g.position.x,pz-a.g.position.z)>2.1)return;
             var d=a.data;
-            if(d.ants)near={kind:'brushAnts',actor:a,pos:a.g.position.clone().setY(1.6),ico:'🧹',cls:'b',txt:'Brush Ants'};
-            else if(d.slotType==='stand'&&d.ready)near={kind:'harvestApiary',actor:a,pos:a.g.position.clone().setY(1.8),ico:'🍯',cls:'h',txt:'Harvest Honey'};
-            if(d.populated&&d.slotType==='tree')near2={kind:'pickHive',actor:a,pos:a.g.position.clone().setY(1.0),ico:'📦',cls:'g',txt:'Pick Up Hive'};
+            if(d.ants)near={kind:'brushAnts',actor:a,pos:a.g.position.clone().setY(1.6),txt:'Brush Ants'};
+            else if(d.slotType==='stand'&&d.ready){
+              var yieldH=d.tier===3?3:d.tier===2?2:1,waxBonus=d.tier>=2?d.tier*3:0;
+              near={kind:'harvestApiary',actor:a,pos:a.g.position.clone().setY(1.8),txt:'Harvest Honey (+'+yieldH+' 🍯'+(waxBonus?', +'+waxBonus+' 🪙':'')+')'};
+            }
+            if(d.populated&&d.slotType==='tree')near2={kind:'pickHive',actor:a,pos:a.g.position.clone().setY(1.0),txt:'Pick Up Hive'};
             else if(d.slotType==='stand'&&d.tier<3){
               var nw=d.tier===1?12:20,nc=d.tier===1?15:35;
-              near2={kind:'upgradeHive',actor:a,pos:a.g.position.clone().setY(1.0),ico:'⬆️',cls:'c',txt:'Upgrade T'+(d.tier+1),cost:nw+'🪵 '+nc+'🪙',costIco:'🪙',costCls:'c',short:gameState.wood<nw||gameState.coins<nc};
+              near2={kind:'upgradeHive',actor:a,pos:a.g.position.clone().setY(1.0),txt:'Upgrade Hive (-'+nw+' 🪵, -'+nc+' 🪙)',short:gameState.wood<nw||gameState.coins<nc};
             }
           });
         }
@@ -1784,7 +1858,7 @@ function animate(){
           gameState.stands.forEach(function(st){
             if(near||gameState.hives.some(function(h){return h.slotType==='stand'&&h.slotIdx===st.slot;}))return;
             if(Math.hypot(px-standCoords[st.slot][0],pz-standCoords[st.slot][1])<2.1){
-              near={kind:'moveStand',slot:st.slot,pos:new THREE.Vector3(standCoords[st.slot][0],1.4,standCoords[st.slot][1]),ico:'🪵',cls:'w',txt:'Move Stand'};
+              near={kind:'moveStand',slot:st.slot,pos:new THREE.Vector3(standCoords[st.slot][0],1.4,standCoords[st.slot][1]),txt:'Move Stand'};
             }
           });
         }
@@ -1793,21 +1867,25 @@ function animate(){
   }else downBtn.style.display='none';
 
   // Position Primary & Secondary Prompt Pills (clamped cleanly inside mobile safe areas)
-  var padX=Math.min(105,Math.max(76,frame.clientWidth*0.24));
   var padTop=105,padBot=86;
   if(near){
-    setPromptUI(promptEl,promptIco,promptTxt,promptCost,promptCostIco,promptCostVal,near);
+    setPromptUI(promptEl,promptTxt,near);
     var p1=projectToFrame(near.pos);
-    if(p1){promptEl.style.left=Math.max(padX,Math.min(frame.clientWidth-padX,p1.x))+'px';promptEl.style.top=Math.max(padTop,Math.min(frame.clientHeight-padBot,p1.y))+'px';}
+    if(p1){
+      var p1Half=promptEl.offsetWidth/2;
+      promptEl.style.left=Math.max(p1Half,Math.min(frame.clientWidth-p1Half,p1.x))+'px';
+      promptEl.style.top=Math.max(padTop,Math.min(frame.clientHeight-padBot,p1.y))+'px';
+    }
     ring.visible=!onTop;ring.position.set(near.pos.x,0,near.pos.z);
   }else{promptEl.style.display='none';ring.visible=false;}
 
   if(near2){
-    setPromptUI(prompt2El,prompt2Ico,prompt2Txt,prompt2Cost,prompt2CostIco,prompt2CostVal,near2);
+    setPromptUI(prompt2El,prompt2Txt,near2);
     var p2=projectToFrame(near2.pos);
     if(p2){
-      var y2=Math.max(padTop+44,Math.min(frame.clientHeight-32,p2.y+(near?48:0)));
-      prompt2El.style.left=Math.max(padX,Math.min(frame.clientWidth-padX,p2.x))+'px';prompt2El.style.top=y2+'px';
+      var y2=Math.max(padTop+44,Math.min(frame.clientHeight-32,p2.y+(near?promptEl.offsetHeight+4:0)));
+      var p2Half=prompt2El.offsetWidth/2;
+      prompt2El.style.left=Math.max(p2Half,Math.min(frame.clientWidth-p2Half,p2.x))+'px';prompt2El.style.top=y2+'px';
     }
   }else prompt2El.style.display='none';
 
@@ -1828,6 +1906,10 @@ function animate(){
       targetCam=new THREE.Vector3(0.05,4.1,2.6);
       targetLook=new THREE.Vector3(0.05,1.55,9.85);camSpeed=2.8;
     }
+  }else if(wifeChatActive||(wifeWalk&&wifeWalk.phase==='approach')){
+    var talkFocus=player.position.clone().lerp(wife.position,0.5).add(new THREE.Vector3(0,0.8,0));
+    targetCam=talkFocus.clone().add(new THREE.Vector3(0,5.4,11));
+    targetLook=talkFocus;camSpeed=4;
   }else if(smokeA||harv||capA){
     var pHead=player.position.clone().add(new THREE.Vector3(0,1.35,0));
     var hFocus=hp.clone().add(new THREE.Vector3(0,-0.2,0));
