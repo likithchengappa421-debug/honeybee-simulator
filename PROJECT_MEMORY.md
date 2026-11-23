@@ -7,6 +7,7 @@ This file records the game's major requests, implementation decisions, and valid
 ## Project shape
 
 - The game is implemented primarily in `index.html`, with inline Three.js scene/game logic and UI.
+- `assets/` contains standalone reference snapshots of procedural models, textures, sounds and UI artwork; the game still generates these at runtime.
 - Progress is saved in browser local storage under `honeybee_sim_save_v1`.
 - `README.md` is the short public overview; keep this file focused on development history and decisions.
 
@@ -100,6 +101,15 @@ This file records the game's major requests, implementation decisions, and valid
 19. **Balanced visual pass**
    - Rebalanced the meadow, foliage, flowers, terracotta roof, honey accents, lighting and outlines while retaining the low-poly/toon style and recognizable interaction highlights. After the first pass appeared too muted, restored some saturation and warmth.
    - Added lightweight character details, booted legs, an apron, cottage window panes and bee antennae. Existing movement, collision and interaction areas remain unchanged; small decorative details do not cast shadows.
+20. **First smoker tutorial**
+   - The opening and bench conversation are shorter. A larger goal bar, green action highlights and ground trails guide repair, crafting, box placement and the smoker materials; the trail ends near the destination.
+   - The first unsmoked wild-honey attempt startles the bees and automatically brings the player down without taking honey. The husband then collects coconut husk and a tin can and crafts a crude smoker at the workbench before returning to smoke the hive.
+   - After descending, player-advanced thoughts show his relief and gentle-smoke idea before the camera reveals the coconut tree; the tin can and workbench are revealed in later beats after each pickup.
+   - The coconut palm has a taller curved trunk, fronds and coconuts in its crown; its tutorial camera frames both the crown and the fallen husk.
+   - Workbench guidance clears stale disabled styling when switching tutorial recipes, so the smoker remains craftable after earlier guided steps.
+   - `smokerStage` persists the new tutorial. Saves predating it retain smoker access; an interrupted startled retreat resumes at the coconut step. The carried ladder is upright and kept clear of the oak, and its landing position avoids the trunk.
+21. **Settings controls**
+   - Sound and settings controls are larger and positioned on the left. Quit saves before returning to the title; if saving fails, the settings menu stays open and reports the error.
 
 ## Validation notes
 
@@ -129,6 +139,7 @@ This file records the game's major requests, implementation decisions, and valid
 - Checked keyboard focus, dialogue advancement, workbench crafting and modal Tab/Escape, plus simulated touch on the workbench prompt at 320px. Checked milestone grants, persisted claimed IDs, legacy-save migration and a second-hive mount without duplicate grants.
 - Checked seasonal/activation boundaries and repeated saves, as well as a simulated five-frame-per-second production run: approximately 5.1 productive seconds accumulated in 3.3 real seconds during Bloom. Real-phone frame-rate profiling remains outstanding.
 - Visually checked the revised scene and opening dialogue on desktop and a 360px emulated phone. The game loaded without JavaScript errors, the mobile layout had no horizontal overflow, and keyboard movement still collected wood. Real-phone performance was not measured.
+- Browser-tested isolated tutorial states through box placement, unsmoked harvest, automatic retreat, coconut and tin collection, smoker crafting, and the subsequent smoke/capture prompt. Checked the repair trail and highlight at 360px, no-box ladder placement and old-save smoker migration. These fixtures repositioned the player and are not an end-to-end playthrough.
 - Set Susmita's guaranteed first order to one jar. An isolated interactive customer-spawn test could not be completed because the browser fixture remained in a hidden tab.
 - Added counter actions for skipping understocked orders and quick-selling honey; the updated game page loaded, but the hidden browser frame prevented an interactive queue-flow test.
 - Reloaded and ran the game in the browser with no JavaScript runtime errors. The local-file prologue audio request can show an unrelated aborted-request event.
