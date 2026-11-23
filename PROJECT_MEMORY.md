@@ -78,7 +78,28 @@ This file records the game's major requests, implementation decisions, and valid
 12. **HUD and platform polish**
    - Position the goal below the actual resource HUD, including wrapped rows. Hive status tags use a clipped layer below the goal; the wild-hive tag is clamped into this area.
    - Allow browser pinch zoom on the game surface and ignore additional joystick pointers while a joystick gesture is active. The portrait desktop frame remains unchanged after review; a landscape option would need separate design and playtesting.
-   - Real-phone frame-rate profiling and a fresh-save end-to-end timing playtest remain outstanding; browser emulation is not a substitute for real devices.
+   - Real-phone frame-rate profiling remains outstanding; browser emulation is not a substitute for real devices. See the later validation notes for the fresh-save browser run.
+13. **Transactional crafting**
+   - Materials are checked when crafting starts but deducted only when the finished item is created and saved. Interrupting the animation leaves the saved materials intact, so the player can retry; resetting the save cancels the animation.
+14. **Climbing down during the hive tutorial**
+   - Climb Down remains available as an optional action while the smoke or Queen capture step is highlighted. It becomes the highlighted action when carrying the Queen, and the guide resumes at climbing or Queen placement after descending.
+15. **Customer wait limit**
+   - Every front-of-queue customer waits up to 60 seconds at the counter, regardless of stock, with a visible departure countdown. The next customer advances when they leave; no sale or reputation change is recorded.
+   - Waiting pauses while the tab is hidden, a menu is open, or dialogue/cinematics interrupt gameplay. Manual skip and quick-sell remain available, and the existing 18-second tip timer is separate.
+16. **Post-tutorial objectives**
+   - After the first hive is mounted, optional goals guide the first harvest, storage, shop construction, first customer sale or quick sale, and preparing another colony. Existing carrying, placement and hive-mounting guidance takes precedence when needed; activities remain unlocked.
+   - `firstMarketSaleDone` records customer sales and quick sales. Older saves with served orders inherit the milestone; an old quick sale cannot be inferred reliably and may prompt one more sale. Other objectives derive from existing hive, box, storage and shop state.
+   - Goals refresh when a hive becomes ready or the wild-tree recovery state changes, so the first harvest and next-colony guidance can advance without another player action.
+17. **Keyboard controls**
+   - Contextual prompts and Climb Down are native buttons; dialogue accepts Enter or Space. Focus enters dialogue and menus, remains within them while open, and returns to a game control on close. Escape closes the workbench and settings.
+   - Movement pauses in menus and held keys are cleared on opening/closing them or losing window focus. The start screen keeps the underlying toolbar out of the tab order.
+18. **Production timing and milestones**
+   - Live honey production uses the same elapsed-time seasonal integration as offline progress. It advances before saving and before production-affecting actions; a new harvest batch starts at its harvest timestamp. Animation and movement retain their capped delta.
+   - Optional milestones award 4 wood for the first managed harvest, 4 scrap for the first customer order, and 5 coins for two mounted populated hives. The settings menu shows progress, and `milestonesClaimed` persists the grants. Saves predating the field mark already-completed milestones without granting retroactive resources.
+   - Removed the unsupported breeding claim from the README; no breeding mechanic was added. The existing portrait layout and audio remain by choice, with landscape and ambience deferred.
+19. **Balanced visual pass**
+   - Rebalanced the meadow, foliage, flowers, terracotta roof, honey accents, lighting and outlines while retaining the low-poly/toon style and recognizable interaction highlights. After the first pass appeared too muted, restored some saturation and warmth.
+   - Added lightweight character details, booted legs, an apron, cottage window panes and bee antennae. Existing movement, collision and interaction areas remain unchanged; small decorative details do not cast shadows.
 
 ## Validation notes
 
@@ -100,6 +121,14 @@ This file records the game's major requests, implementation decisions, and valid
 - Browser-tested a fixture at the ladder-crafting tutorial step: the ladder remained focused, off-sequence Bee Box and Stand recipes were disabled, and the optional Box Rack recipe remained available.
 - Checked the HUD, goal and wild-hive label at 320×568 and 1440×900 with resource totals large enough to wrap the HUD. Keyboard movement worked at both sizes, and the joystick moved the player with emulated touch input. Chromium mobile emulation zoomed from 1× to 1.6× using a pinch gesture.
 - Carried state between isolated browser fixtures for a ready tier-1 harvest, storage, shop construction, and Susmita's first order: the single harvested jar unlocked the shop and fulfilled the order. The fixtures repositioned the player and do not measure fresh-save completion time.
+- Browser-tested manual saving and reloading during each of the five crafting animations: materials remained available. Retrying each craft produced its item and charged its normal cost, including the workbench repair reward. Resetting during a ladder craft left the fresh save unchanged.
+- Browser-tested climbing down during both smoke and capture steps at 390×844, returning to the hive, and descending with the Queen; the appropriate tutorial action remained highlighted throughout. Also checked smoke-step descent at 1440×900.
+- Browser-tested full 60-second waits with and without stock: Susmita left without a sale or reputation change, preserving available stock, and the next customer reached the counter with a fresh countdown. Also checked serving, quick-selling then skipping, and pausing the countdown in settings at 320×568; simulated visibility changes also paused the countdown.
+- Browser-tested the first-hive readiness transition and the harvest → storage → shop → Susmita sale objective chain using isolated fixtures. Checked quick-sale progression, legacy served-order saves, second-box crafting and reload, a box in the rack, and automatic guidance after wild-tree recovery.
+- A fresh-save desktop browser run, skipping the opening and including automation pauses, reached the first managed honey at roughly 5:03, shop unlock at 5:11, and a successful one-jar Susmita order at 5:36. The player gathered materials while the first hive filled. These are not human speed benchmarks; later recovery and mid-game pacing still need extended playtesting.
+- Checked keyboard focus, dialogue advancement, workbench crafting and modal Tab/Escape, plus simulated touch on the workbench prompt at 320px. Checked milestone grants, persisted claimed IDs, legacy-save migration and a second-hive mount without duplicate grants.
+- Checked seasonal/activation boundaries and repeated saves, as well as a simulated five-frame-per-second production run: approximately 5.1 productive seconds accumulated in 3.3 real seconds during Bloom. Real-phone frame-rate profiling remains outstanding.
+- Visually checked the revised scene and opening dialogue on desktop and a 360px emulated phone. The game loaded without JavaScript errors, the mobile layout had no horizontal overflow, and keyboard movement still collected wood. Real-phone performance was not measured.
 - Set Susmita's guaranteed first order to one jar. An isolated interactive customer-spawn test could not be completed because the browser fixture remained in a hidden tab.
 - Added counter actions for skipping understocked orders and quick-selling honey; the updated game page loaded, but the hidden browser frame prevented an interactive queue-flow test.
 - Reloaded and ran the game in the browser with no JavaScript runtime errors. The local-file prologue audio request can show an unrelated aborted-request event.

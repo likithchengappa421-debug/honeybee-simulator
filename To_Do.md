@@ -1,39 +1,27 @@
 # Game Review To-Do
 
-Review date: 2026-11-22
+Review date: 2026-11-23
 
-Items are sorted by impact on gameplay, progression, and player retention.
+Items are sorted from highest to lowest impact on gameplay, progression, and player retention.
 
-## Priority 0 — Fix first-session blockers
+1. [x] **Make crafting transactional.** **Impact: High** — prevents lost materials and progress. **Category: Fix.** Costs and outputs are saved together when crafting finishes; closing or reloading during the animation leaves the materials available to retry. Resetting the game cancels the pending craft. See crafting in [index.html](./index.html).
 
-- [x] **Shorten time to first honey.** The first populated Bee Box now skips the 30-minute settling cooldown so its 45-second tutorial harvest can start after mounting. Later colonies retain the 30-minute cooldown.
-- [x] **Reduce the early resource grind.** Repairing the workbench now gives a one-time 4 wood and 2 scrap toward the ladder, while preserving recipe costs and the need to gather more materials.
-- [x] **Make the first market order fulfillable.** Susmita's guaranteed first order is now 1 jar, so the first tier-1 harvest can fulfill it after the jar unlocks the shop.
-- [x] **Prevent an understocked customer from blocking the market.** Understocked orders can be skipped, quick-sell remains available at the counter, and a skipped customer leaves so the queue can advance.
+2. [x] **Allow climbing down during the hive tutorial.** **Impact: High** — prevents players feeling trapped at the hive. **Category: Fix.** Climb Down remains available during the smoke and Queen capture steps, while the current tutorial objective stays highlighted. See tutorial visuals in [index.html](./index.html).
 
-## Priority 1 — Improve progression and return motivation
+3. [x] **Automatically clear unserved customer orders.** **Impact: High** — prevents an unattended order from blocking the market queue. **Category: Fix.** Customers leave after 60 seconds at the counter, with a visible countdown; the next customer advances. Manual skip and quick-sell remain available. See the market in [index.html](./index.html).
 
-- [ ] **Add post-tutorial objectives.** Replace the vague “Expand your apiary” goal with a short optional chain: harvest honey, store it, build the stall, serve the first customer, plant flowers or upgrade a hive, and prepare another box.
-- [x] **Make the one-hour Queen recovery period productive.** The wild-tree recovery is waived until the first managed-hive harvest, including active onboarding saves. Later captures retain the full hour, with the goal pointing to useful apiary or market activities during recovery.
-- [x] **Explain the controls and collection rules.** The first-play screen now explains WASD/arrow keys or the on-screen joystick, tapping/clicking contextual prompts, and automatic wood/scrap collection by proximity. The hint is hidden on later plays.
-- [x] **Keep guidance, but allow some exploration.** The current tutorial goal and required build/capture actions remain highlighted and gated, while players can harvest, use storage and the market, tend/upgrade existing hives, climb down, and craft an optional Box Rack.
+4. [x] **Add post-tutorial objectives.** **Impact: High** — gives players a clear next purpose. **Category: Change.** Optional goals now guide the first harvest, storage, shop, first sale, and preparing a second colony without locking other activities. See goals in [index.html](./index.html).
 
-## Priority 2 — UI and platform polish
+5. [ ] **Playtest and balance early and mid-game pacing.** **Impact: High** — long waits or repetitive gathering can drive players away. **Category: Change.** A fresh-save desktop browser run (opening skipped, with automation pauses) reached the first managed honey at about 5:03, shop unlock at 5:11, and Susmita's successful one-jar order at 5:36. Materials were gathered while the first hive filled. These are rough observations, not a human speed benchmark; a longer mid-game and later Queen-recovery playtest remains.
 
-- [x] **Prevent floating labels from covering the HUD.** The goal is positioned below the actual resource HUD height, and hive tags are clipped below the goal; the wild-hive label is clamped into that area.
-- [x] **Review desktop layout.** The desktop portrait frame and arrow-key movement were checked at 1440×900. Retain the existing layout for now; a landscape option needs separate design and playtesting rather than changing the default.
-- [ ] **Review accessibility and mobile performance.** Pinch zoom is enabled and checked in mobile emulation. Frame-rate profiling on real phones is still needed before adding more scenery; the scene uses many individual shadow-casting meshes.
+6. [x] **Make interactions keyboard accessible.** **Impact: High** — enables desktop players to complete the game without a mouse. **Category: Fix.** Contextual prompts use native buttons, dialogue supports Enter/Space, and modal focus is managed. Touch remains supported. See interactions in [index.html](./index.html).
 
-## Preserve these strengths
+7. [x] **Refresh goals when timers change state.** **Impact: Medium** — avoids stale guidance when a hive becomes ready or the wild hive recovers. **Category: Fix.** Goals update when production reaches readiness or tree recovery expires, including visibility transitions. See hive timers and goals in [index.html](./index.html).
 
-- Keep the cohesive cozy, low-poly apiary art direction and the wife-led opening/tutorial story.
-- Keep tap-controlled dialogue, contextual action prompts, and focused progression guidance.
-- Keep proximity-based resource collection, the customer tip/reputation loop, quick-sale fallback, and flower/hive upgrades.
-- Keep offline progression and backward-compatible save data; cooldowns should not require leaving the game open.
+8. [x] **Add meaningful apiary milestones.** **Impact: Medium** — gives players reasons to return beyond increasing resource totals. **Category: New Feature.** Optional first-harvest, first-customer and two-hive milestones award one-time resources; progress is shown in settings and persists across saves.
 
-## Playtest checks
+9. [ ] **Profile mobile performance and timer accuracy.** **Impact: Medium** — poor frame rates can affect both responsiveness and live production timing. **Category: Change.** Live production now integrates elapsed time across seasons instead of using capped animation delta; a simulated five-frame-per-second browser check passed. Real-phone profiling remains outstanding.
 
-- [ ] From a fresh save, measure time to first useful honey, shop unlock, and first successful customer order.
-- [x] Confirm the first customer can be served with the stock available at shop unlock. Browser fixtures carried one tier-1 harvest through storage, shop construction, and Susmita's order.
-- [ ] Check that no long stretch leaves the player without a useful action.
-- [x] Test HUD/tag overlap and controls on a narrow phone screen and a desktop viewport. Checked 320×568 and 1440×900, including a wrapped resource HUD, keyboard movement, and an emulated touch joystick; real-device testing remains open above.
+10. [x] **Clarify or develop colony breeding.** **Impact: Medium** — gives expansion a stronger beekeeping identity and aligns player expectations. **Category: New Feature.** Removed the unsupported breeding claim from [README.md](./README.md); a breeding mechanic remains a future design option.
+
+11. [x] **Consider ambient audio and desktop landscape layout.** **Impact: Low** — can improve atmosphere and desktop comfort once higher-impact issues are addressed. **Category: Change.** After review, retain the current portrait frame and audio rather than adding untested alternatives; landscape and ambience remain future options.
