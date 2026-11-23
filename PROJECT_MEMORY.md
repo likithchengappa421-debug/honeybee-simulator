@@ -22,15 +22,14 @@ This file records the game's major requests, implementation decisions, and valid
    - Prologue music is `assets/Music/Prologue_bee_entry.mp3`; its intro and dialogue/background levels were tuned in earlier work.
 
 2. **Roadside villager market**
-   - Added the visitor gate/path, striped-awning stall, walk-up customers, a queue of up to two, order bubbles, tips, reputation, and order history.
+   - Added the visitor gate/path, striped-awning stall, walk-up customers, tips, reputation, and order history. The stall sits in the left entrance corner, parallel to the fence.
    - The first customer in a fresh game is Susmita.
-   - Susmita's guaranteed first order is one jar, making it fulfillable from the first tier-1 harvest after honey storage unlocks the shop. Later orders retain their existing random 1–3 jar quantities.
-   - Understocked orders can be skipped at the counter; the customer leaves without affecting served-order counts and the queue advances. Quick-sell remains available as the secondary counter action.
-   - Quick-sale and flower-planting remain available when there is no customer to serve.
+   - Three introductory customers, starting with Susmita, each request one jar. Customers wait at the gate until the player enters, then approach the counter one at a time; they no longer time out and later completed orders earn a tip. Introductory sales persist; existing shops can meet them too. Later orders retain their existing random 1–3 jar quantities.
+   - Entering the shop opens a face-to-face camera and tap-controlled customer dialogue. Later understocked orders can be skipped, and quick-sell remains available inside the shop. Flower planting remains available outside.
 
 3. **Honey storage and shop progression**
    - The cupboard stores harvested honey. The first deposit unlocks the debris-filled construction plot by the front-left fence.
-   - Building the shop is a separate action; the finished stall faces sideways.
+   - After the first deposit, the couple discusses the honey journey and plans a shop at the entrance. Building it costs 10 wood and 10 scrap. Existing built shops stay built without another charge.
    - Customer orders and quick sales count both carried and stored honey. Taking honey back out does not relock an already unlocked shop.
 
 4. **Returning a picked-up hive**
@@ -85,8 +84,7 @@ This file records the game's major requests, implementation decisions, and valid
 14. **Climbing down during the hive tutorial**
    - Climb Down remains available as an optional action while the smoke or Queen capture step is highlighted. It becomes the highlighted action when carrying the Queen, and the guide resumes at climbing or Queen placement after descending.
 15. **Customer wait limit**
-   - Every front-of-queue customer waits up to 60 seconds at the counter, regardless of stock, with a visible departure countdown. The next customer advances when they leave; no sale or reputation change is recorded.
-   - Waiting pauses while the tab is hidden, a menu is open, or dialogue/cinematics interrupt gameplay. Manual skip and quick-sell remain available, and the existing 18-second tip timer is separate.
+   - The previous 60-second departure and 18-second tip timers were removed when customers began waiting at the gate until the shop opens. Manual skip and quick-sell remain available for later customers.
 16. **Post-tutorial objectives**
    - After the first hive is mounted, optional goals guide the first harvest, storage, shop construction, first customer sale or quick sale, and preparing another colony. Existing carrying, placement and hive-mounting guidance takes precedence when needed; activities remain unlocked.
    - `firstMarketSaleDone` records customer sales and quick sales. Older saves with served orders inherit the milestone; an old quick sale cannot be inferred reliably and may prompt one more sale. Other objectives derive from existing hive, box, storage and shop state.
@@ -110,6 +108,9 @@ This file records the game's major requests, implementation decisions, and valid
    - `smokerStage` persists the new tutorial. Saves predating it retain smoker access; an interrupted startled retreat resumes at the coconut step. The carried ladder is upright and kept clear of the oak, and its landing position avoids the trunk.
 21. **Settings controls**
    - Sound and settings controls are larger and positioned on the left. Quit saves before returning to the title; if saving fails, the settings menu stays open and reports the error.
+22. **First hive storage guidance**
+   - After the first hive is mounted, the husband explains that harvested honey goes in the cupboard. The first hive harvest points back to storage even if the roadside shop was already unlocked with wild honey; the guidance remains optional.
+   - First-hive storage and introduction progress are saved separately. Older saves with a completed hive harvest retain their existing progression.
 
 ## Validation notes
 

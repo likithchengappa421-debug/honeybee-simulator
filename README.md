@@ -1,6 +1,6 @@
 Honeybee Simulator 🐝🍯
 
-Created by a real-life beekeeper from Coorg (Kodagu), Honeybee Simulator is a cozy beekeeping and farm management game where you build, care for, and expand your own apiary. Gather materials, craft bee boxes, tend to your colonies, protect them from pests, and harvest golden honey at your own pace. Store your first honey harvest in the cupboard to unlock the debris-filled plot beside the front-left fence, then build the sideways-facing roadside shop. Walk-up villagers can earn you tips, reputation, and higher future payouts.
+Created by a real-life beekeeper from Coorg (Kodagu), Honeybee Simulator is a cozy beekeeping and farm management game where you build, care for, and expand your own apiary. Gather materials, craft bee boxes, tend to your colonies, protect them from pests, and harvest golden honey at your own pace. After storing your first honey, the couple plans a shop at the entrance. Gather 10 wood and 10 scrap to build it, then enter the shop to meet customers face to face.
 
 For a local preview, run `python3 -m http.server 8000` from this folder and open `http://localhost:8000/`. Some browsers block the soundtrack when the game is opened directly as a `file://` URL.
 
@@ -10,9 +10,9 @@ Move with WASD or the arrow keys, or drag the on-screen joystick on a touch devi
 
 Use Quit in Settings to save and return to the title screen.
 
-Customers wait at the counter for 60 seconds of active play; their bubble shows the remaining time. You can skip an understocked order or quick-sell honey instead. The wait pauses during dialogue, menus, and while the game tab is hidden.
+Customers wait at the entrance gate until you enter the shop, then come to the counter one at a time. Susmita is first; the three introductory customers each order one honey. Leave and harvest more if needed; completed introductory sales are saved. Existing shops keep their progress and can meet these customers too. Later customers wait without a timer, and their orders earn tips and reputation. You can also skip later orders or quick-sell honey in the shop.
 
-After mounting your first hive, optional goals guide your first harvest, shop and sale, then suggest preparing another colony. You can still pursue other activities at your own pace.
+After mounting your first hive, the tutorial points out the honey cupboard. Optional goals guide your first harvest, storage, shop and sale, then suggest preparing another colony. You can still pursue other activities at your own pace.
 
 During the opening tutorial, green trails and highlights point toward the current objective. After placing the ladder and Bee Box, try the wild hive: the first unsmoked attempt leads to collecting coconut husk and a tin can, then crafting a crude smoker at the workbench. Existing saves keep their smoker access.
 
