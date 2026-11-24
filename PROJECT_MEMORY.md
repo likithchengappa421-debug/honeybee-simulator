@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-11-23
+Last updated: 2026-11-24
 
 This file records the game's major requests, implementation decisions, and validation notes so future work can continue without losing context.
 
@@ -111,6 +111,33 @@ This file records the game's major requests, implementation decisions, and valid
 22. **First hive storage guidance**
    - After the first hive is mounted, the husband explains that harvested honey goes in the cupboard. The first hive harvest points back to storage even if the roadside shop was already unlocked with wild honey; the guidance remains optional.
    - First-hive storage and introduction progress are saved separately. Older saves with a completed hive harvest retain their existing progression.
+23. **Fresh-run starter cache**
+   - Fresh games begin with 2 wood and 2 scrap, and the opening dialogue explains that the husband saved a little material. Existing saves retain their saved resource totals; recipe costs and tutorial order are unchanged.
+24. **Repeatable community honey contracts**
+   - After the three introductory shop customers, sales to regular customers count toward a repeatable contract: deliver five jars for 10 coins. Contract progress and completed count are saved; quick-selling does not count. Existing flower planting and hive tier upgrades remain the intended coin sinks.
+25. **Nectar timing clarity**
+   - The in-game season status shows the active nectar multiplier and time until the next phase. Hive tags show their effective multiplier, including flower and tier bonuses, alongside the estimated real-time harvest wait. Production values and cooldowns are unchanged.
+   - Browser-checked the Bloom rate and next-phase countdown at 320×568; the status fits between the goal and hive-tag area. The status stays hidden on the title screen and during the opening cutscene.
+26. **Smoker tutorial risk clarity**
+   - Before the scripted first unsmoked harvest, the goal, arrival banner, and action prompt warn that bees may swarm. The startled-bees story and existing progression remain unchanged.
+   - Browser-loaded an isolated smoker-tutorial fixture through the Climb Ladder prompt. The browser tab remained background-hidden, so the climb and warning prompt could not be interactively verified.
+   - `git diff --check` passed.
+27. **Three.js resource cleanup**
+   - Removed customer and hive actors, stand models, flying pickups, and transient particles now dispose their owned geometries and materials. Shared bee/effect geometries and cached toon/outline materials are excluded from disposal.
+   - Browser-loaded the game with no JavaScript page errors. A long market-session check was not possible because the browser test tab is background-hidden; `git diff --check` passed.
+28. **Customer live-region updates**
+   - The customer status now updates only when the text changes, avoiding repeated mutations and announcements from the animation loop.
+29. **Reset failure handling**
+   - If local storage rejects save removal, reset now logs the error, keeps the game and settings modal intact, resets the confirmation button, and reports that progress is unchanged.
+   - Browser-tested a simulated `SecurityError`: the modal remained open and the 26 wood/18 scrap save was preserved. Restoring storage access still allowed reset to complete.
+30. **External runtime fallback**
+   - Online CDN delivery remains intentional. If Three.js is unavailable, a screen-reader alert explains the connection/reload step; the optional Fredoka font keeps its system-font fallback. The README documents the internet requirement.
+   - Browser-blocked the Three.js CDN and confirmed the accessible alert replaces the unusable game UI; after unblocking, Three.js and the renderer loaded with no JavaScript page errors.
+   - `git diff --check` passed.
+31. **Cleaner title screen**
+   - Increased the title backdrop gradient opacity to 96% so HUD and objective details no longer compete with the title, while preserving a faint view of the game scene.
+   - Browser-checked the 320×568 layout and confirmed Play still transitions into the opening cutscene.
+   - `git diff --check` passed.
 
 ## Validation notes
 
@@ -144,6 +171,8 @@ This file records the game's major requests, implementation decisions, and valid
 - Set Susmita's guaranteed first order to one jar. An isolated interactive customer-spawn test could not be completed because the browser fixture remained in a hidden tab.
 - Added counter actions for skipping understocked orders and quick-selling honey; the updated game page loaded, but the hidden browser frame prevented an interactive queue-flow test.
 - Reloaded and ran the game in the browser with no JavaScript runtime errors. The local-file prologue audio request can show an unrelated aborted-request event.
+- Browser-tested a fresh HTTP-served game: it starts at 2 wood and 2 scrap and shows 2/6 wood, 2/4 scrap toward the repair goal. A returning-save fixture retained its saved 26 wood and 18 scrap; the test fixture was removed afterward.
+- Browser-tested a regular customer sale at 4/5 contract progress: it completed the contract, awarded 10 coins, incremented the saved completion count, and reset progress to zero. The test fixture was removed afterward.
 
 ## Continuation guidance
 

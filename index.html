@@ -43,12 +43,13 @@
   .x-prompt:active>span,.x-prompt.pressed>span{animation-play-state:paused;transform:translateY(3px) scale(.97);box-shadow:0 1px 0 #d99a1e}
   .x-goal{position:absolute;top:var(--goal-top,calc(56px + env(safe-area-inset-top,0px)));left:50%;transform:translateX(-50%);z-index:3;pointer-events:none;background:#fff8e6;border:3px solid #d5aa57;border-radius:18px;padding:7px 16px;font-weight:700;font-size:15px;line-height:1.2;color:#50320f;text-align:center;width:min(430px,calc(100% - 24px));box-shadow:0 4px 0 #ad8648,0 6px 15px rgba(40,25,5,.28)}
   .x-goal.tutorial-guide-active{z-index:10}
+  .x-season-info{position:absolute;top:var(--tags-top,96px);left:50%;transform:translateX(-50%);z-index:5;display:none;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;background:rgba(255,248,230,.95);border:2px solid #9dbb72;border-radius:999px;padding:3px 10px;font-size:11px;line-height:14px;font-weight:700;color:#405b2c;box-shadow:0 2px 6px rgba(40,25,5,.2)}
   .x-prog{position:absolute;left:0;top:0;z-index:7;display:none;width:54px;height:54px;pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 0 #d99a1e) drop-shadow(0 5px 8px rgba(40,25,5,.25))}
   .x-prog svg{position:absolute;inset:0;width:100%;height:100%}
   .x-prog span{position:absolute;inset:0;display:grid;place-items:center;font-size:20px}
   .x-banner{position:absolute;top:var(--tags-top,calc(92px + env(safe-area-inset-top,0px)));left:50%;transform:translateX(-50%);z-index:5;pointer-events:none;display:none;background:#F6B93B;border:3px solid #FFF6DF;border-radius:999px;padding:7px 16px;font-weight:700;font-size:14px;color:#5a3500;max-width:calc(100% - 24px);text-align:center;box-shadow:0 4px 0 #d99a1e,0 8px 16px rgba(40,25,5,.3)}
   .x-smoke{position:absolute;top:calc(var(--tags-top,calc(92px + env(safe-area-inset-top,0px))) + 44px);left:50%;transform:translateX(-50%);z-index:3;pointer-events:none;display:none}
-  #tagLayer{position:absolute;inset:var(--tags-top,96px) 0 0;z-index:4;pointer-events:none;overflow:hidden}
+  #tagLayer{position:absolute;inset:calc(var(--tags-top,96px) + 30px) 0 0;z-index:4;pointer-events:none;overflow:hidden}
   .x-tag{position:absolute;left:0;top:0;pointer-events:none;transform:translate(-50%,-100%);background:rgba(255,248,230,.94);border:2px solid #d99a1e;border-radius:999px;padding:2px 9px;font-weight:700;font-size:12px;line-height:15px;color:#5a3500;white-space:nowrap;box-shadow:0 2px 6px rgba(40,25,5,.2)}
   .x-tag.ready{background:#e8bc69;border-color:#FFF6DF}
   .x-tag.warn{background:#ffe5df;border-color:#d6332a;color:#9b1c15}
@@ -60,6 +61,7 @@
   .x-shop-exit{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px;pointer-events:auto}
   .x-shop-panel{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:12px;right:12px;max-width:560px;margin:auto;pointer-events:auto}
   .x-shop-notice{margin:0 0 10px;padding:9px 12px;background:#fff0c8;border:2px solid #dfae55;border-radius:12px;color:#704718;font-size:13px;font-weight:600;line-height:1.3;box-shadow:0 3px 8px rgba(25,15,5,.2)}
+  .x-contract-progress{margin:0 0 8px;padding:7px 10px;background:#e8f2d8;border:2px solid #9dbb72;border-radius:12px;color:#405b2c;font-size:12px;font-weight:700;line-height:1.25;text-align:center}
   .x-shop-dialogue{background:rgba(255,248,230,.97);border:3px solid #dfae55;border-radius:22px;padding:14px 16px;box-shadow:0 6px 0 #bf9349,0 12px 24px rgba(25,15,5,.3);color:#5a3500}
   .x-shop-dialogue p{margin:8px 0 12px;font-size:16px;line-height:1.35;font-weight:600}
   .x-shop-actions{display:flex;flex-wrap:wrap;gap:8px}
@@ -110,9 +112,9 @@
   @media (prefers-reduced-motion:reduce){.x-prompt>span{animation:none}}
   #joy{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;background:rgba(255,255,255,.25);border:4px solid rgba(255,255,255,.7);display:none;z-index:5;pointer-events:none}
   #knob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:#fff;box-shadow:0 4px 0 rgba(0,0,0,.2)}
-  #start{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);background:linear-gradient(180deg,rgba(191,230,255,.72),rgba(255,236,170,.78))}
+  #start{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);background:linear-gradient(180deg,rgba(191,230,255,.96),rgba(255,236,170,.96))}
   #start h1{margin:0;text-align:center;font-size:clamp(34px,8.5dvh,60px);line-height:1;color:#6b3a00;font-weight:700;text-shadow:0 3px 0 #fff,0 6px 0 #F6B93B,0 10px 18px rgba(0,0,0,.2);padding:0 20px}
-  .x-nogl{position:absolute;left:16px;right:16px;bottom:24px;z-index:6;background:#fff;color:#5a3a0a;border-radius:18px;padding:12px 16px;font-weight:600;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.18)}
+  .x-nogl{position:absolute;left:16px;right:16px;top:50%;transform:translateY(-50%);z-index:6;max-width:440px;margin:0 auto;background:#fff;color:#5a3a0a;border-radius:18px;padding:12px 16px;font-weight:600;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.18)}
   #start p{margin:-12px 0 0;color:#5a3a0a;font-weight:600;font-size:15px;text-align:center}
   .x-controls-hint{display:flex;flex-direction:column;gap:4px;width:min(420px,100%);padding:11px 15px;background:rgba(255,248,230,.93);border:2px solid #F6B93B;border-radius:16px;box-shadow:0 4px 0 #d99a1e;color:#5a3500;font-size:14px;line-height:1.25;text-align:center}
   .x-controls-hint strong{font-size:15px}
@@ -141,6 +143,7 @@
     <div class="x-pill" id="storedHoneyPill" aria-label="Stored honey"><span class="x-ico h">🫙</span><span id="storedHoney">0</span></div>
   </div>
   <div class="x-goal" id="goal">Repair the Broken Workbench</div>
+  <div class="x-season-info" id="seasonInfo" aria-live="off"></div>
   <div class="x-banner" id="banner" role="status"></div>
   <div class="x-prog" id="prog"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20.5" fill="#F3E9D2" stroke="#d99a1e" stroke-width="1.5"/><circle cx="22" cy="22" r="16" fill="none" stroke="#ead9b0" stroke-width="5"/><circle id="progArc" cx="22" cy="22" r="16" fill="none" stroke="#F6B93B" stroke-width="5" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="100.5" transform="rotate(-90 22 22)"/></svg><span>🔨</span></div>
   <button type="button" class="x-prompt" id="prompt" aria-label="Action"><span id="promptTxt">Action</span></button>
@@ -217,6 +220,7 @@
   <div id="shopView" role="dialog" aria-modal="true" aria-labelledby="shopCustomerName">
     <button class="x-btn x-shop-exit" id="shopExit" type="button">Leave Shop</button>
     <div class="x-shop-panel">
+      <div class="x-contract-progress" id="shopContractProgress" role="status"></div>
       <div class="x-shop-notice" id="shopStockNotice" role="status" hidden></div>
       <div class="x-shop-dialogue">
         <span class="x-dlg-who" id="shopCustomerName">Honey Shop</span>
@@ -250,18 +254,24 @@
 (function(){
 var frame=document.getElementById('frame');
 var isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches);
+function showStartupError(message){
+  var n=document.createElement('div');n.className='x-nogl';n.setAttribute('role','alert');n.textContent=message;frame.replaceChildren(n);
+}
 var renderer;
+if(!window.THREE){
+  showStartupError('The 3D engine could not load. Check your internet connection and reload.');
+  return;
+}
 try{
-  if(!window.THREE)throw 0;
   var probe=document.createElement('canvas'),gl=null;
   try{gl=probe.getContext('webgl2')||probe.getContext('webgl')||probe.getContext('experimental-webgl');}catch(e2){}
-  if(!gl)throw 0;
+  if(!gl)throw new Error('WebGL is unavailable.');
   var lose=gl.getExtension('WEBGL_lose_context');if(lose)lose.loseContext();
   renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance',failIfMajorPerformanceCaveat:false});
 }catch(err){
-  var n=document.createElement('div');n.className='x-nogl';
-  n.textContent='3D is not available in this browser. Try one with WebGL turned on.';
-  frame.appendChild(n);return;
+  console.error('Unable to initialize the 3D renderer:',err);
+  showStartupError('3D is not available in this browser. Try one with WebGL turned on.');
+  return;
 }
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,isMobile?1.5:2));
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -340,7 +350,8 @@ var sc=sun.shadow.camera;sc.left=-24;sc.right=24;sc.top=24;sc.bottom=-24;sc.far=
 scene.add(sun);scene.add(sun.target);
 
 // Toon material & outline helpers
-var mats={};
+// These cached resources are shared across objects and must outlive individual models.
+var mats={},sharedGeometries=new Set(),sharedMaterials=new Set();
 var grad=new THREE.DataTexture(new Uint8Array([102,102,102,255,184,184,184,255,255,255,255,255]),3,1,THREE.RGBAFormat);
 grad.minFilter=grad.magFilter=THREE.NearestFilter;grad.generateMipmaps=false;grad.needsUpdate=true;
 function T(o){o.gradientMap=grad;if(o.color!==undefined)o.color=L(o.color);return new THREE.MeshToonMaterial(o);}
@@ -416,11 +427,11 @@ function M(c){
       c===0xd9c08a?dirtTexture:null;
     var color=new THREE.Color(scenePalette[c]===undefined?c:scenePalette[c]),hsl={};
     color.getHSL(hsl);color.setHSL(hsl.h,hsl.s*0.98,hsl.l);
-    mats[c]=T({color:color,map:map});
+    mats[c]=T({color:color,map:map});sharedMaterials.add(mats[c]);
   }
   return mats[c];
 }
-var outM=new THREE.MeshBasicMaterial({color:L(0x594a3d),side:THREE.BackSide});
+var outM=new THREE.MeshBasicMaterial({color:L(0x594a3d),side:THREE.BackSide});sharedMaterials.add(outM);
 function outline(root,th){
   scene.updateMatrixWorld(true);var list=[];
   root.traverse(function(o){if(o.isMesh&&!o.userData.noOutline&&!o.material.transparent&&o.material!==outM)list.push(o);});
@@ -434,6 +445,18 @@ function outline(root,th){
 function mesh(g,c,x,y,z,parent){var m=new THREE.Mesh(g,M(c));m.position.set(x||0,y||0,z||0);m.castShadow=true;m.receiveShadow=true;(parent||scene).add(m);return m;}
 function smallDetail(g,c,x,y,z,parent){
   var m=mesh(g,c,x,y,z,parent);m.castShadow=false;m.userData.noOutline=true;return m;
+}
+function disposeObjectResources(root){
+  var geometries=new Set(),materials=new Set();
+  root.traverse(function(object){
+    if(object.geometry&&!sharedGeometries.has(object.geometry))geometries.add(object.geometry);
+    if(!object.material)return;
+    (Array.isArray(object.material)?object.material:[object.material]).forEach(function(material){
+      if(material&&!sharedMaterials.has(material))materials.add(material);
+    });
+  });
+  geometries.forEach(function(geometry){geometry.dispose();});
+  materials.forEach(function(material){material.dispose();});
 }
 function rbox(w,h,d,b){
   var s=new THREE.Shape(),x=w/2-b,z=d/2-b,r=Math.min(x,z)*0.35;
@@ -733,7 +756,9 @@ var hp=hive.getWorldPosition(new THREE.Vector3());
 // Bee builder (supports regular, pollen-carrying, and crowned Queen)
 var beeBodyG=new THREE.SphereGeometry(0.16,14,10),stripeG=new THREE.TorusGeometry(0.155,0.028,8,18),wingG=new THREE.CircleGeometry(0.13,14);
 var antennaG=new THREE.CylinderGeometry(0.008,0.008,0.11,5);
+sharedGeometries.add(beeBodyG);sharedGeometries.add(stripeG);sharedGeometries.add(wingG);sharedGeometries.add(antennaG);
 var wingM=T({color:0xeaf7ff,transparent:true,opacity:0.55,side:THREE.DoubleSide,depthWrite:false});
+sharedMaterials.add(wingM);
 function makeBee(isQueen){
   var g=new THREE.Group();
   var bd=mesh(beeBodyG,isQueen?0xffb830:0xF6B93B,0,0,0,g);bd.scale.set(1,1,isQueen?1.45:1.2);
@@ -1039,6 +1064,7 @@ guideTrail.visible=false;scene.add(guideTrail);
 
 // ================= UNIFIED GAME STATE & MOBILE LOCALSTORAGE =================
 var SAVE_KEY='honeybee_sim_save_v1';
+var COMMUNITY_CONTRACT_JARS=5,COMMUNITY_CONTRACT_REWARD=10;
 var TREE_HONEY_SECS=1800,BOX_HARVEST_SECS=900,FIRST_HARVEST_SECS=45;
 var TREE_QUEEN_COOLDOWN_MS=60*60*1000,BOX_ACTIVATION_COOLDOWN_MS=30*60*1000;
 var NECTAR_PHASES=[
@@ -1053,8 +1079,9 @@ var NECTAR_WORK_PER_CYCLE=NECTAR_PHASES.reduce(function(sum,phase){return sum+ph
 function defaultGameState(){
   return{
     version:1,
-    wood:0,scrap:0,honey:0,storedHoney:0,coins:0,box:0,rep:0,ordersServed:0,
+    wood:2,scrap:2,honey:0,storedHoney:0,coins:0,box:0,rep:0,ordersServed:0,
     shopUnlocked:false,shopBuilt:false,shopIntroDone:false,shopIntroCustomersServed:0,
+    communityContractProgress:0,communityContractsCompleted:0,
     benchFixed:false,benchTutorialDone:false,hasLadder:false,hasRack:false,
     cutsceneDone:false,firstHarvestDone:false,firstHiveHoneyStored:false,firstHiveStorageIntroDone:false,gatherMissionDone:false,
     controlsHintSeen:false,firstMarketSaleDone:false,milestonesClaimed:[],smokerStage:'approach',
@@ -1116,6 +1143,8 @@ function syncGameState(){
   gameState.shopBuilt=gameState.shopBuilt===true&&gameState.shopUnlocked;
   gameState.shopIntroDone=gameState.shopIntroDone===true;
   gameState.shopIntroCustomersServed=Math.min(3,Math.max(0,Math.floor(Number(gameState.shopIntroCustomersServed)||0)));
+  gameState.communityContractProgress=Math.min(COMMUNITY_CONTRACT_JARS-1,Math.max(0,Math.floor(Number(gameState.communityContractProgress)||0)));
+  gameState.communityContractsCompleted=Math.max(0,Math.floor(Number(gameState.communityContractsCompleted)||0));
   gameState.gatherMissionDone=gameState.gatherMissionDone===true;
   gameState.controlsHintSeen=gameState.controlsHintSeen===true;
   gameState.firstMarketSaleDone=gameState.firstMarketSaleDone===true||gameState.ordersServed>0;
@@ -1129,10 +1158,13 @@ function getNectarPhase(timestamp){
   var elapsed=Math.max(0,(timestamp-gameState.seasonStartedAt)/1000),cycleTime=elapsed%NECTAR_CYCLE_SECS;
   for(var i=0;i<NECTAR_PHASES.length;i++){
     var phase=NECTAR_PHASES[i];
-    if(cycleTime<phase.duration)return{id:phase.id,label:phase.label,rate:phase.rate,remaining:phase.duration-cycleTime};
+    if(cycleTime<phase.duration)return{
+      id:phase.id,label:phase.label,rate:phase.rate,remaining:phase.duration-cycleTime,
+      nextLabel:NECTAR_PHASES[(i+1)%NECTAR_PHASES.length].label
+    };
     cycleTime-=phase.duration;
   }
-  return{id:'bloom',label:'Bloom',rate:1.5,remaining:NECTAR_PHASES[0].duration};
+  return{id:'bloom',label:'Bloom',rate:1.5,remaining:NECTAR_PHASES[0].duration,nextLabel:NECTAR_PHASES[1].label};
 }
 function nectarWorkUntil(elapsed){
   if(elapsed<=0)return 0;
@@ -1197,6 +1229,7 @@ var standMeshes={}; // slot -> THREE.Group
 var hiveActors=[];  // [{data,g,bees:[],antG,tagEl}]
 var squash=[],chips=[],puffs=[],drips=[];
 var chipG=new THREE.BoxGeometry(0.09,0.04,0.07),puffG=new THREE.SphereGeometry(1,10,8),dripG=new THREE.SphereGeometry(0.06,8,6);
+sharedGeometries.add(chipG);sharedGeometries.add(puffG);sharedGeometries.add(dripG);
 
 // DOM references
 var woodEl=document.getElementById('wood'),scrapEl=document.getElementById('scrap'),honeyEl=document.getElementById('honey'),coinsEl=document.getElementById('coins'),boxesEl=document.getElementById('boxes'),repEl=document.getElementById('rep'),repPill=document.getElementById('repPill'),storedHoneyEl=document.getElementById('storedHoney'),storedHoneyPill=document.getElementById('storedHoneyPill');
@@ -1204,6 +1237,7 @@ var tagLayer=document.getElementById('tagLayer');
 var wildHiveTag=document.createElement('div');wildHiveTag.className='x-tag';wildHiveTag.style.display='none';tagLayer.appendChild(wildHiveTag);
 var customerLayer=document.getElementById('customerLayer');
 var goalEl=document.getElementById('goal'),bannerEl=document.getElementById('banner');
+var seasonInfoEl=document.getElementById('seasonInfo');
 var progEl=document.getElementById('prog'),progArc=document.getElementById('progArc');
 var promptEl=document.getElementById('prompt'),promptTxt=document.getElementById('promptTxt');
 var prompt2El=document.getElementById('prompt2'),prompt2Txt=document.getElementById('prompt2Txt');
@@ -1288,6 +1322,15 @@ function customerPricePerJar(){
 
 function customerSpawnDelay(){
   return Math.max(7,16-Math.min(gameState.rep,9));
+}
+
+function progressCommunityContract(jars){
+  if(gameState.shopIntroCustomersServed<3)return 0;
+  gameState.communityContractProgress+=jars;
+  if(gameState.communityContractProgress<COMMUNITY_CONTRACT_JARS)return 0;
+  gameState.communityContractProgress-=COMMUNITY_CONTRACT_JARS;
+  gameState.communityContractsCompleted++;
+  return COMMUNITY_CONTRACT_REWARD;
 }
 
 function makeVillager(style){
@@ -1422,15 +1465,18 @@ function serveMarketCustomer(customer){
   var earnedTip=customer.tipEligible;
   var tipCoins=earnedTip?Math.round(customer.baseCoins*0.2):0;
   var earned=customer.baseCoins+tipCoins;
-  consumeHoneyStock(customer.order);gameState.coins+=earned;gameState.ordersServed++;
+  var contractReward=customer.intro?0:progressCommunityContract(customer.order);
+  consumeHoneyStock(customer.order);gameState.coins+=earned+contractReward;gameState.ordersServed++;
   gameState.firstMarketSaleDone=true;
   if(earnedTip)gameState.rep++;
   if(customer.intro)gameState.shopIntroCustomersServed++;
   customerSequence=Math.max(customerSequence,gameState.ordersServed);
   sendCustomerAway(customer);
   playSfx('coin');updHud();
-  popText('+'+earned+' 🪙'+(earnedTip?' · +1 ⭐':''),crate.position.clone().setY(2.4));
-  showBanner(earnedTip?'Order served! +20% tip and +1 reputation':'Order served · +'+earned+' coins');
+  popText('+'+earned+' 🪙'+(earnedTip?' · +1 ⭐':'')+(contractReward?' · Contract +'+contractReward+' 🪙':''),crate.position.clone().setY(2.4));
+  showBanner(contractReward
+    ?'Community contract complete! +'+contractReward+' coins'
+    :earnedTip?'Order served! +20% tip and +1 reputation':'Order served · +'+earned+' coins');
   awardMilestones();
   goal();saveGame();
 }
@@ -1464,7 +1510,7 @@ function updateCustomers(dt,t){
     var c=customers[ci];
     if(c.state==='leaving'){
       if(c.pathIndex>=c.path.length){
-        scene.remove(c.actor.g);c.ui.bubble.remove();customers.splice(ci,1);continue;
+        scene.remove(c.actor.g);disposeObjectResources(c.actor.g);c.ui.bubble.remove();customers.splice(ci,1);continue;
       }
       if(moveCustomerTo(c,c.path[c.pathIndex],dt))c.pathIndex++;
       continue;
@@ -1491,7 +1537,9 @@ function updateCustomers(dt,t){
 }
 
 function clearCustomers(){
-  customers.forEach(function(customer){scene.remove(customer.actor.g);customer.ui.bubble.remove();});
+  customers.forEach(function(customer){
+    scene.remove(customer.actor.g);disposeObjectResources(customer.actor.g);customer.ui.bubble.remove();
+  });
   customers=[];customerSequence=0;customerSpawnAt=0;
 }
 
@@ -1507,7 +1555,7 @@ function updateCustomerBubbles(){
     var halfWidth=ui.bubble.offsetWidth/2+8;
     ui.bubble.style.left=Math.max(halfWidth,Math.min(frame.clientWidth-halfWidth,p.x))+'px';
     ui.bubble.style.top=Math.max(82,Math.min(frame.clientHeight-20,p.y))+'px';
-    ui.order.textContent='Waiting at the gate';
+    if(ui.order.textContent!=='Waiting at the gate')ui.order.textContent='Waiting at the gate';
   });
 }
 
@@ -1600,8 +1648,8 @@ function updatePlaceholderVisibility(){
 }
 
 function clearHiveActor(actor){
-  scene.remove(actor.g);
-  actor.bees.forEach(function(b){scene.remove(b.b.g);});
+  scene.remove(actor.g);disposeObjectResources(actor.g);
+  actor.bees.forEach(function(b){scene.remove(b.b.g);disposeObjectResources(b.b.g);});
   if(actor.tagEl)actor.tagEl.remove();
 }
 
@@ -1640,7 +1688,9 @@ function rebuildAllWorldFromState(){
   rebuildShopVisual();
   rebuildStorageVisual();
   // Stands
-  Object.keys(standMeshes).forEach(function(k){scene.remove(standMeshes[k]);});
+  Object.keys(standMeshes).forEach(function(k){
+    scene.remove(standMeshes[k]);disposeObjectResources(standMeshes[k]);
+  });
   standMeshes={};
   gameState.stands.forEach(function(st){
     var m=makeStandMesh();m.position.set(standCoords[st.slot][0],0,standCoords[st.slot][1]);
@@ -1741,7 +1791,7 @@ var cutBeats=[
   {who:'Husband',txt:"Okay, hear me out! What if we start a honey farm? Right here in the yard."},
   {who:'Wife',txt:"A honey farm? With what, darling? We don't even have a single box to put them in."},
   {who:'Husband',txt:"I'll build them! All I need is a solid place to work."},
-  {who:'Husband',txt:"There's wood and scrap here. I can fix the old workbench first."},
+  {who:'Husband',txt:"I've set aside a little wood and scrap. I'll gather what's missing and fix the old workbench."},
   {who:'Wife',txt:"Alright, beekeeper. Fix that bench first, and I'll believe it!"}
 ];
 function getWifeMilestoneLine(){
@@ -1972,7 +2022,7 @@ function getProgressionStep(){
   if(gameState.smokerStage==='startled')return{id:'retreat',goal:'Give the bees space'};
   if(onTop){
     if(Date.now()<gameState.treeQueenReadyAt)return null;
-    if(gameState.smokerStage==='approach')return{id:'first-harvest-attempt',promptKind:'harvestWild',target:'primary',goal:'Try harvesting the wild honey'};
+    if(gameState.smokerStage==='approach')return{id:'first-harvest-attempt',promptKind:'harvestWild',target:'primary',goal:'First try without smoke — bees may swarm'};
     if(smokedT<=0)return{id:'smoke',promptKind:'smoke',target:'primary',goal:'Smoke the wild bees'};
     if(hasEmptyTreeBox())return{id:'capture-queen',promptKind:'captureQueen',target:'secondary',goal:'Capture the Queen'};
   }
@@ -2061,7 +2111,9 @@ function getPostTutorialGoal(){
       ?'Collect Wood '+Math.min(gameState.wood,10)+'/10 for a Bee Box'
       :'Craft another Bee Box at the workbench';
   }
-  return null;
+  var jarsRemaining=COMMUNITY_CONTRACT_JARS-gameState.communityContractProgress;
+  return 'Community contract · Deliver '+jarsRemaining+' more '+(jarsRemaining===1?'jar':'jars')+
+    ' for +'+COMMUNITY_CONTRACT_REWARD+' 🪙';
 }
 
 function shouldGuideHoneyStorage(){
@@ -2321,7 +2373,13 @@ document.getElementById('quitBtn').addEventListener('click',function(){
 document.getElementById('replayCutBtn').addEventListener('click',function(){menuModal.style.display='none';startCutscene();});
 document.getElementById('resetBtn').addEventListener('click',function(){
   if(!resetConfirm){resetConfirm=true;this.textContent='Tap to Confirm';return;}
-  try{localStorage.removeItem(SAVE_KEY);}catch(e){}
+  try{localStorage.removeItem(SAVE_KEY);}
+  catch(e){
+    resetConfirm=false;this.textContent='Reset Save';
+    saveStatus.textContent='Reset failed; progress unchanged.';
+    console.error('Unable to reset saved game progress:',e);
+    return;
+  }
   craft=null;beeAlarm=0;retreating=false;climb=null;onTop=false;
   player.position.y=0;pHam.visible=false;benchHam.visible=true;progEl.style.display='none';
   while(craftPreview.children.length)craftPreview.remove(craftPreview.children[0]);
@@ -2454,9 +2512,16 @@ function refreshShopView(){
   if(customer!==shopDialogueCustomer){shopDialogueCustomer=customer;shopDialogueBeat=0;}
   var name=document.getElementById('shopCustomerName'),text=document.getElementById('shopCustomerText');
   var notice=document.getElementById('shopStockNotice');
+  var contract=document.getElementById('shopContractProgress');
   var next=document.getElementById('shopNext'),sell=document.getElementById('shopSell');
   var skip=document.getElementById('shopSkip'),quick=document.getElementById('shopQuickSell');
   var lines=customer?(customer.lines||["Hello! I'd like to buy some of your honey."]):[];
+  var contractText=gameState.shopIntroCustomersServed<3
+    ?'Serve your first three customers to unlock community contracts.'
+    :'Community contract: '+gameState.communityContractProgress+'/'+COMMUNITY_CONTRACT_JARS+
+      ' jars · +'+COMMUNITY_CONTRACT_REWARD+' 🪙 at '+COMMUNITY_CONTRACT_JARS+
+      ' · Completed '+gameState.communityContractsCompleted;
+  if(contract.textContent!==contractText)contract.textContent=contractText;
   name.textContent=customer?customer.name:'Honey Shop';
   var dialogue=customer
     ?lines[shopDialogueBeat]
@@ -2634,7 +2699,9 @@ function doPrimary(){
     if(gameState.carryType||gameState.box>0){playSfx('bad');popText('Hands full!',player.position.clone().setY(2.4),'x-bad');return;}
     var sIdx=near.slot;
     gameState.stands=gameState.stands.filter(function(st){return st.slot!==sIdx;});
-    if(standMeshes[sIdx]){scene.remove(standMeshes[sIdx]);delete standMeshes[sIdx];}
+    if(standMeshes[sIdx]){
+      scene.remove(standMeshes[sIdx]);disposeObjectResources(standMeshes[sIdx]);delete standMeshes[sIdx];
+    }
     gameState.carryType='stand';rebuildCarryVisual();playSfx('pick');clearNear();goal();saveGame();
   }else if(k==='mountHive'){
     var mSlot=near.slot,hd2=gameState.carryHive,showStorageIntro=!gameState.firstHiveStorageIntroDone;
@@ -2820,6 +2887,15 @@ function getActionCam(aPos,bPos,dist,height,sideBias){
 function fmtTime(sec){
   var s=Math.max(0,Math.ceil(sec)),m=Math.floor(s/60),r=s%60;
   return m+':'+(r<10?'0':'')+r;
+}
+function fmtSeasonTime(sec){
+  var s=Math.max(0,Math.ceil(sec));
+  if(s<60)return s+'s';
+  var minutes=Math.floor(s/60),hours=Math.floor(minutes/60),remainingMinutes=minutes%60;
+  return hours?hours+'h '+remainingMinutes+'m':minutes+'m';
+}
+function fmtMultiplier(rate){
+  return String(Number(rate.toFixed(2)));
 }
 
 // ================= MAIN ANIMATION LOOP =================
@@ -3058,7 +3134,7 @@ function animate(){
     fi.m.position.y+=Math.sin(k*Math.PI)*0.6;
     fi.m.rotation.y+=dt*10;fi.m.scale.setScalar(1-k*0.65);
     if(k>=1){
-      scene.remove(fi.m);flyItems.splice(i,1);
+      scene.remove(fi.m);disposeObjectResources(fi.m);flyItems.splice(i,1);
       if(fi.kind==='wood'){gameState.wood+=2;popText('+2 🪵',player.position.clone().setY(2.2));}
       else{gameState.scrap+=2;popText('+2 🔩',player.position.clone().setY(2.2));}
       playSfx('pick');updHud();goal();saveGame();maybeStartGatherMissionDialogue();
@@ -3124,7 +3200,7 @@ function animate(){
     armL.rotation.x=-0.9+Math.sin(st*3)*0.4;armR.rotation.x=-0.9-Math.sin(st*3)*0.4;
     if(lk>=1){
       var wentUp=climb.dir>0;climb=null;
-      if(wentUp){onTop=true;player.rotation.y=faceH;goal();showBanner(gameState.smokerStage==='approach'?'Try harvesting the honey.':smokedT>0?'Capture the Queen or Harvest Honey!':'Use smoke to calm the bees');}
+      if(wentUp){onTop=true;player.rotation.y=faceH;goal();showBanner(gameState.smokerStage==='approach'?'Careful — bees may swarm without smoke.':smokedT>0?'Capture the Queen or Harvest Honey!':'Use smoke to calm the bees');}
       else{
         player.position.y=0;player.rotation.y=faceL+Math.PI;
         if(retreating){
@@ -3171,6 +3247,11 @@ function animate(){
   }else smokePill.style.display='none';
 
   var nowMs=Date.now(),nectarPhase=getNectarPhase(nowMs),flowerMult=1+gameState.flowerLevel*0.12;
+  var seasonInfoText='Nectar '+nectarPhase.label+' ×'+fmtMultiplier(nectarPhase.rate)+
+    ' · '+nectarPhase.nextLabel+' in '+fmtSeasonTime(nectarPhase.remaining);
+  if(seasonInfoEl.textContent!==seasonInfoText)seasonInfoEl.textContent=seasonInfoText;
+  seasonInfoEl.style.display=playing&&!cutsceneActive&&!shopMode&&!wifeChatActive&&!missionDialogueActive?'block':'none';
+  seasonInfoEl.style.visibility=bannerEl.style.display==='block'?'hidden':'visible';
   var treeRecovering=nowMs<gameState.treeQueenReadyAt;
   if(treeRecovering!==treeWasRecovering){treeWasRecovering=treeRecovering;goal();}
   if(document.visibilityState==='visible')advanceProduction(nowMs);
@@ -3300,7 +3381,8 @@ function animate(){
         var countdown=activationWait>0?activationWait:getRealSecondsForNectarWork(d.timer/(flowerMult*tierMult),nowMs);
         var waiting=activationWait>0;
         a.tagEl.className='x-tag';
-        a.tagEl.textContent=waiting?'⏳ Settling '+fmtTime(countdown):'⏳ '+fmtTime(countdown)+' · '+nectarPhase.label;
+        a.tagEl.textContent=waiting?'⏳ Settling '+fmtTime(countdown)
+          :'⏳ '+fmtTime(countdown)+' · ×'+fmtMultiplier(nectarPhase.rate*flowerMult*tierMult);
       }
     }
   });
@@ -3312,10 +3394,10 @@ function animate(){
       wildHiveTag.className='x-tag';
       wildHiveTag.textContent='👑 Recovering · '+fmtTime((gameState.treeQueenReadyAt-nowMs)/1000);
     }else if(hiveHoney>0){
-      wildHiveTag.className='x-tag ready';wildHiveTag.textContent='🍯 Wild Hive '+hiveHoney+'/3 · '+nectarPhase.label;
+      wildHiveTag.className='x-tag ready';wildHiveTag.textContent='🍯 Wild Hive '+hiveHoney+'/3 · ×'+fmtMultiplier(nectarPhase.rate*flowerMult);
     }else{
       var wildCountdown=getRealSecondsForNectarWork((TREE_HONEY_SECS-refillT)/flowerMult,Math.max(nowMs,gameState.treeQueenReadyAt));
-      wildHiveTag.className='x-tag';wildHiveTag.textContent='⏳ Honey '+fmtTime(wildCountdown)+' · '+nectarPhase.label;
+      wildHiveTag.className='x-tag';wildHiveTag.textContent='⏳ Honey '+fmtTime(wildCountdown)+' · ×'+fmtMultiplier(nectarPhase.rate*flowerMult);
     }
   }
 
@@ -3368,16 +3450,16 @@ function animate(){
   }
   for(i=chips.length-1;i>=0;i--){
     var ch=chips[i];ch.t+=dt;ch.v.y-=9.5*dt;ch.m.position.addScaledVector(ch.v,dt);ch.m.rotation.x+=dt*8;
-    if(ch.t>0.6){scene.remove(ch.m);chips.splice(i,1);}
+    if(ch.t>0.6){scene.remove(ch.m);disposeObjectResources(ch.m);chips.splice(i,1);}
   }
   for(i=puffs.length-1;i>=0;i--){
     var pf=puffs[i];pf.t+=dt;pf.m.position.addScaledVector(pf.v,dt);
     pf.m.scale.setScalar(0.16+pf.t*0.55);pf.m.material.opacity=Math.max(0,0.75-pf.t*0.85);
-    if(pf.t>0.9){scene.remove(pf.m);puffs.splice(i,1);}
+    if(pf.t>0.9){scene.remove(pf.m);disposeObjectResources(pf.m);puffs.splice(i,1);}
   }
   for(i=drips.length-1;i>=0;i--){
     var dr=drips[i];dr.t+=dt;dr.m.position.y-=dt*2.4;
-    if(dr.t>0.5){scene.remove(dr.m);drips.splice(i,1);}
+    if(dr.t>0.5){scene.remove(dr.m);disposeObjectResources(dr.m);drips.splice(i,1);}
   }
 
   // Context Prompt Selection (Touch / Click only)
@@ -3386,7 +3468,7 @@ function animate(){
     if(onTop){
       if(Date.now()>=gameState.treeQueenReadyAt){
         if(smokedT<=0)near=gameState.smokerStage==='approach'
-          ?{kind:'harvestWild',pos:hp.clone().setY(hp.y+1.1),txt:'Harvest Honey'}
+          ?{kind:'harvestWild',pos:hp.clone().setY(hp.y+1.1),txt:'Try without smoke (bees may swarm)'}
           :{kind:'smoke',pos:hp.clone().setY(hp.y+1.1),txt:'Smoke Bees'};
         else{
           near={kind:'harvestWild',pos:hp.clone().setY(hp.y+1.1),txt:hiveHoney>0?'Harvest Honey (+1 🍯)':'Harvest Honey (Refilling)'};
